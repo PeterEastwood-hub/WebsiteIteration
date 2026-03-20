@@ -1,0 +1,20 @@
+{
+  "name": "website",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "mirror": "node mirror.mjs",
+    "postprocess-mirror": "node postprocess-mirror.mjs",
+    "preview-mirror": "npx --yes serve site-mirror -l 4173",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cheerio": "^1.2.0",
+    "website-scraper": "^6.0.0"
+  }
+}

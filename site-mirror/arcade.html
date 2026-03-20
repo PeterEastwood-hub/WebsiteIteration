@@ -1,0 +1,34 @@
+<!DOCTYPE html><html lang="en" dir="ltr" data-has-hydrated="false"><head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.6.3">
+<title data-rh="true">GROQD Arcade</title><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docusaurus_tag" content="default"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docsearch:docusaurus_tag" content="default"><meta data-rh="true" name="title" content="GROQD: a type-safe query builder for GROQ"><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta data-rh="true" property="og:type" content="website"><meta data-rh="true" property="og:url" content="https://commerce.nearform.com/open-source/groqd/"><meta data-rh="true" property="og:title" content="GROQD: a type-safe query builder for GROQ"><meta data-rh="true" property="og:description" content="Designed to give the best GROQ developer experience possible, with the flexibility of GROQ, schema-aware auto-completion, strong type-checking, and the runtime safety of Zod."><meta data-rh="true" property="og:image" content="images/open-graph_2.png"><meta data-rh="true" property="twitter:card" content="summary_large_image"><meta data-rh="true" property="twitter:title" content="GROQD: a type-safe query builder for GROQ"><meta data-rh="true" property="twitter:description" content="Designed to give the best GROQ developer experience possible, with the flexibility of GROQ, schema-aware auto-completion, strong type-checking, and the runtime safety of Zod."><meta data-rh="true" property="twitter:image" content="https://commerce.nearform.com/open-source/groqd/open-graph.png"><meta data-rh="true" name="description" content="Write and test GROQD queries against custom datasets."><meta data-rh="true" name="keywords" content="groqd, sanity, arcade, query, groq, typescript"><link data-rh="true" rel="icon" href="fonts/nearform-icon.svg"><link data-rh="true" rel="canonical" href="https://nearform.com/open-source/groqd/arcade"><link data-rh="true" rel="alternate" href="https://nearform.com/open-source/groqd/arcade" hreflang="en"><link data-rh="true" rel="alternate" href="https://nearform.com/open-source/groqd/arcade" hreflang="x-default"><link rel="preconnect" href="https://www.google-analytics.com">
+
+
+
+
+<script>window.dataLayer=window.dataLayer||[]</script>
+<link rel="stylesheet" href="css/styles.99be9a7c.css">
+<script src="js/runtime~main.0dacd3bc.js" defer="defer"></script>
+<script src="js/main.23ac35aa.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+
+
+<script>!function(){function t(t){document.documentElement.setAttribute("data-theme",t)}var e=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();t(null!==e?e:"light")}(),function(){try{const n=new URLSearchParams(window.location.search).entries();for(var[t,e]of n)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><div class="fixed inset-0 flex items-center justify-center bg-white dark:bg-zinc-900"><svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" class="text-3xl animate-spin text-gray-900 dark:text-gray-100" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></div></div>
+
+<div id="ux-audit-spacer" style="height:56px" aria-hidden="true"></div>
+<div id="ux-audit-bar" role="region" aria-label="UX audit notes" style="position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:#12121a;color:#e8e8ef;padding:10px 16px;box-shadow:0 -4px 24px rgba(0,0,0,.35);font:14px/1.4 system-ui,-apple-system,sans-serif;display:flex;align-items:center;gap:12px;border-top:1px solid #2a2a38;">
+  <label for="ux-audit-notes" style="white-space:nowrap;font-weight:600;flex-shrink:0;">UX notes</label>
+  <input id="ux-audit-notes" type="text" placeholder="Notes for this page (saved locally in your browser)…" style="flex:1;min-width:0;padding:8px 12px;border-radius:8px;border:1px solid #3d3d52;background:#fff;color:#111;" autocomplete="off">
+</div>
+<script>
+(function(){
+  var el = document.getElementById('ux-audit-notes');
+  if (!el) return;
+  var k = 'ux-audit-notes:' + location.pathname;
+  try { el.value = localStorage.getItem(k) || ''; } catch (e) {}
+  el.addEventListener('input', function () {
+    try { localStorage.setItem(k, el.value); } catch (e) {}
+  });
+})();
+</script></body></html>
