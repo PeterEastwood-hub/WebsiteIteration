@@ -1,0 +1,184 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Simple Browser: About mirror (orbital diagram)",
+      "type": "shell",
+      "command": "echo ${input:openAboutMirror}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      }
+    },
+    {
+      "label": "Insights compare: ensure baseline file",
+      "type": "shell",
+      "command": "test -f site-mirror/insights-compare-baseline.html || cp site-mirror/insights.html site-mirror/insights-compare-baseline.html",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "Insights compare: start preview (4173)",
+      "type": "npm",
+      "script": "preview-mirror",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "custom",
+        "pattern": { "regexp": "^$" },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "Accepting connections at http://localhost:4173"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "insightsCompare",
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "Insights compare: Simple Browser (live)",
+      "type": "shell",
+      "command": "echo ${input:openInsightsLive}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      }
+    },
+    {
+      "label": "Insights compare: Simple Browser (baseline)",
+      "type": "shell",
+      "command": "echo ${input:openInsightsBaseline}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      }
+    },
+    {
+      "label": "Insights compare: open both Simple Browser tabs",
+      "dependsOrder": "parallel",
+      "dependsOn": [
+        "Insights compare: Simple Browser (live)",
+        "Insights compare: Simple Browser (baseline)"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Insights compare: setup — server + both Simple Browsers",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Insights compare: ensure baseline file",
+        "Insights compare: start preview (4173)",
+        "Insights compare: open both Simple Browser tabs"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Mirror: Simple Browser — Insights Explore hub",
+      "type": "shell",
+      "command": "echo ${input:openInsightsExploreHub}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      }
+    },
+    {
+      "label": "Mirror: Simple Browser — Insights Explore (left rail)",
+      "type": "shell",
+      "command": "echo ${input:openInsightsExploreLeftnav}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      }
+    },
+    {
+      "label": "Mirror: Simple Browser — Insights Explore (timeline list)",
+      "type": "shell",
+      "command": "echo ${input:openInsightsExploreList}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      }
+    },
+    {
+      "label": "Mirror: preview server + Insights Explore hub (Simple Browser)",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Insights compare: start preview (4173)",
+        "Mirror: Simple Browser — Insights Explore hub"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "openAboutMirror",
+      "type": "command",
+      "command": "simpleBrowser.show",
+      "args": ["http://localhost:4173/about"]
+    },
+    {
+      "id": "openInsightsLive",
+      "type": "command",
+      "command": "simpleBrowser.show",
+      "args": ["http://127.0.0.1:4173/insights"]
+    },
+    {
+      "id": "openInsightsBaseline",
+      "type": "command",
+      "command": "simpleBrowser.show",
+      "args": ["http://127.0.0.1:4173/insights-compare-baseline"]
+    },
+    {
+      "id": "openInsightsExploreHub",
+      "type": "command",
+      "command": "simpleBrowser.show",
+      "args": ["http://127.0.0.1:4173/insights-explore.html"]
+    },
+    {
+      "id": "openInsightsExploreLeftnav",
+      "type": "command",
+      "command": "simpleBrowser.show",
+      "args": ["http://127.0.0.1:4173/insights-explore-leftnav.html"]
+    },
+    {
+      "id": "openInsightsExploreList",
+      "type": "command",
+      "command": "simpleBrowser.show",
+      "args": ["http://127.0.0.1:4173/insights-explore-list.html"]
+    }
+  ]
+}

@@ -1,0 +1,648 @@
+/**
+ * Insights layout explorations — three intentionally different presentations.
+ * Do not rely on Tailwind classes inside generated explore HTML: the mirror CSS
+ * bundle may not include arbitrary utilities (e.g. lg:flex-row), which broke the
+ * left-nav layout. Use these plain-CSS hooks instead.
+ */
+
+/* --- Shared top bar (replaces full site header) --- */
+.nf-explore-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid #d8e0ea;
+  backdrop-filter: blur(10px);
+}
+.dark .nf-explore-topbar,
+html.dark .nf-explore-topbar {
+  background: rgba(15, 23, 42, 0.92);
+  border-bottom-color: #334155;
+}
+.nf-explore-topbar__inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 14px 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.nf-explore-brand {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0f172a;
+  text-decoration: none;
+}
+html.dark .nf-explore-brand {
+  color: #f8fafc;
+}
+.nf-explore-switch {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.nf-explore-switch a {
+  font: 600 12px/1 Inter, system-ui, sans-serif;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #c7d0dd;
+  color: #1e293b;
+  text-decoration: none;
+}
+html.dark .nf-explore-switch a {
+  border-color: #475569;
+  color: #e2e8f0;
+}
+.nf-explore-switch a:hover {
+  background: #edf3ff;
+}
+html.dark .nf-explore-switch a:hover {
+  background: #334155;
+}
+.nf-explore-switch a.is-active {
+  background: #92f279;
+  border-color: #92f279;
+  color: #101510;
+}
+
+/* Hero CTA: Engineering community → #digital-community (postprocess adds chevron) */
+body.nf-insights-index a.nf-insights-jump-to-community {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  text-decoration: none !important;
+}
+body.nf-insights-index a.nf-insights-jump-to-community .nf-insights-jump-to-community__label {
+  text-decoration: none !important;
+}
+body.nf-insights-index a.nf-insights-jump-to-community .nf-insights-jump-to-community__chev {
+  flex-shrink: 0;
+  font-size: 0.92em;
+  line-height: 1;
+  font-weight: 700;
+  opacity: 0.75;
+  translate: 0 0.06em;
+}
+html.dark body.nf-insights-index a.nf-insights-jump-to-community .nf-insights-jump-to-community__chev,
+.dark body.nf-insights-index a.nf-insights-jump-to-community .nf-insights-jump-to-community__chev {
+  opacity: 0.85;
+}
+
+/* Default Insights listing: switcher strip above mirror site header (tasks: /insights, baseline) */
+body.nf-insights-with-layout-switcher .nf-explore-topbar {
+  z-index: 10060;
+}
+body.nf-insights-with-layout-switcher > header.font-sans.fixed:has([data-testid="header-left"]) {
+  top: 52px !important;
+}
+@media (max-width: 640px) {
+  body.nf-insights-with-layout-switcher > header.font-sans.fixed:has([data-testid="header-left"]) {
+    top: 92px !important;
+  }
+}
+
+/* In-page anchor: clear explore topbar + fixed main header (scroll-margin in mirror-content-rhythm is single-header only) */
+body.nf-insights-index.nf-insights-with-layout-switcher #digital-community {
+  scroll-margin-top: calc(52px + clamp(5.5rem, 14vw, 6.5rem));
+}
+@media (max-width: 640px) {
+  body.nf-insights-index.nf-insights-with-layout-switcher #digital-community {
+    scroll-margin-top: calc(92px + clamp(5.25rem, 12vw, 6rem));
+  }
+}
+
+/* =============================================================================
+   MOSAIC — visually distinct from default on desktop:
+   Default primary = asymmetric 6-col bento (hero + varied spans).
+   Mosaic primary = uniform dense tile grid (same cards, even rhythm).
+   (Secondary feed is md:hidden on desktop, so older “secondary river” rules only
+   affected mobile; primary overrides below are what users see on large screens.)
+   ============================================================================= */
+
+/* Mobile-only secondary river: 3-across when that section is visible */
+body.nf-explore-page-mosaic .nf-insights-feed--secondary .nf-insights-feed-list {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+@media (max-width: 1199px) {
+  body.nf-explore-page-mosaic .nf-insights-feed--secondary .nf-insights-feed-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 639px) {
+  body.nf-explore-page-mosaic .nf-insights-feed--secondary .nf-insights-feed-list {
+    grid-template-columns: 1fr;
+  }
+}
+body.nf-explore-page-mosaic .nf-insights-feed--secondary .nf-insights-article-card {
+  margin-bottom: 0 !important;
+}
+body.nf-explore-page-mosaic .nf-insights-feed--secondary .nf-insights-article-card img {
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  --tw-scale-x: 1 !important;
+  --tw-scale-y: 1 !important;
+  --tw-scale-z: 1 !important;
+  scale: 1 1 !important;
+  transform: none !important;
+  filter: none !important;
+  transition: none !important;
+}
+
+/* Tablet + desktop primary: drop bento spans → even mosaic grid */
+@media (min-width: 640px) and (max-width: 1023px) {
+  body.nf-explore-page-mosaic .nf-insights-feed--primary .nf-insights-feed-list--stack {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-auto-flow: row !important;
+    gap: 16px !important;
+  }
+  body.nf-explore-page-mosaic .nf-insights-feed--primary .nf-insights-feed-list--stack > [class*='nf-insights-bento-slot--'] {
+    grid-column: span 1 !important;
+    grid-row: auto !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  body.nf-explore-page-mosaic .nf-insights-feed--primary .nf-insights-feed-list--stack {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-auto-rows: minmax(0, auto);
+    grid-auto-flow: row !important;
+    gap: 18px !important;
+    align-items: stretch;
+  }
+  body.nf-explore-page-mosaic .nf-insights-feed--primary .nf-insights-feed-list--stack > [class*='nf-insights-bento-slot--'] {
+    grid-column: span 1 !important;
+    grid-row: span 1 !important;
+    min-height: 0;
+  }
+  body.nf-explore-page-mosaic .nf-insights-feed--primary .nf-insights-feed-list--stack [class*='nf-insights-bento-slot--'] img {
+    aspect-ratio: 16 / 10 !important;
+    max-height: none !important;
+    min-height: clamp(140px, 16vw, 200px);
+  }
+  body.nf-explore-page-mosaic .nf-insights-feed--primary .nf-insights-feed-list--stack [class*='nf-insights-bento-slot--'] h3 {
+    font-size: clamp(1.05rem, 1.25vw, 1.2rem) !important;
+    line-height: 1.22 !important;
+    letter-spacing: -0.02em !important;
+  }
+}
+
+/* =============================================================================
+   LEFT NAV — row layout (plain CSS) + vertical topic rail + horizontal cards
+   ============================================================================= */
+body.nf-explore-page-leftnav .nf-explore-leftnav-section {
+  padding-bottom: 0;
+}
+
+body.nf-explore-page-leftnav .nf-explore-leftnav-row {
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.25rem;
+}
+
+@media (min-width: 1024px) {
+  body.nf-explore-page-leftnav .nf-explore-leftnav-row {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 2rem;
+  }
+
+  body.nf-explore-page-leftnav .nf-explore-sidebar {
+    flex: 0 0 240px;
+    width: 240px;
+    max-width: 240px;
+    position: sticky;
+    top: 6.5rem;
+    align-self: flex-start;
+    z-index: 200;
+    box-sizing: border-box;
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  html.dark body.nf-explore-page-leftnav .nf-explore-sidebar {
+    border: none;
+    background: transparent;
+  }
+
+  body.nf-explore-page-leftnav .nf-explore-main-stream {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 1023px) {
+  body.nf-explore-page-leftnav .nf-explore-sidebar {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    border: none;
+    background: transparent;
+    border-radius: 0;
+  }
+  html.dark body.nf-explore-page-leftnav .nf-explore-sidebar {
+    border: none;
+    background: transparent;
+  }
+}
+
+/* Drop duplicate horizontal padding inside the content column (shell already padded). */
+body.nf-explore-page-leftnav .nf-explore-main-stream > section {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+body.nf-explore-page-leftnav .nf-explore-sidebar .nf-insights-topic-tabs__list {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 6px !important;
+  flex-wrap: nowrap !important;
+}
+
+body.nf-explore-page-leftnav .nf-explore-sidebar .nf-insights-topic-tabs__tab {
+  width: 100%;
+  text-align: left;
+  justify-content: flex-start;
+  border-radius: 10px;
+  border: none;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  background: transparent;
+}
+body.nf-explore-page-leftnav .nf-explore-sidebar .nf-insights-topic-tabs__tab:hover {
+  background: rgba(15, 23, 42, 0.05);
+}
+html.dark body.nf-explore-page-leftnav .nf-explore-sidebar .nf-insights-topic-tabs__tab:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+html.dark body.nf-explore-page-leftnav .nf-explore-sidebar .nf-insights-topic-tabs__tab {
+  border: none;
+}
+/* Match hero / logo brand green (Tailwind --color-nf-green, e.g. #00e6a4) */
+body.nf-explore-page-leftnav .nf-explore-sidebar .nf-insights-topic-tabs__tab[aria-selected="true"] {
+  background: var(--color-nf-green, #00e6a4);
+  border: none;
+  color: var(--color-nf-deep-navy, #101510) !important;
+}
+body.nf-explore-page-leftnav .nf-explore-sidebar .nf-insights-topic-tabs__tab[aria-selected="true"]:hover {
+  background: var(--color-nf-green, #00e6a4);
+}
+body.nf-explore-page-leftnav .nf-explore-sidebar .nf-insights-tab-status {
+  font-size: 12px;
+  line-height: 1.35;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+body.nf-explore-page-leftnav .nf-explore-sidebar .nf-insights-topic-select-wrap {
+  width: 100%;
+  margin-top: 4px;
+}
+body.nf-explore-page-leftnav .nf-explore-sidebar .nf-insights-topic-select-ui {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+body.nf-explore-page-leftnav .nf-explore-sidebar .nf-insights-topic-select-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+/* --- Disable bento/mosaic grid on left-nav page; use horizontal article rows --- */
+body.nf-explore-page-leftnav .nf-insights-feed-list--stack {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: clamp(1.25rem, 2.5vw, 1.75rem) !important;
+  grid-template-columns: none !important;
+  grid-auto-flow: unset !important;
+}
+/* Let flex gap handle vertical rhythm; drop default listing margins on row wrappers */
+body.nf-explore-page-leftnav .nf-insights-feed-list--stack > div {
+  margin-bottom: 0 !important;
+}
+body.nf-explore-page-leftnav .nf-insights-feed-list--stack > [class*='nf-insights-bento-slot--'] {
+  grid-column: unset !important;
+  grid-row: unset !important;
+  min-height: unset !important;
+}
+
+@media (min-width: 720px) {
+  body.nf-explore-page-leftnav .nf-insights-article-card {
+    display: grid !important;
+    grid-template-columns: minmax(140px, 220px) minmax(0, 1fr) !important;
+    gap: 1.25rem !important;
+    align-items: start !important;
+    padding: 1.15rem 1.25rem 1.25rem !important;
+    margin-bottom: 0 !important;
+    border: 1px solid #e8ecf1 !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    transition:
+      transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.38s ease,
+      border-color 0.38s ease,
+      background 0.38s ease;
+  }
+  html.dark body.nf-explore-page-leftnav .nf-insights-article-card {
+    border-color: #334155 !important;
+    background: rgba(15, 23, 42, 0.35);
+    box-shadow: none;
+  }
+  body.nf-explore-page-leftnav .nf-insights-article-card > a.group,
+  body.nf-explore-page-leftnav .nf-insights-article-card > div.group {
+    margin-bottom: 0 !important;
+  }
+  body.nf-explore-page-leftnav .nf-insights-article-card img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    --tw-scale-x: 1 !important;
+    --tw-scale-y: 1 !important;
+    --tw-scale-z: 1 !important;
+    scale: 1 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+  body.nf-explore-page-leftnav .nf-insights-article-card h3 {
+    margin-top: 0.25rem !important;
+  }
+}
+
+@media (min-width: 720px) and (hover: hover) {
+  body.nf-explore-page-leftnav .nf-insights-article-card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--color-nf-green, #92f279) 42%, #e8ecf1) !important;
+    background: linear-gradient(
+      158deg,
+      rgba(255, 255, 255, 0.98) 0%,
+      #ffffff 44%,
+      color-mix(in srgb, var(--color-nf-green, #92f279) 7%, #ffffff) 100%
+    ) !important;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-nf-green, #92f279) 28%, transparent),
+      0 20px 44px -28px rgba(0, 14, 56, 0.14),
+      0 0 36px -12px rgba(0, 199, 140, 0.1);
+  }
+  html.dark body.nf-explore-page-leftnav .nf-insights-article-card:hover {
+    border-color: rgba(146, 242, 121, 0.4) !important;
+    background: linear-gradient(
+      158deg,
+      rgba(30, 41, 59, 0.5) 0%,
+      rgba(15, 23, 42, 0.36) 50%,
+      color-mix(in srgb, var(--color-nf-green, #92f279) 10%, rgba(15, 23, 42, 0.48)) 100%
+    ) !important;
+    box-shadow:
+      0 0 0 1px rgba(146, 242, 121, 0.35),
+      0 26px 52px -28px rgba(0, 0, 0, 0.5),
+      0 0 40px -12px rgba(146, 242, 121, 0.12);
+  }
+}
+
+@media (max-width: 719px) {
+  body.nf-explore-page-leftnav .nf-insights-article-card {
+    margin-bottom: 0 !important;
+    padding: 1rem 1.1rem !important;
+    border: 1px solid #e8ecf1;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    transition:
+      transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.38s ease,
+      border-color 0.38s ease,
+      background 0.38s ease;
+  }
+  html.dark body.nf-explore-page-leftnav .nf-insights-article-card {
+    border-color: #334155;
+    background: rgba(15, 23, 42, 0.4);
+  }
+}
+
+@media (max-width: 719px) and (hover: hover) {
+  body.nf-explore-page-leftnav .nf-insights-article-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--color-nf-green, #92f279) 38%, #e8ecf1);
+    background: linear-gradient(
+      158deg,
+      rgba(255, 255, 255, 0.99) 0%,
+      #ffffff 42%,
+      color-mix(in srgb, var(--color-nf-green, #92f279) 6%, #ffffff) 100%
+    );
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-nf-green, #92f279) 22%, transparent),
+      0 14px 32px -28px rgba(0, 14, 56, 0.12);
+  }
+  html.dark body.nf-explore-page-leftnav .nf-insights-article-card:hover {
+    border-color: rgba(146, 242, 121, 0.35);
+    background: linear-gradient(
+      158deg,
+      rgba(30, 41, 59, 0.55) 0%,
+      rgba(15, 23, 42, 0.4) 48%,
+      color-mix(in srgb, var(--color-nf-green, #92f279) 9%, rgba(15, 23, 42, 0.5)) 100%
+    );
+    box-shadow: 0 0 0 1px rgba(146, 242, 121, 0.28), 0 16px 32px -20px rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* =============================================================================
+   TIMELINE LIST — no bento; vertical rail + thumbnails + comfortable stack spacing
+   ============================================================================= */
+
+/* Date sort (mirror-insights-timeline-sort.js) */
+body.nf-explore-page-list .nf-timeline-sort {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 1.1rem;
+  margin-top: 0.9rem;
+}
+body.nf-explore-page-list .nf-timeline-sort__label {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+html.dark body.nf-explore-page-list .nf-timeline-sort__label {
+  color: #94a3b8;
+}
+body.nf-explore-page-list .nf-timeline-sort__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+body.nf-explore-page-list .nf-timeline-sort__btn {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 8px 14px;
+  margin: 0;
+  border-radius: 999px;
+  border: 1px solid #c7d0dd;
+  background: #fff;
+  color: #1e293b;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+body.nf-explore-page-list .nf-timeline-sort__btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+body.nf-explore-page-list .nf-timeline-sort__btn[aria-pressed='true'] {
+  background: var(--color-nf-green, #00e6a4);
+  border-color: var(--color-nf-green, #00e6a4);
+  color: var(--color-nf-deep-navy, #101510);
+}
+html.dark body.nf-explore-page-list .nf-timeline-sort__btn {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: #475569;
+  color: #e2e8f0;
+}
+html.dark body.nf-explore-page-list .nf-timeline-sort__btn:hover {
+  background: rgba(51, 65, 85, 0.85);
+  border-color: #64748b;
+}
+html.dark body.nf-explore-page-list .nf-timeline-sort__btn[aria-pressed='true'] {
+  background: var(--color-nf-green, #00e6a4);
+  border-color: var(--color-nf-green, #00e6a4);
+  color: var(--color-nf-deep-navy, #101510);
+}
+
+body.nf-explore-page-list .nf-insights-feed-list--stack {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: clamp(1.5rem, 3vw, 2.25rem) !important;
+  grid-template-columns: none !important;
+  grid-auto-flow: unset !important;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;
+  border-left: 3px solid #cbd5e1;
+}
+body.nf-explore-page-list .nf-insights-feed-list--stack > div {
+  margin-bottom: 0 !important;
+}
+html.dark body.nf-explore-page-list .nf-insights-feed-list--stack {
+  border-left-color: #475569;
+}
+body.nf-explore-page-list .nf-insights-feed-list--stack > [class*='nf-insights-bento-slot--'] {
+  grid-column: unset !important;
+  grid-row: unset !important;
+  min-height: unset !important;
+}
+
+body.nf-explore-page-list .nf-insights-article-card {
+  padding: 0 0 0 0.15rem !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 1.35rem !important;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+  transition:
+    border-bottom-color 0.35s ease,
+    background 0.35s ease;
+}
+html.dark body.nf-explore-page-list .nf-insights-article-card {
+  border-bottom-color: #334155;
+}
+body.nf-explore-page-list .nf-insights-article-card > a.group,
+body.nf-explore-page-list .nf-insights-article-card > div.group {
+  margin-bottom: 0.75rem !important;
+}
+body.nf-explore-page-list .nf-insights-article-card img {
+  display: block !important;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 10px;
+  --tw-scale-x: 1 !important;
+  --tw-scale-y: 1 !important;
+  --tw-scale-z: 1 !important;
+  scale: 1 1 !important;
+  transform: none !important;
+  filter: none !important;
+  transition: none !important;
+}
+body.nf-explore-page-list .nf-insights-article-card::before {
+  content: '';
+  position: absolute;
+  left: -1.25rem;
+  /* Align marker with headline row (thumbnail + hashtag row + title) */
+  top: clamp(6.25rem, 36vw, 8.75rem);
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #92f279;
+  border: 2px solid #f8fafc;
+  transform: translateX(-50%);
+  transition:
+    box-shadow 0.35s ease,
+    transform 0.35s ease;
+}
+html.dark body.nf-explore-page-list .nf-insights-article-card::before {
+  border-color: #0f172a;
+}
+
+@media (hover: hover) {
+  body.nf-explore-page-list .nf-insights-article-card:hover {
+    border-bottom-color: color-mix(in srgb, var(--color-nf-green, #92f279) 45%, #e5e7eb);
+    background: linear-gradient(
+      118deg,
+      color-mix(in srgb, var(--color-nf-green, #92f279) 5%, transparent) 0%,
+      transparent 42%,
+      color-mix(in srgb, var(--color-nf-green, #92f279) 3%, transparent) 100%
+    );
+  }
+  body.nf-explore-page-list .nf-insights-article-card:hover::before {
+    box-shadow: 0 0 0 4px rgba(146, 242, 121, 0.35);
+    transform: translateX(-50%) scale(1.15);
+  }
+  html.dark body.nf-explore-page-list .nf-insights-article-card:hover {
+    border-bottom-color: rgba(146, 242, 121, 0.45);
+    background: linear-gradient(
+      118deg,
+      rgba(146, 242, 121, 0.07) 0%,
+      transparent 45%,
+      rgba(146, 242, 121, 0.04) 100%
+    );
+  }
+}
+body.nf-explore-page-list .nf-insights-article-card h3 {
+  font-size: clamp(1.05rem, 2vw, 1.28rem) !important;
+  margin-top: 0 !important;
+  margin-bottom: 6px !important;
+}
+body.nf-explore-page-list .nf-insights-article-card .flex.gap-3 span {
+  font-size: 13px !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  color: #64748b !important;
+}

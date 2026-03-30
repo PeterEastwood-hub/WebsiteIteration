@@ -1,0 +1,109 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Insights — Layout explorations</title>
+  <link rel="stylesheet" href="css/insights-explore.css">
+  <style>
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #f1f5f9; color: #0f172a; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 48px 40px 80px; }
+    h1 { font-size: clamp(1.6rem, 3vw, 2.4rem); margin: 0 0 12px; }
+    p.lead { margin: 0 0 8px; color: #475569; line-height: 1.5; max-width: 640px; }
+    p.note { margin: 0 0 28px; font-size: 12px; color: #64748b; }
+    .grid { display: grid; gap: 16px; }
+    @media (min-width: 720px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+    .card {
+      background: #fff;border: 1px solid #cbd5e1;border-radius: 14px;padding: 20px;
+      display: flex; flex-direction: column; gap: 10px; min-height: 120px;
+    }
+    .card h2 { margin: 0; font-size: 1.05rem; }
+    .card p { margin: 0; font-size: 0.9rem; color: #475569; line-height: 1.45; flex: 1; }
+    .card a {
+      display: inline-block; margin-top: 4px; font-weight: 600; font-size: 0.85rem;
+      color: #0f172a; text-decoration: none; padding: 8px 12px; border-radius: 8px;
+      background: #92f279; align-self: flex-start;
+    }
+    .card a:hover { filter: brightness(0.95); }
+  </style>
+<style id="ux-audit-sticky-header">
+  body > header.font-sans.fixed:has([data-testid="header-left"]) {
+    position: sticky !important;
+    top: 0 !important;
+    left: 0;
+    right: 0;
+    width: 100% !important;
+    z-index: 10000 !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.08);
+  }
+  body > header.font-sans.fixed:has([data-testid="header-left"])::after {
+    display: none !important;
+  }
+  body > header.font-sans.fixed:has([data-testid="header-left"]) nav,
+  body > header.font-sans.fixed:has([data-testid="header-left"]) nav a,
+  body > header.font-sans.fixed:has([data-testid="header-left"]) nav button {
+    color: #0f172a !important;
+  }
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg path:not([fill="none"]),
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg rect:not([fill="none"]),
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg circle:not([fill="none"]) {
+    fill: #0f172a !important;
+  }
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg path[stroke],
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg line,
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg polyline {
+    stroke: #0f172a !important;
+  }
+  body > header.font-sans.fixed:has([data-testid="header-left"]) button[aria-label="Toggle Nav Menu"] span {
+    background-color: #0f172a !important;
+  }
+</style><link rel="stylesheet" href="css/mirror-a11y-flair.css" id="mirror-a11y-flair-css"><link rel="stylesheet" href="css/mirror-stripe-influence.css" id="mirror-stripe-influence-css"><link rel="stylesheet" href="css/mirror-content-rhythm.css" id="mirror-content-rhythm-css"><link rel="stylesheet" href="css/mirror-services-flair.css" id="mirror-services-flair-css"><script src="js/mirror-flair.js" defer="" id="mirror-flair-js"></script><script src="js/mirror-stripe-nav.js" defer="" id="mirror-stripe-nav-js"></script><script type="module" src="js/mirror-motion.js"></script><script src="js/mirror-insights-card-cta.js" defer="" id="mirror-insights-card-cta-js"></script></head>
+<body data-nf-layout="default">
+  <header class="nf-explore-topbar"><div class="nf-explore-topbar__inner">
+    <a class="nf-explore-brand" href="insights-explore.html">Insights</a>
+    <nav class="nf-explore-switch" aria-label="Layout explorations">
+      <a href="insights.html">Default</a>
+      <a href="insights-explore-mosaic.html">Mosaic</a>
+      <a href="insights-explore-leftnav.html">Left rail</a>
+      <a href="insights-explore-list.html">Timeline</a>
+    </nav>
+  </div></header>
+  <main class="wrap">
+    <h1>Insights layout explorations</h1>
+    <p class="lead">Three clearly different card systems: mosaic tiles, rail + horizontal rows, and a timeline list without thumbnails.</p>
+    <p class="note">Left rail uses plain CSS for the two-column shell (not Tailwind utilities), so the sidebar stays narrow and the feed fills the remaining width.</p>
+    <div class="grid">
+      <article class="card">
+        <h2>Mosaic</h2>
+        <p>Bento-style primary grid from the main Insights CSS, plus a denser 3-column secondary river for discovery.</p>
+        <a href="insights-explore-mosaic.html">Open mosaic</a>
+      </article>
+      <article class="card">
+        <h2>Left rail + rows</h2>
+        <p>Sticky topic rail replaces the top tab row. Articles are horizontal rows (image + copy), not mosaic tiles.</p>
+        <a href="insights-explore-leftnav.html">Open left rail</a>
+      </article>
+      <article class="card">
+        <h2>Timeline list</h2>
+        <p>Vertical timeline rail with dot markers, hero images on each card, and relaxed stack spacing (tag chips still hidden for clarity).</p>
+        <a href="insights-explore-list.html">Open timeline</a>
+      </article>
+    </div>
+  </main>
+
+
+<div id="ux-audit-spacer" style="height:56px" aria-hidden="true"></div>
+<div id="ux-audit-bar" role="region" aria-label="UX audit notes" style="position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:#12121a;color:#e8e8ef;padding:10px 16px;box-shadow:0 -4px 24px rgba(0,0,0,.35);font:14px/1.4 system-ui,-apple-system,sans-serif;display:flex;align-items:center;gap:12px;border-top:1px solid #2a2a38;">
+  <label for="ux-audit-notes" style="white-space:nowrap;font-weight:600;flex-shrink:0;">UX notes</label>
+  <input id="ux-audit-notes" type="text" placeholder="Notes for this page (saved locally in your browser)…" style="flex:1;min-width:0;padding:8px 12px;border-radius:8px;border:1px solid #3d3d52;background:#fff;color:#111;" autocomplete="off">
+</div>
+<script>
+(function(){
+  var el = document.getElementById('ux-audit-notes');
+  if (!el) return;
+  var k = 'ux-audit-notes:' + location.pathname;
+  try { el.value = localStorage.getItem(k) || ''; } catch (e) {}
+  el.addEventListener('input', function () {
+    try { localStorage.setItem(k, el.value); } catch (e) {}
+  });
+})();
+</script></body></html>

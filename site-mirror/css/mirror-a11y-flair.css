@@ -1,0 +1,169 @@
+/**
+ * Global mirror fixes: readable text on imagery + light motion accents (orbital palette).
+ * Injected on all pages via postprocess-mirror.mjs
+ */
+
+:root {
+  --nf-flair-teal: #00d4aa;
+  --nf-flair-purple: #8b5cf6;
+  --nf-flair-blue: #0ea5e9;
+  --nf-flair-scrim: rgba(6, 18, 42, 0.92);
+  --nf-flair-scrim-mid: rgba(6, 18, 42, 0.78);
+  --nf-flair-scrim-soft: rgba(6, 18, 42, 0.45);
+  --nf-flair-on-scrim: #f8fafc;
+  --nf-flair-on-scrim-muted: rgba(248, 250, 252, 0.88);
+}
+
+/* -------------------------------------------------------------------------
+ * Promo / editorial cards: dark inline text + bg-transparent over photos
+ * (e.g. Open Source row on home). On small screens copy sits over imagery.
+ * ------------------------------------------------------------------------- */
+@media (max-width: 767px) {
+  main .grid.grid-cols-12.gap-0.relative.overflow-hidden > div.z-10.bg-transparent {
+    background: linear-gradient(
+      180deg,
+      var(--nf-flair-scrim-soft) 0%,
+      var(--nf-flair-scrim-mid) 38%,
+      var(--nf-flair-scrim) 100%
+    ) !important;
+    color: var(--nf-flair-on-scrim) !important;
+    -webkit-font-smoothing: antialiased;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  main .grid.grid-cols-12.gap-0.relative.overflow-hidden > div.z-10.bg-transparent[style*="color"] {
+    color: var(--nf-flair-on-scrim) !important;
+  }
+
+  main .grid.grid-cols-12.gap-0.relative.overflow-hidden > div.z-10.bg-transparent h2,
+  main .grid.grid-cols-12.gap-0.relative.overflow-hidden > div.z-10.bg-transparent h3 {
+    color: #ffffff !important;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.35);
+  }
+
+  main .grid.grid-cols-12.gap-0.relative.overflow-hidden > div.z-10.bg-transparent span {
+    color: var(--nf-flair-on-scrim-muted) !important;
+  }
+
+  main .grid.grid-cols-12.gap-0.relative.overflow-hidden > div.z-10.bg-transparent h2 + * span,
+  main .grid.grid-cols-12.gap-0.relative.overflow-hidden > div.z-10.bg-transparent .text-sm {
+    color: rgba(248, 250, 252, 0.9) !important;
+  }
+
+  main .grid.grid-cols-12.gap-0.relative.overflow-hidden > div.z-10.bg-transparent svg path[stroke="black"],
+  main .grid.grid-cols-12.gap-0.relative.overflow-hidden > div.z-10.bg-transparent svg path[stroke="#000"],
+  main .grid.grid-cols-12.gap-0.relative.overflow-hidden > div.z-10.bg-transparent svg path[stroke="#000000"] {
+    stroke: var(--nf-flair-on-scrim) !important;
+  }
+
+  /* Slight darken on image cell so gradient + type meet WCAG large text */
+  main .grid.grid-cols-12.gap-0.relative.overflow-hidden > div.relative.z-0:has(img.object-cover)::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.25) 100%);
+  }
+
+  main .grid.grid-cols-12.gap-0.relative.overflow-hidden > div.relative.z-0:has(img.object-cover) img {
+    filter: brightness(0.72) contrast(1.05);
+  }
+}
+
+/* Desktop: side-by-side promos — ensure arrows aren’t illegible on tinted panels */
+main .grid.grid-cols-12.gap-0.relative.overflow-hidden > div.z-10 svg path[stroke="black"] {
+  stroke: currentColor;
+}
+
+/* -------------------------------------------------------------------------
+ * Main editorial sections: light theme shouldn’t leave navy headings on navy
+ * when dark: isn’t active (inherits poorly over imagery elsewhere)
+ * ------------------------------------------------------------------------- */
+/* Tailwind `dark:text-white` = white only in .dark; in light mode class does nothing,
+   so we set a definite light-theme ink (avoids muddy gray on pale backgrounds). */
+main > section h2.text-4xl.dark\:text-white,
+main > section h2.text-5xl.dark\:text-white,
+main > section h2.text-6xl.dark\:text-white,
+main > section p.text-xl.dark\:text-white,
+main > section p.text-2xl.dark\:text-white,
+main > section p.text-3xl.dark\:text-white {
+  color: #0c2340;
+}
+
+html.dark main > section h2.text-4xl.dark\:text-white,
+html.dark main > section h2.text-5xl.dark\:text-white,
+html.dark main > section h2.text-6xl.dark\:text-white,
+html.dark main > section p.text-xl.dark\:text-white,
+html.dark main > section p.text-2xl.dark\:text-white,
+html.dark main > section p.text-3xl.dark\:text-white {
+  color: #f8fafc;
+}
+
+/* -------------------------------------------------------------------------
+ * Promo card hover: orbital-style lift (class added by mirror-flair.js)
+ * ------------------------------------------------------------------------- */
+main a.nf-flair-promo {
+  display: block;
+  border-radius: 4px;
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s ease;
+}
+
+main a.nf-flair-promo:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 24px 48px rgba(12, 35, 64, 0.12);
+}
+
+main a.nf-flair-promo:focus-visible {
+  outline: 3px solid var(--nf-flair-teal);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main a.nf-flair-promo,
+  main a.nf-flair-promo:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* About orbital diagram: never force-hide parent section */
+main > section:has(#orbital-convergence) {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* -------------------------------------------------------------------------
+ * Optional: gradient hairline under first main section (editorial rhythm)
+ * ------------------------------------------------------------------------- */
+main > section:first-of-type {
+  position: relative;
+}
+
+main > section:first-of-type::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(90%, 72rem);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--nf-flair-teal) 55%, transparent) 20%,
+    color-mix(in srgb, var(--nf-flair-purple) 50%, transparent) 50%,
+    color-mix(in srgb, var(--nf-flair-blue) 55%, transparent) 80%,
+    transparent
+  );
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+@supports not (color: color-mix(in srgb, white, black)) {
+  main > section:first-of-type::after {
+    background: linear-gradient(90deg, transparent, rgba(0, 212, 170, 0.35) 50%, transparent);
+  }
+}

@@ -1,0 +1,426 @@
+/* Orbital convergence — static recreation of Revamp About Page Diagram / AboutOrbitalSection */
+
+.orbital-convergence-figure {
+  --oc-teal: #00d4aa;
+  --oc-purple: #8b5cf6;
+  --oc-blue: #0ea5e9;
+  --oc-r: min(280px, 36vw);
+  /* Dashed orbit in SVG: r=250 in 600 viewBox; guides use width min(100%, --oc-r*2+200) */
+  --oc-orbit-px: calc((var(--oc-r) * 2 + 200px) * 250 / 600);
+  /* Core cluster is 9rem; pulse scales from its center — half-size = 4.5rem */
+  --oc-core-half: 4.5rem;
+  --oc-pulse-scale-max: calc(var(--oc-orbit-px) / var(--oc-core-half));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.orbital-stage {
+  position: relative;
+  width: 100%;
+  max-width: 56rem;
+  margin: 0 auto;
+  min-height: clamp(380px, 92vw, 800px);
+  aspect-ratio: 1 / 0.98;
+  isolation: isolate;
+}
+
+/* Orbit guide rings (faint dashed circles) */
+.orbital-guides {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.orbital-guides svg {
+  width: min(100%, calc(var(--oc-r) * 2 + 200px));
+  height: auto;
+  aspect-ratio: 1;
+  transform: rotate(-90deg);
+  opacity: 0;
+}
+
+.orbital-in-view .orbital-guides svg {
+  animation: oc-fade-guides 1s ease forwards;
+  animation-delay: 0.4s;
+}
+
+@keyframes oc-fade-guides {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Non-pulsing dashed orbit (outer guide); three overlapping circles compound brightness */
+.orbital-guides .oc-orbit {
+  fill: none;
+  stroke-width: 1;
+  stroke-dasharray: 1570;
+  stroke-dashoffset: 1570;
+  /* 25% opacity per your spec (was 0.22; three rings still read light) */
+  opacity: 0.25;
+}
+
+/* Pulse rings sit below outer service cards so expanding rings are masked by opaque white fills */
+.orbital-pulse-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.orbital-pulse-cluster {
+  position: relative;
+  width: 9rem;
+  height: 9rem;
+}
+
+/*
+ * Hub only — must NOT cover the full stage (inset:0 + high z-index was painting a
+ * transparent layer above the three service discs and broke masking; pulses read through).
+ */
+.orbital-core-wrap {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9rem;
+  height: 9rem;
+  margin-left: -4.5rem;
+  margin-top: -4.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 22;
+  pointer-events: none;
+}
+
+.orbital-core-glow {
+  position: relative;
+  z-index: 2;
+  width: 9rem;
+  height: 9rem;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 170, 0.22),
+    rgba(139, 92, 246, 0.22),
+    rgba(14, 165, 233, 0.22)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0);
+}
+
+.orbital-in-view .orbital-core-glow {
+  animation: oc-core-pop 1s ease 0.5s forwards;
+}
+
+@keyframes oc-core-pop {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.orbital-core-glow.oc-pulse-shadow {
+  animation:
+    oc-core-pop 1s ease 0.5s forwards,
+    oc-core-glow 4s ease-in-out 1.5s infinite;
+}
+
+@keyframes oc-core-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 60px rgba(0, 212, 170, 0.35),
+      0 0 100px rgba(139, 92, 246, 0.22);
+  }
+  50% {
+    box-shadow:
+      0 0 80px rgba(139, 92, 246, 0.45),
+      0 0 120px rgba(14, 165, 233, 0.32);
+  }
+}
+
+.orbital-core-inner {
+  position: absolute;
+  inset: 0.75rem;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #0f172a;
+  padding: 0.2rem 0.45rem 0.35rem;
+  box-sizing: border-box;
+}
+
+.orbital-core-inner .oc-zap {
+  width: clamp(1.85rem, 5.5vw, 2.25rem);
+  height: clamp(1.85rem, 5.5vw, 2.25rem);
+  margin-bottom: 0.15rem;
+  flex-shrink: 0;
+}
+
+.orbital-core-inner .oc-ai {
+  font-size: clamp(1rem, 2.6vw, 1.15rem);
+  font-weight: 700;
+  line-height: 1.05;
+  flex-shrink: 0;
+}
+
+.orbital-core-inner .oc-sub {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-top: 0.2rem;
+  font-size: clamp(6.5px, 1.65vw, 7.5px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  line-height: 1.2;
+  color: inherit;
+  max-width: 5.75rem;
+  text-wrap: balance;
+}
+
+.orbital-core-inner .oc-sub-line {
+  display: block;
+}
+
+.orbital-pulse-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--ring-c, var(--oc-teal));
+  opacity: 0;
+  transform: scale(1);
+  transform-origin: 50% 50%;
+  pointer-events: none;
+}
+
+.orbital-in-view .orbital-pulse-ring {
+  animation: oc-pulse-ring 5s linear infinite;
+  animation-delay: var(--ring-delay, 0s);
+}
+
+@keyframes oc-pulse-ring {
+  0% {
+    opacity: 0.38;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    /* Reach dashed orbit (same geometry as SVG r=250 / viewBox 600) */
+    transform: scale(var(--oc-pulse-scale-max, 3.9));
+  }
+}
+
+/* Service nodes — above pulse layer; hub is a small box at z-index 22, not full-bleed */
+.orbital-node {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 16;
+  isolation: isolate;
+  width: 0;
+  height: 0;
+  --tx: 0px;
+  --ty: 0px;
+  opacity: 0;
+  transform: translate(-50%, -50%) translate(0, 0) scale(0);
+}
+
+.orbital-in-view .orbital-node {
+  animation: oc-node-converge 1.5s ease forwards;
+  animation-delay: var(--node-delay, 0s);
+}
+
+@keyframes oc-node-converge {
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1);
+  }
+}
+
+.orbital-node-card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 10.5rem;
+  height: 10.5rem;
+  margin-left: -5.25rem;
+  margin-top: -5.25rem;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--node-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 1.15rem 1.2rem 1.05rem;
+  box-sizing: border-box;
+  z-index: 1;
+  /* Force opaque paint + compositor layer above pulse rings */
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  background-image: linear-gradient(#ffffff, #ffffff) !important;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  /* Opaque white disc + inset rim */
+  box-shadow:
+    inset 0 0 0 1px #ffffff,
+    0 12px 40px rgba(15, 23, 42, 0.1);
+  transition: transform 0.25s ease;
+}
+
+.orbital-node-card:hover {
+  transform: translate3d(0, 0, 0) scale(1.08);
+}
+
+.orbital-in-view .orbital-node-card {
+  animation: oc-node-shadow 3s ease-in-out infinite;
+  animation-delay: var(--node-delay, 0s);
+}
+
+@keyframes oc-node-shadow {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 1),
+      0 12px 40px rgba(15, 23, 42, 0.1);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 1),
+      0 18px 52px rgba(15, 23, 42, 0.16);
+  }
+}
+
+.orbital-icon-wrap {
+  width: clamp(3.25rem, 8vw, 3.75rem);
+  height: clamp(3.25rem, 8vw, 3.75rem);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Opaque fills (overrides inline rgba) so pulses don’t read through */
+  background: #f1f5f9 !important;
+  flex-shrink: 0;
+}
+
+.orbital-in-view .orbital-icon-wrap {
+  animation: oc-icon-breathe 2s ease-in-out infinite;
+  animation-delay: var(--node-delay, 0s);
+}
+
+@keyframes oc-icon-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+.orbital-icon-wrap svg {
+  width: clamp(1.5rem, 4vw, 1.75rem);
+  height: clamp(1.5rem, 4vw, 1.75rem);
+  color: var(--node-color);
+}
+
+.orbital-node-title {
+  font-size: clamp(8px, 1.8vw, 9.5px);
+  font-weight: 600;
+  line-height: 1.32;
+  text-align: center;
+  color: #0f172a;
+  max-width: 7.25rem;
+  padding: 0 0.15rem;
+  text-wrap: balance;
+}
+
+/* Path draw animation */
+.orbital-in-view .orbital-guides .oc-orbit-teal {
+  animation: oc-draw 2s ease forwards;
+  animation-delay: 0s;
+}
+
+.orbital-in-view .orbital-guides .oc-orbit-purple {
+  animation: oc-draw 2s ease forwards;
+  animation-delay: 0.3s;
+}
+
+.orbital-in-view .orbital-guides .oc-orbit-blue {
+  animation: oc-draw 2s ease forwards;
+  animation-delay: 0.6s;
+}
+
+@keyframes oc-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbital-in-view .orbital-guides svg,
+  .orbital-in-view .orbital-core-glow,
+  .orbital-in-view .orbital-pulse-ring,
+  .orbital-in-view .orbital-node,
+  .orbital-in-view .orbital-node-card,
+  .orbital-in-view .orbital-icon-wrap,
+  .orbital-in-view .orbital-guides .oc-orbit-teal,
+  .orbital-in-view .orbital-guides .oc-orbit-purple,
+  .orbital-in-view .orbital-guides .oc-orbit-blue {
+    animation: none !important;
+  }
+
+  .orbital-guides svg {
+    opacity: 0.85 !important;
+  }
+
+  .orbital-core-glow {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+  }
+
+  .orbital-node {
+    opacity: 1 !important;
+    transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1) !important;
+  }
+}
+
+/* Keep outer service discs opaque white so pulse rings are hidden beneath them */
+.dark .orbital-convergence-figure .orbital-node-card,
+html.dark .orbital-convergence-figure .orbital-node-card {
+  background: #fff;
+  background-color: #fff;
+}
+
+.dark .orbital-convergence-figure .orbital-node-title,
+html.dark .orbital-convergence-figure .orbital-node-title {
+  color: #0f172a;
+}
+
+.dark .orbital-core-inner,
+html.dark .orbital-core-inner {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+/* .oc-sub uses color: inherit so it matches “AI” in light and dark */

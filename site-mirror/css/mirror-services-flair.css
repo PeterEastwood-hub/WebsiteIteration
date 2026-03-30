@@ -1,0 +1,295 @@
+/**
+ * Services hub + practice pages: Stripe-like continuity, tighter rhythm,
+ * subtle depth (reference: stripe.com product pages, Framer marketing motion).
+ * Pairs with body[data-nf-layout="service" | "services-hub"] from postprocess.
+ */
+
+body[data-nf-layout="service"],
+body[data-nf-layout="services-hub"] {
+  --nf-svc-surface: #fafbfc;
+  --nf-svc-surface-2: #f1f5f9;
+  --nf-svc-border: rgba(12, 35, 64, 0.08);
+  --nf-svc-border-strong: rgba(12, 35, 64, 0.12);
+  --nf-svc-accent: rgba(0, 199, 140, 0.14);
+  --nf-svc-accent-2: rgba(14, 165, 233, 0.08);
+  --nf-svc-shadow: 0 22px 60px -28px rgba(15, 23, 42, 0.14);
+  --nf-svc-shadow-hover: 0 28px 70px -30px rgba(15, 23, 42, 0.2);
+  --nf-svc-radius: 16px;
+  --nf-svc-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Ambient wash — reduces “floating white” between sections */
+body[data-nf-layout="service"] > main,
+body[data-nf-layout="services-hub"] > main {
+  position: relative;
+  background: linear-gradient(180deg, #ffffff 0%, var(--nf-svc-surface) 18%, #ffffff 55%, var(--nf-svc-surface-2) 100%);
+}
+
+body[data-nf-layout="service"] > main::before,
+body[data-nf-layout="services-hub"] > main::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse 90% 50% at 10% -10%, var(--nf-svc-accent), transparent 55%),
+    radial-gradient(ellipse 70% 45% at 95% 25%, var(--nf-svc-accent-2), transparent 50%);
+  opacity: 0.85;
+}
+
+body[data-nf-layout="service"] > main > *,
+body[data-nf-layout="services-hub"] > main > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Tighter vertical rhythm — less “template gap” between blocks */
+body[data-nf-layout="service"] > main > section:not(:first-child),
+body[data-nf-layout="services-hub"] > main > section:not(:first-child) {
+  padding-top: 2.75rem !important;
+  padding-bottom: 2.75rem !important;
+}
+
+body[data-nf-layout="service"] > main > section:first-child,
+body[data-nf-layout="services-hub"] > main > section:first-child {
+  padding-bottom: 2rem !important;
+}
+
+/* Alternating bands + top accent (Stripe-style section glue) */
+body[data-nf-layout="service"] > main > section:nth-child(even):not(:first-child):not(.services-lp-cta),
+body[data-nf-layout="services-hub"] > main > section:nth-child(even):not(:first-child):not(.services-lp-cta) {
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.92) 0%, rgba(255, 255, 255, 0.65) 100%);
+  border-top: 1px solid var(--nf-svc-border);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+body[data-nf-layout="service"] > main > section:nth-child(odd):not(:first-child),
+body[data-nf-layout="services-hub"] > main > section:nth-child(odd):not(:first-child) {
+  border-top: 1px solid transparent;
+}
+
+@media (min-width: 768px) {
+  body[data-nf-layout="service"] > main > section:not(:first-child):not(:nth-child(2)):not(.services-lp-cta)::before,
+  body[data-nf-layout="services-hub"] > main > section:not(:first-child):not(:nth-child(2)):not(.services-lp-cta)::before {
+    content: "";
+    display: block;
+    width: min(5rem, 16vw);
+    height: 3px;
+    border-radius: 999px;
+    margin: 0 auto 1rem;
+    background: linear-gradient(90deg, #00c78c, #0ea5e9);
+    opacity: 0.42;
+  }
+}
+
+/* Inner shell: card frame on hub only — practice pages stay flat (no card-on-card) */
+@media (min-width: 1024px) {
+  body[data-nf-layout="services-hub"] > main > section:not(:first-child) [class*="max-w-"][class*="mx-auto"] > .grid.grid-cols-12 {
+    padding: 1.75rem 1.5rem;
+    border-radius: var(--nf-svc-radius);
+    border: 1px solid var(--nf-svc-border);
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: var(--nf-svc-shadow);
+    gap: 1.75rem 2rem !important;
+    transition: box-shadow 0.45s var(--nf-svc-ease), border-color 0.35s ease, transform 0.45s var(--nf-svc-ease);
+  }
+
+  @media (hover: hover) {
+    body[data-nf-layout="services-hub"] > main > section:not(:first-child) [class*="max-w-"][class*="mx-auto"] > .grid.grid-cols-12:hover {
+      box-shadow: var(--nf-svc-shadow-hover);
+      border-color: var(--nf-svc-border-strong);
+    }
+  }
+}
+
+/* Logo / trust rows and HR blocks feel less orphaned */
+body[data-nf-layout="service"] main hr.border-t,
+body[data-nf-layout="services-hub"] main hr.border-t {
+  border-color: var(--nf-svc-border-strong) !important;
+  opacity: 1;
+}
+
+body[data-nf-layout="service"] main div[class*="max-w-"][class*="50rem"],
+body[data-nf-layout="services-hub"] main div[class*="max-w-"][class*="50rem"] {
+  padding: 1.5rem 1.25rem;
+  border-radius: var(--nf-svc-radius);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--nf-svc-border);
+}
+
+/* Full grid width on services — avoid narrow “reading column” template */
+body[data-nf-layout="service"] main .grid.grid-cols-12 > [data-type="page-section-content"][class*="lg:col-span-6"]:has(p):not(:has(img)),
+body[data-nf-layout="services-hub"] main .grid.grid-cols-12 > [data-type="page-section-content"][class*="lg:col-span-6"]:has(p):not(:has(img)) {
+  max-width: none;
+  justify-self: stretch;
+}
+
+/* Practice pages: undo global “editorial card” on half-width columns (stripe-influence) */
+@media (min-width: 1024px) {
+  body[data-nf-layout="service"] main [data-type="page-section-content"][class*="lg:col-span-6"]:has(p, h2, h3),
+  body[data-nf-layout="service"] main [data-type="page-section-content"][class*="lg:col-span-6"]:has(p, h2, h3):hover {
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    transition: none !important;
+  }
+}
+
+body[data-nf-layout="service"] main [data-type="page-section-content"][class*="lg:col-span-6"]:has(p, h2, h3) {
+  border-radius: 0;
+}
+
+/* Motion hook: cells start ready for JS; reduced-motion users see content */
+@media (prefers-reduced-motion: reduce) {
+  body[data-nf-layout="service"] [data-mirror-motion-service-cell],
+  body[data-nf-layout="services-hub"] [data-mirror-motion-service-cell] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* =============================================================================
+ * Insight articles — load-order reset (this file is linked last on article pages).
+ * Kills any residual hover “cards” on grids, cells, and inner .font-sans shells.
+ * ============================================================================= */
+body[data-nf-layout="insight-article"] main .grid.grid-cols-12.gap-x-6,
+body[data-nf-layout="insight-article"] main .grid.grid-cols-12.gap-x-6:hover {
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"],
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"]:hover,
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"]:focus-within,
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"]:focus-visible {
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+  filter: none !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] .font-sans,
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] .font-sans:hover {
+  box-shadow: none !important;
+  border: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  filter: none !important;
+  transition: none !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-type="headingBlock"],
+body[data-nf-layout="insight-article"] main [data-type="headingBlock"]:hover {
+  box-shadow: none !important;
+  border: none !important;
+  background: transparent !important;
+  width: 100%;
+  max-width: 100%;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+}
+
+body[data-nf-layout="insight-article"] main [data-type="headingBlock"] h2,
+body[data-nf-layout="insight-article"] main [data-type="headingBlock"] h2:hover {
+  box-shadow: none !important;
+  border: none !important;
+  background: transparent !important;
+  filter: none !important;
+}
+
+/* Last-loaded mirror sheet: block Tailwind v4 group-hover scale on listing thumbnails */
+[data-nf-insight-card] img,
+.nf-insights-article-card img,
+.nf-insights-bento-tile img,
+.nf-insight-related-card img {
+  --tw-scale-x: 1 !important;
+  --tw-scale-y: 1 !important;
+  --tw-scale-z: 1 !important;
+  scale: 1 1 !important;
+  transform: none !important;
+}
+
+@media (hover: hover) {
+  [data-nf-insight-card]:hover img,
+  .nf-insights-article-card:hover img,
+  .nf-insights-bento-tile:hover img,
+  .nf-insight-related-card:hover img,
+  [data-nf-insight-card] :where(.group):hover img,
+  .nf-insights-article-card :where(.group):hover img,
+  .nf-insights-bento-tile :where(.group):hover img,
+  .nf-insight-related-card :where(.group):hover img {
+    --tw-scale-x: 1 !important;
+    --tw-scale-y: 1 !important;
+    --tw-scale-z: 1 !important;
+    scale: 1 1 !important;
+    transform: none !important;
+  }
+}
+
+/*
+ * Insight cards (article “related” + insights index bento): re-assert flex after Next/Tailwind (this sheet loads last).
+ */
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) {
+  display: flex !important;
+  flex-direction: column !important;
+  align-self: stretch !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) > a.group {
+  flex: 0 0 auto !important;
+}
+
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) .nf-insight-related-card-body {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+}
+
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) .nf-insight-related-card-head {
+  display: flex !important;
+  flex-direction: column !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  text-align: left !important;
+}
+
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) .nf-insight-related-card-meta,
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) .nf-insight-related-card-body > .flex.gap-3 {
+  margin-top: auto !important;
+}

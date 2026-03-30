@@ -1,0 +1,1970 @@
+/**
+ * Readable gutters + comfortable line measure + layout variants.
+ * body[data-nf-layout] is set in postprocess-mirror.mjs (inferNfLayout).
+ *
+ * Variants: default | marketing | case-study | insight-article | reading | audit-index
+ */
+
+:root {
+  /* Site-wide horizontal breathing room (viewport edges → content) */
+  --nf-rhythm-gutter-min: 2rem;
+  --nf-rhythm-gutter-fluid: 8vw;
+  --nf-rhythm-gutter-max: 6.5rem;
+  --nf-rhythm-prose-max: 42rem;
+  --nf-rhythm-shell-max: 1440px;
+}
+
+/* Insights index + explore variants: 2× side gutters vs site default */
+body.nf-insights-index {
+  --nf-rhythm-gutter-min: 4rem;
+  --nf-rhythm-gutter-fluid: 16vw;
+  --nf-rhythm-gutter-max: 13rem;
+}
+
+/* -------------------------------------------------------------------------
+ * Global header: match main gutters (mirror pages only)
+ * ------------------------------------------------------------------------- */
+body[data-nf-layout]:not([data-nf-layout="audit-index"])
+  > header.font-sans.fixed:has([data-testid="header-left"]) {
+  padding-left: clamp(
+    var(--nf-rhythm-gutter-min),
+    var(--nf-rhythm-gutter-fluid),
+    var(--nf-rhythm-gutter-max)
+  ) !important;
+  padding-right: clamp(
+    var(--nf-rhythm-gutter-min),
+    var(--nf-rhythm-gutter-fluid),
+    var(--nf-rhythm-gutter-max)
+  ) !important;
+}
+
+/* -------------------------------------------------------------------------
+ * Main sections: wider viewport gutters
+ * ------------------------------------------------------------------------- */
+body[data-nf-layout]:not([data-nf-layout="audit-index"]) > main > section[class*="px-5"],
+body[data-nf-layout]:not([data-nf-layout="audit-index"]) > main > section[class*="md:px-7"],
+body[data-nf-layout]:not([data-nf-layout="audit-index"]) > main > section[class*="lg:px-8"] {
+  padding-left: clamp(
+    var(--nf-rhythm-gutter-min),
+    var(--nf-rhythm-gutter-fluid),
+    var(--nf-rhythm-gutter-max)
+  ) !important;
+  padding-right: clamp(
+    var(--nf-rhythm-gutter-min),
+    var(--nf-rhythm-gutter-fluid),
+    var(--nf-rhythm-gutter-max)
+  ) !important;
+}
+
+/* Main div wrappers (e.g. work filters, odd layouts) — same gutters */
+body[data-nf-layout]:not([data-nf-layout="audit-index"]) > main > div[class*="px-5"][class*="md:px-7"],
+body[data-nf-layout]:not([data-nf-layout="audit-index"]) > main > div[class*="lg:px-8"] {
+  padding-left: clamp(
+    var(--nf-rhythm-gutter-min),
+    var(--nf-rhythm-gutter-fluid),
+    var(--nf-rhythm-gutter-max)
+  ) !important;
+  padding-right: clamp(
+    var(--nf-rhythm-gutter-min),
+    var(--nf-rhythm-gutter-fluid),
+    var(--nf-rhythm-gutter-max)
+  ) !important;
+}
+
+/* Slightly narrower content shell than 1600px so lines don’t span ultra-wide */
+body[data-nf-layout]:not([data-nf-layout="audit-index"]) > main .max-w-\[1600px\] {
+  max-width: min(1600px, var(--nf-rhythm-shell-max)) !important;
+}
+
+/* -------------------------------------------------------------------------
+ * Two-column template: constrain *text* cells only (skip image-heavy columns)
+ * ------------------------------------------------------------------------- */
+@media (min-width: 1024px) {
+  body[data-nf-layout]:not([data-nf-layout="audit-index"])
+    main
+    .grid.grid-cols-12
+    > [data-type="page-section-content"][class*="lg:col-span-6"]:has(p):not(:has(img)) {
+    max-width: var(--nf-rhythm-prose-max);
+    width: 100%;
+    justify-self: start;
+  }
+
+  /* Heading-only columns (no paragraph): keep grid width */
+  body[data-nf-layout]:not([data-nf-layout="audit-index"])
+    main
+    .grid.grid-cols-12
+    > [data-type="page-section-content"][class*="lg:col-span-6"]:not(:has(p)) {
+    max-width: none;
+    justify-self: stretch;
+  }
+}
+
+/* -------------------------------------------------------------------------
+ * case-study / work: breathe between columns + rows (less “rigid template”)
+ * ------------------------------------------------------------------------- */
+@media (min-width: 1024px) {
+  body[data-nf-layout="case-study"] main .grid.grid-cols-12.gap-x-6 {
+    column-gap: 2.5rem !important;
+    row-gap: 2.25rem !important;
+  }
+
+  body[data-nf-layout="case-study"] {
+    --nf-rhythm-shell-max: 1320px;
+  }
+}
+
+/* -------------------------------------------------------------------------
+ * insight-article: blog posts — Stripe-style editorial column (reference:
+ * https://stripe.com/blog/… ): generous side margins, single centered column,
+ * calmer type scale, less vertical whitespace than the mirrored Next template.
+ * Not applied to insights.html / insights_N (listing pagination).
+ * ------------------------------------------------------------------------- */
+body[data-nf-layout="insight-article"] {
+  /* ~680px main column — matches Stripe blog article measure */
+  --nf-stripe-article-prose: 42.5rem;
+  --nf-insight-meta-col: 10.75rem;
+  --nf-insight-meta-gap: 2.25rem;
+  /*
+   * Editorial shell width — use 100vw (not %) so the custom property always resolves.
+   * Body sections also cap with max-width; padding must stay modest (see gutters below).
+   */
+  --nf-insight-editorial-max: min(
+    calc(
+      var(--nf-insight-meta-col) + var(--nf-insight-meta-gap) +
+        var(--nf-stripe-article-prose)
+    ),
+    100vw
+  );
+  --nf-insight-stripe-ink: #0a2540;
+  --nf-insight-stripe-muted: #697386;
+  /* Breadcrumb, social link, date bar — Nearform green */
+  --nf-insight-stripe-accent: var(--color-nf-green, #00c78c);
+  /*
+   * Critical: do NOT reuse marketing 24rem side gutters here — article max-width is only
+   * ~55rem; box-sizing:border-box + 24rem×2 padding collapses the prose column to a sliver.
+   */
+  --nf-rhythm-gutter-min: 1.25rem;
+  --nf-rhythm-gutter-fluid: 5vw;
+  --nf-rhythm-gutter-max: 2.5rem;
+  /* Vertical column guides: left rule sits before the author rail; 20px gutters to content */
+  --nf-insight-rule-gutter: 20px;
+  --nf-insight-column-stroke: rgba(15, 23, 42, 0.07);
+  --nf-insight-column-stroke-dark: rgba(255, 255, 255, 0.09);
+}
+
+/* Flex column main — allow article sections to respect width/max-width (avoid overflow sliver) */
+body[data-nf-layout="insight-article"] main {
+  min-width: 0;
+}
+
+/* Drop empty grid cells left over from the two-column template */
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"]:empty {
+  display: none !important;
+}
+
+/*
+ * Single column: constrain the *grid* to prose width so headings + body share one left edge.
+ * (align-items:center on children was shrink-wrapping headings vs paragraphs to different widths.)
+ */
+body[data-nf-layout="insight-article"] main > section:not(:first-of-type) .grid.grid-cols-12.gap-x-6 {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 0.5rem !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100%;
+}
+
+body[data-nf-layout="insight-article"] main > section:first-of-type .grid.grid-cols-12.gap-x-6 {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 1rem !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+}
+
+body[data-nf-layout="insight-article"] main > section:not(:first-of-type) .grid.grid-cols-12 > [data-type="page-section-content"],
+body[data-nf-layout="insight-article"] main > section:first-of-type .grid.grid-cols-12 > [data-type="page-section-content"] {
+  grid-column: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  text-align: left !important;
+}
+
+body[data-nf-layout="insight-article"] main > section:not(:first-of-type) .grid.grid-cols-12 > [data-type="page-section-content"]:has(table),
+body[data-nf-layout="insight-article"] main > section:not(:first-of-type) .grid.grid-cols-12 > [data-type="page-section-content"]:has(figure) {
+  max-width: none !important;
+}
+
+/*
+ * Shared 3-column editorial grid (Stripe blog): [ meta ] [ gap ] [ prose ].
+ * Same grid on title, hero, and body sections so every prose line shares one left edge.
+ * .flex on sections requires grid !important.
+ */
+body[data-nf-layout="insight-article"] main > section:first-of-type {
+  display: grid !important;
+  /* Col 3 = 1fr avoids % track sizing bugs; width is already capped by editorial max */
+  grid-template-columns:
+    minmax(0, var(--nf-insight-meta-col)) var(--nf-insight-meta-gap) minmax(0, 1fr);
+  align-items: start !important;
+  justify-items: stretch;
+  column-gap: 0;
+  row-gap: 1rem;
+  max-width: min(100%, var(--nf-insight-editorial-max)) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  flex-direction: unset !important;
+}
+
+/*
+ * Title: left rule in meta column (col 1) from row 2 only — same x as hero byline stroke, not beside h1.
+ * Right rule: border on title shell (prose column). Suppress stray ::after (e.g. mirror-a11y hairline).
+ */
+body[data-nf-layout="insight-article"] main > section:first-of-type::before {
+  content: "";
+  grid-column: 1;
+  grid-row: 2;
+  width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-left: 1px solid var(--nf-insight-column-stroke);
+  align-self: stretch;
+  justify-self: start;
+  min-height: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+html.dark body[data-nf-layout="insight-article"] main > section:first-of-type::before {
+  border-left-color: var(--nf-insight-column-stroke-dark);
+}
+
+body[data-nf-layout="insight-article"] main > section:first-of-type::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Full-width kicker (Insights / Article + social) — Stripe blog top row */
+body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-kicker {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  width: 100%;
+  margin: 0 0 0.25rem 0;
+  padding: 0 !important;
+}
+
+body[data-nf-layout="insight-article"]
+  main
+  > section:first-of-type
+  .nf-insight-article-kicker__crumbs {
+  font-family: var(--font-sans, ui-sans-serif, system-ui, -apple-system, sans-serif) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+}
+
+body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-kicker__link {
+  color: var(--nf-insight-stripe-accent) !important;
+  text-decoration: none !important;
+}
+
+body[data-nf-layout="insight-article"]
+  main
+  > section:first-of-type
+  .nf-insight-article-kicker__link:hover {
+  text-decoration: underline !important;
+}
+
+body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-kicker__sep {
+  margin: 0 0.35rem;
+  color: var(--nf-insight-stripe-muted) !important;
+  font-weight: 400 !important;
+}
+
+body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-kicker__current {
+  color: var(--nf-insight-stripe-muted) !important;
+  font-weight: 400 !important;
+}
+
+body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-kicker__social {
+  font-family: var(--font-sans, ui-sans-serif, system-ui, -apple-system, sans-serif) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  color: var(--nf-insight-stripe-accent) !important;
+  text-decoration: none !important;
+}
+
+body[data-nf-layout="insight-article"]
+  main
+  > section:first-of-type
+  .nf-insight-article-kicker__social:hover {
+  text-decoration: underline !important;
+}
+
+html.dark body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-kicker__link,
+html.dark body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-kicker__social {
+  color: var(--color-nf-green, #92f279) !important;
+}
+
+html.dark body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-kicker__current,
+html.dark body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-kicker__sep {
+  color: rgba(203, 213, 225, 0.75) !important;
+}
+
+/* Title shell: prose column only (row after kicker); right rule + gutter (left rule is col 1 ::before) */
+body[data-nf-layout="insight-article"] main > section:first-of-type > div[class*="max-w"] {
+  grid-column: 3;
+  grid-row: 2;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  justify-self: stretch;
+  box-sizing: border-box;
+  padding-right: var(--nf-insight-rule-gutter) !important;
+  border-right: 1px solid var(--nf-insight-column-stroke);
+}
+
+html.dark body[data-nf-layout="insight-article"] main > section:first-of-type > div[class*="max-w"] {
+  border-right-color: var(--nf-insight-column-stroke-dark);
+}
+
+/* Date under title — brand accent bar */
+body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-date {
+  display: flex !important;
+  align-items: stretch;
+  gap: 0.65rem;
+  margin: 0.35rem 0 0 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  font-family: var(--font-sans, ui-sans-serif, system-ui, -apple-system, sans-serif) !important;
+  font-size: 0.875rem !important;
+  line-height: 1.4 !important;
+  font-weight: 400 !important;
+  color: var(--nf-insight-stripe-muted) !important;
+}
+
+body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-date__accent {
+  flex-shrink: 0;
+  width: 3px;
+  min-height: 1.125em;
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+  background: var(--nf-insight-stripe-accent) !important;
+  border-radius: 1px;
+}
+
+html.dark body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-date__accent {
+  background: var(--color-nf-green, #92f279) !important;
+}
+
+html.dark body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-date {
+  color: rgba(203, 213, 225, 0.85) !important;
+}
+
+/* Nested shells inside title column */
+body[data-nf-layout="insight-article"] main > section:first-of-type [class*="max-w"] {
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+body[data-nf-layout="insight-article"] main > section:first-of-type h1 {
+  max-width: 100% !important;
+  scroll-margin-top: 6rem;
+  /* Inter / Nearform UI stack (matches Next mirror theme) */
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif !important;
+  font-size: clamp(2.25rem, 2.75vw + 1.1rem, 3.35rem) !important;
+  line-height: 1.1 !important;
+  letter-spacing: -0.025em !important;
+  font-weight: 700 !important;
+  color: var(--nf-insight-stripe-ink) !important;
+}
+
+html.dark body[data-nf-layout="insight-article"] main > section:first-of-type h1 {
+  color: #f8fafc !important;
+}
+
+body[data-nf-layout="insight-article"] main > section:first-of-type h1 ~ p:not([data-nf-insight-article-date]),
+body[data-nf-layout="insight-article"] main > section:first-of-type .grid > div > p:not([data-nf-insight-article-date]) {
+  font-family: var(--font-sans, ui-sans-serif, system-ui, -apple-system, sans-serif) !important;
+  font-size: clamp(1.0625rem, 0.6vw + 1rem, 1.1875rem) !important;
+  line-height: 1.55 !important;
+  margin-top: 1.125rem !important;
+  color: var(--nf-insight-stripe-muted) !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+html.dark body[data-nf-layout="insight-article"] main > section:first-of-type h1 ~ p:not([data-nf-insight-article-date]),
+html.dark body[data-nf-layout="insight-article"] main > section:first-of-type .grid > div > p:not([data-nf-insight-article-date]) {
+  color: rgba(203, 213, 225, 0.88) !important;
+}
+
+/* Tighter section rhythm — less air between paragraph blocks and the next subtitle (Stripe-like) */
+body[data-nf-layout="insight-article"] main > section:not(:first-of-type)[class*="px-5"],
+body[data-nf-layout="insight-article"] main > section:not(:first-of-type)[class*="md:px-7"],
+body[data-nf-layout="insight-article"] main > section:not(:first-of-type)[class*="lg:px-8"] {
+  padding-top: 1.35rem !important;
+  padding-bottom: 1rem !important;
+}
+
+body[data-nf-layout="insight-article"] main > section:first-of-type {
+  margin-top: 0 !important;
+  /* Clear fixed header + template mt-12; avoid clipping first line of title */
+  padding-top: max(5.25rem, clamp(4.75rem, 11vw, 6rem)) !important;
+  padding-bottom: 1.25rem !important;
+  /* Same horizontal rhythm as hero + body so the 3-col grid lines up */
+  padding-left: clamp(
+    var(--nf-rhythm-gutter-min),
+    var(--nf-rhythm-gutter-fluid),
+    var(--nf-rhythm-gutter-max)
+  ) !important;
+  padding-right: clamp(
+    var(--nf-rhythm-gutter-min),
+    var(--nf-rhythm-gutter-fluid),
+    var(--nf-rhythm-gutter-max)
+  ) !important;
+}
+
+/*
+ * Hero: hoisted byline + image — grid must win over template flex/w-screen or the image
+ * shrinks to a thumbnail beside the author row.
+ */
+body[data-nf-layout="insight-article"] main > section.nf-insight-hero-wrap {
+  display: grid !important;
+  grid-template-columns:
+    minmax(0, var(--nf-insight-meta-col)) var(--nf-insight-meta-gap) minmax(0, 1fr);
+  align-items: start !important;
+  justify-items: stretch !important;
+  align-content: start !important;
+  column-gap: 0;
+  max-width: min(100%, var(--nf-insight-editorial-max)) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding-left: clamp(
+    var(--nf-rhythm-gutter-min),
+    var(--nf-rhythm-gutter-fluid),
+    var(--nf-rhythm-gutter-max)
+  ) !important;
+  padding-right: clamp(
+    var(--nf-rhythm-gutter-min),
+    var(--nf-rhythm-gutter-fluid),
+    var(--nf-rhythm-gutter-max)
+  ) !important;
+  padding-top: 0.35rem !important;
+  padding-bottom: 1.5rem !important;
+  box-sizing: border-box;
+  position: static;
+  overflow: visible !important;
+  flex-direction: unset !important;
+  background-origin: content-box;
+  background-repeat: no-repeat;
+  background-size:
+    1px 100%,
+    1px 100%;
+  background-position:
+    left top,
+    right top;
+  background-image:
+    linear-gradient(var(--nf-insight-column-stroke), var(--nf-insight-column-stroke)),
+    linear-gradient(var(--nf-insight-column-stroke), var(--nf-insight-column-stroke));
+}
+
+html.dark body[data-nf-layout="insight-article"] main > section.nf-insight-hero-wrap {
+  background-image:
+    linear-gradient(var(--nf-insight-column-stroke-dark), var(--nf-insight-column-stroke-dark)),
+    linear-gradient(var(--nf-insight-column-stroke-dark), var(--nf-insight-column-stroke-dark));
+}
+
+body[data-nf-layout="insight-article"]
+  main
+  > section.nf-insight-hero-wrap
+  > div[class*="max-w"] {
+  grid-column: 3;
+  grid-row: 1;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  justify-self: stretch !important;
+  padding-right: var(--nf-insight-rule-gutter) !important;
+  box-sizing: border-box;
+}
+
+/* Left rail — 20px gutter between vertical rule and avatar / byline */
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] {
+  grid-column: 1;
+  grid-row: 1;
+  position: static !important;
+  z-index: auto;
+  margin: 0 !important;
+  padding-top: 0.2rem !important;
+  padding-right: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: var(--nf-insight-rule-gutter) !important;
+  max-width: 100% !important;
+  width: 100%;
+  min-width: 0 !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .flex-1 {
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] [class*="max-w"] {
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .flex.items-center.flex-col,
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .flex[class*="sm:flex-row"] {
+  flex-direction: column !important;
+  flex-wrap: nowrap !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  gap: 1.25rem !important;
+  width: 100% !important;
+}
+
+/* Date line removed from byline when mirrored under title */
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .nf-insight-byline-date--hidden {
+  display: none !important;
+}
+
+/* Author photo: smaller ring than template logo tile; drop navy fill behind portrait */
+body[data-nf-layout="insight-article"]
+  main
+  [data-nf-insight-hero-byline]
+  .flex.items-center
+  > div:has(> img) {
+  width: 3rem !important;
+  height: 3rem !important;
+  min-width: 3rem !important;
+  min-height: 3rem !important;
+  padding: 0 !important;
+  background-color: transparent !important;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.14);
+  overflow: hidden !important;
+}
+
+html.dark
+  body[data-nf-layout="insight-article"]
+  main
+  [data-nf-insight-hero-byline]
+  .flex.items-center
+  > div:has(> img) {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] img[alt="Author"],
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] img[alt="avatar"] {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  object-fit: cover !important;
+  border-radius: 9999px !important;
+}
+
+/* Author name: sentence case, bold — Stripe sidebar */
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .ml-4 > div:first-child {
+  font-weight: 700 !important;
+  text-transform: none !important;
+  letter-spacing: -0.01em !important;
+  font-size: 0.875rem !important;
+  line-height: 1.35 !important;
+}
+
+/* Share label on its own row; social icons in a row directly underneath */
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] ul.list-none {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: flex-start !important;
+  margin: 0.65rem 0 0 !important;
+  padding-top: 0 !important;
+  padding-left: 0 !important;
+  border-top: none !important;
+  gap: 0.65rem 0.75rem !important;
+  list-style: none !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] ul.list-none > li:first-child {
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] ul.list-none > li:not(:first-child) {
+  flex: 0 0 auto !important;
+}
+
+html.dark body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] ul.list-none {
+  border-top: none !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline],
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .uppercase {
+  color: var(--nf-insight-stripe-ink) !important;
+  font-size: 0.8125rem !important;
+  letter-spacing: 0.06em !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .text-\[\#514b45\] {
+  color: var(--nf-insight-stripe-muted) !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] a {
+  color: var(--nf-insight-stripe-muted) !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] a:hover {
+  color: var(--nf-insight-stripe-ink) !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] svg {
+  color: var(--nf-insight-stripe-muted) !important;
+  fill: currentColor !important;
+}
+
+html.dark body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline],
+html.dark body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .uppercase {
+  color: #f8fafc !important;
+}
+
+html.dark body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .text-\[\#514b45\] {
+  color: rgba(203, 213, 225, 0.85) !important;
+}
+
+html.dark body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] a {
+  color: rgba(203, 213, 225, 0.85) !important;
+}
+
+html.dark body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] a:hover {
+  color: #fff !important;
+}
+
+html.dark body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] svg {
+  color: rgba(203, 213, 225, 0.8) !important;
+}
+
+/* Hero without hoisted byline: centered image only */
+body[data-nf-layout="insight-article"]
+  main
+  > section:nth-of-type(2):has(figure):not(.nf-insight-hero-wrap) {
+  padding-top: 1rem !important;
+  padding-bottom: 1.25rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: clip !important;
+}
+
+body[data-nf-layout="insight-article"]
+  main
+  > section:nth-of-type(2):has(figure):not(.nf-insight-hero-wrap)
+  [class*="max-w"] {
+  max-width: min(var(--nf-stripe-article-prose), 100%) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100% !important;
+}
+
+body[data-nf-layout="insight-article"] main > section:nth-of-type(2):has(figure) figure,
+body[data-nf-layout="insight-article"] main > section:nth-of-type(2):has(figure) figure > div {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+}
+
+body[data-nf-layout="insight-article"] main > section:nth-of-type(2):has(figure) img {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  display: block !important;
+  border-radius: 0.625rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+/* Article body + related: same prose column as title/hero (Stripe alignment) */
+body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="px-5"],
+body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="md:px-7"],
+body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="lg:px-8"] {
+  display: grid !important;
+  grid-template-columns:
+    minmax(0, var(--nf-insight-meta-col)) var(--nf-insight-meta-gap) minmax(0, 1fr);
+  max-width: min(100%, var(--nf-insight-editorial-max)) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+  flex-direction: unset !important;
+  padding-left: clamp(
+    var(--nf-rhythm-gutter-min),
+    var(--nf-rhythm-gutter-fluid),
+    var(--nf-rhythm-gutter-max)
+  ) !important;
+  padding-right: clamp(
+    var(--nf-rhythm-gutter-min),
+    var(--nf-rhythm-gutter-fluid),
+    var(--nf-rhythm-gutter-max)
+  ) !important;
+  background-origin: content-box;
+  background-repeat: no-repeat;
+  background-size:
+    1px 100%,
+    1px 100%;
+  background-position:
+    left top,
+    right top;
+  background-image:
+    linear-gradient(var(--nf-insight-column-stroke), var(--nf-insight-column-stroke)),
+    linear-gradient(var(--nf-insight-column-stroke), var(--nf-insight-column-stroke));
+}
+
+html.dark body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="px-5"],
+html.dark body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="md:px-7"],
+html.dark body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="lg:px-8"] {
+  background-image:
+    linear-gradient(var(--nf-insight-column-stroke-dark), var(--nf-insight-column-stroke-dark)),
+    linear-gradient(var(--nf-insight-column-stroke-dark), var(--nf-insight-column-stroke-dark));
+}
+
+body[data-nf-layout="insight-article"]
+  main
+  > section:nth-of-type(n + 3)[class*="px-5"]
+  > div[class*="max-w"],
+body[data-nf-layout="insight-article"]
+  main
+  > section:nth-of-type(n + 3)[class*="md:px-7"]
+  > div[class*="max-w"],
+body[data-nf-layout="insight-article"]
+  main
+  > section:nth-of-type(n + 3)[class*="lg:px-8"]
+  > div[class*="max-w"] {
+  grid-column: 3;
+  grid-row: 1;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding-right: var(--nf-insight-rule-gutter) !important;
+  box-sizing: border-box;
+}
+
+@media (max-width: 56rem) {
+  body[data-nf-layout="insight-article"] main > section:first-of-type,
+  body[data-nf-layout="insight-article"] main > section.nf-insight-hero-wrap,
+  body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="px-5"],
+  body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="md:px-7"],
+  body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="lg:px-8"] {
+    background-image: none !important;
+  }
+
+  body[data-nf-layout="insight-article"] main > section:first-of-type {
+    display: flex !important;
+    flex-direction: column !important;
+    max-width: min(var(--nf-stripe-article-prose), 100%) !important;
+    gap: 0;
+  }
+
+  body[data-nf-layout="insight-article"] main > section:first-of-type::before {
+    content: none !important;
+    display: none !important;
+    border: none !important;
+  }
+
+  body[data-nf-layout="insight-article"] main > section:first-of-type > div[class*="max-w"] {
+    grid-column: auto;
+    grid-row: auto;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-right: none !important;
+  }
+
+  body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-kicker {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  body[data-nf-layout="insight-article"] main > section.nf-insight-hero-wrap {
+    display: flex !important;
+    flex-direction: column !important;
+    max-width: min(100%, var(--nf-insight-editorial-max)) !important;
+    gap: 1.5rem;
+    align-items: stretch !important;
+  }
+
+  body[data-nf-layout="insight-article"]
+    main
+    > section.nf-insight-hero-wrap
+    > div[class*="max-w"] {
+    order: 1;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] {
+    order: 2;
+    width: 100% !important;
+    padding-top: 0 !important;
+  }
+
+  body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] ul.list-none {
+    margin-top: 0.5rem !important;
+  }
+
+  body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="px-5"],
+  body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="md:px-7"],
+  body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="lg:px-8"] {
+    display: block !important;
+    max-width: min(var(--nf-stripe-article-prose), 100%) !important;
+  }
+
+  body[data-nf-layout="insight-article"]
+    main
+    > section:nth-of-type(n + 3)[class*="px-5"]
+    > div[class*="max-w"],
+  body[data-nf-layout="insight-article"]
+    main
+    > section:nth-of-type(n + 3)[class*="md:px-7"]
+    > div[class*="max-w"],
+  body[data-nf-layout="insight-article"]
+    main
+    > section:nth-of-type(n + 3)[class*="lg:px-8"]
+    > div[class*="max-w"] {
+    grid-column: auto;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Remove horizontal rules between article blocks (keep “You may also like” divider) */
+body[data-nf-layout="insight-article"] main hr:not(.nf-insight-related-divider) {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* -------------------------------------------------------------------------
+ * Insight article: related posts + pre-footer CTA
+ * ------------------------------------------------------------------------- */
+body[data-nf-layout="insight-article"] section.nf-insight-related-section hr.nf-insight-related-divider {
+  display: block !important;
+  visibility: visible !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  height: 0 !important;
+  margin: 0 0 clamp(1.25rem, 2.5vw, 1.75rem) 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-top: 1px solid color-mix(in srgb, var(--color-nf-deep-navy, #000e38) 18%, #cbd5e1) !important;
+}
+
+html.dark body[data-nf-layout="insight-article"] section.nf-insight-related-section hr.nf-insight-related-divider {
+  border-top-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+/* Equal-height tiles in the two-column row (no `main` — section must match even if DOM shifts) */
+body[data-nf-layout="insight-article"] section.nf-insight-related-section .grid {
+  align-items: stretch !important;
+}
+
+/*
+ * Insight cards — article “You may also like” + insights index bento (`.nf-insights-article-card`):
+ * .nf-insight-related-card-body (column) → .nf-insight-related-card-head (hashtags row, then title) → meta row (margin-top: auto).
+ */
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) {
+  display: flex !important;
+  flex-direction: column !important;
+  align-self: stretch !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  margin-bottom: 0 !important;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--color-nf-deep-navy, #000e38) 10%, transparent);
+  background: color-mix(in srgb, var(--color-nf-deep-navy, #000e38) 3.5%, #ffffff);
+  box-shadow: 0 18px 48px -28px rgba(0, 14, 56, 0.16);
+  transition:
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.38s ease,
+    border-color 0.38s ease,
+    background 0.38s ease;
+  container-type: inline-size;
+  container-name: nf-related-card;
+}
+
+:is(
+  html.dark body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  html.dark body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card,
+  .dark body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  .dark body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 22px 56px -32px rgba(0, 0, 0, 0.42);
+}
+
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) > a.group {
+  flex: 0 0 auto !important;
+}
+
+@media (hover: hover) {
+  :is(
+      body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+      body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+    ):hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--color-nf-green, #92f279) 55%, var(--color-nf-deep-navy, #000e38));
+    background: linear-gradient(
+      158deg,
+      #ffffff 0%,
+      color-mix(in srgb, var(--color-nf-deep-navy, #000e38) 3.5%, #ffffff) 46%,
+      color-mix(in srgb, var(--color-nf-green, #92f279) 8%, #ffffff) 100%
+    );
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-nf-green, #92f279) 35%, transparent),
+      0 28px 64px -26px rgba(0, 14, 56, 0.16),
+      0 0 48px -16px rgba(0, 199, 140, 0.12);
+  }
+
+  :is(
+      html.dark body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+      html.dark body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card,
+      .dark body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+      .dark body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+    ):hover {
+    border-color: color-mix(in srgb, var(--color-nf-green, #92f279) 55%, rgba(255, 255, 255, 0.12));
+    background: linear-gradient(
+      158deg,
+      rgba(255, 255, 255, 0.055) 0%,
+      rgba(255, 255, 255, 0.035) 52%,
+      color-mix(in srgb, var(--color-nf-green, #92f279) 11%, rgba(15, 23, 42, 0.52)) 100%
+    );
+    box-shadow:
+      0 0 0 1px rgba(146, 242, 121, 0.35),
+      0 28px 64px -28px rgba(0, 0, 0, 0.5),
+      0 0 40px -12px rgba(146, 242, 121, 0.15);
+  }
+}
+
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) > :is(a, div).group {
+  margin-bottom: 0 !important;
+}
+
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) > :is(a, div).group img {
+  width: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  --tw-scale-x: 1 !important;
+  --tw-scale-y: 1 !important;
+  --tw-scale-z: 1 !important;
+  scale: 1 1 !important;
+  transform: none !important;
+  filter: none !important;
+  transition: none !important;
+}
+
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) .nf-insight-related-card-body {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  text-align: left !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  padding: 0.85rem 1rem 1.1rem;
+  box-sizing: border-box !important;
+}
+
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) .nf-insight-related-card-head {
+  display: flex !important;
+  flex-direction: column !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  align-self: stretch !important;
+  text-align: left !important;
+  gap: 0.35rem !important;
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+:is(
+    body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+    body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+  )
+  .nf-insight-related-card-head
+  > .flex.flex-wrap[class*='gap-1'],
+:is(
+    body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+    body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+  )
+  .nf-insight-related-card-head
+  .nf-insight-card-hashtags {
+  flex: 0 0 auto !important;
+  align-self: stretch !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  justify-content: flex-start !important;
+  padding-top: 0 !important;
+  margin: 0 !important;
+  text-align: left !important;
+}
+
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) .nf-insight-related-card-head > a.group {
+  flex: 0 1 auto !important;
+  align-self: stretch !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  display: block !important;
+  text-align: left !important;
+}
+
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) .nf-insight-related-card-head h3 {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  text-align: left !important;
+}
+
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) .nf-insight-related-card-body > .flex.gap-3,
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) .nf-insight-related-card-meta {
+  margin-top: auto !important;
+  flex-shrink: 0 !important;
+  align-self: stretch !important;
+  width: 100% !important;
+  justify-content: flex-start !important;
+  flex-wrap: wrap !important;
+  gap: 0.35rem 0.75rem !important;
+  padding-top: 0.65rem !important;
+}
+
+:is(
+  body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+  body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+) .flex.flex-wrap[class*='gap-1'] {
+  padding-top: 0 !important;
+}
+
+@supports (width: 1cqw) {
+  :is(
+      body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+      body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+    )
+    .nf-insight-related-card-body {
+    padding: clamp(0.65rem, 2.2cqi + 0.35rem, 1rem) clamp(0.75rem, 2.8cqi + 0.4rem, 1.1rem) clamp(0.85rem, 2.5cqi + 0.45rem, 1.1rem) !important;
+  }
+
+  :is(
+    body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+    body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+  ) .nf-insight-related-card-head h3 {
+    font-size: clamp(0.9375rem, 3.6cqi + 0.42rem, 1.5rem) !important;
+    line-height: 1.18 !important;
+    letter-spacing: -0.02em !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  :is(
+    body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+    body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+  ) .flex.gap-3 span,
+  :is(
+    body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+    body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+  ) .nf-insight-related-card-meta span {
+    font-size: clamp(0.6875rem, 1.85cqi + 0.4rem, 0.8125rem) !important;
+    line-height: 1.35 !important;
+    letter-spacing: 0.05em !important;
+  }
+
+  :is(
+    body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+    body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+  ) .nf-insight-card-hashtag {
+    font-size: clamp(0.65rem, 1.5cqi + 0.36rem, 0.8125rem) !important;
+  }
+}
+
+@supports not (width: 1cqw) {
+  :is(
+    body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+    body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+  ) .nf-insight-related-card-head h3 {
+    font-size: clamp(1rem, 2.4vw + 0.55rem, 1.5rem) !important;
+    line-height: 1.18 !important;
+    letter-spacing: -0.02em !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  :is(
+    body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+    body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+  ) .flex.gap-3 span,
+  :is(
+    body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+    body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+  ) .nf-insight-related-card-meta span {
+    font-size: clamp(0.6875rem, 0.35vw + 0.62rem, 0.8125rem) !important;
+    line-height: 1.35 !important;
+    letter-spacing: 0.05em !important;
+  }
+
+  :is(
+    body[data-nf-layout="insight-article"] section.nf-insight-related-section .nf-insight-related-card,
+    body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card
+  ) .nf-insight-card-hashtag {
+    font-size: clamp(0.65rem, 0.25vw + 0.58rem, 0.8125rem) !important;
+  }
+}
+
+/*
+ * Pre-footer navy band: moved after </main> in postprocess so it matches footer width (body child).
+ * Horizontal padding matches footer’s first section: px-5 md:px-7 lg:px-14.
+ */
+body[data-nf-layout="insight-article"] > section.nf-insight-prefooter-cta {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box;
+  padding-left: max(1.25rem, env(safe-area-inset-left, 0px)) !important;
+  padding-right: max(1.25rem, env(safe-area-inset-right, 0px)) !important;
+  text-align: center !important;
+}
+
+@media (min-width: 768px) {
+  body[data-nf-layout="insight-article"] > section.nf-insight-prefooter-cta {
+    padding-left: max(1.75rem, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(1.75rem, env(safe-area-inset-right, 0px)) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  body[data-nf-layout="insight-article"] > section.nf-insight-prefooter-cta {
+    padding-left: max(3.5rem, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(3.5rem, env(safe-area-inset-right, 0px)) !important;
+  }
+}
+
+body[data-nf-layout="insight-article"] > section.nf-insight-prefooter-cta > div[class*='max-w'] {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100%;
+  max-width: min(1600px, 100%) !important;
+}
+
+body[data-nf-layout="insight-article"] > section.nf-insight-prefooter-cta [class*='my-32'] {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+  width: 100%;
+}
+
+body[data-nf-layout="insight-article"] > section.nf-insight-prefooter-cta p.font-sans.text-balance {
+  max-width: min(48rem, 100%);
+  margin-left: auto !important;
+  margin-right: auto !important;
+  text-align: center !important;
+}
+
+body[data-nf-layout="insight-article"] > section.nf-insight-prefooter-cta .group.relative.overflow-hidden.inline-flex {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Author / share row (only when not yet hoisted into hero): align to prose column */
+body[data-nf-layout="insight-article"] main > div[class*="px-5"][class*="md:px-7"] [class*="max-w"] {
+  max-width: min(var(--nf-stripe-article-prose), 100%) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/*
+ * Section subtitles (headingBlock h2): small label scale, flush left with body column.
+ * (Template still ships text-4xl…text-6xl — override hard.)
+ */
+body[data-nf-layout="insight-article"] main [data-type="headingBlock"] h2,
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] h2 {
+  font-size: clamp(1.125rem, 0.85vw + 1rem, 1.3125rem) !important;
+  line-height: 1.35 !important;
+  letter-spacing: 0.01em !important;
+  font-weight: 600 !important;
+  color: var(--nf-insight-stripe-ink) !important;
+  margin-bottom: 0.45rem !important;
+  margin-top: 0 !important;
+  text-align: left !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  max-width: none !important;
+}
+
+html.dark body[data-nf-layout="insight-article"] main [data-type="headingBlock"] h2,
+html.dark body[data-nf-layout="insight-article"] main [data-type="page-section-content"] h2 {
+  color: #f8fafc !important;
+}
+
+/* Body copy & lists — ~17px; tighter paragraph stack (less gap before next subtitle block) */
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] p.font-serif,
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] p {
+  font-family: var(--font-sans, ui-sans-serif, system-ui, -apple-system, sans-serif) !important;
+  font-size: 1.0625rem !important;
+  line-height: 1.65 !important;
+  color: #425466 !important;
+  margin-bottom: 0.65rem !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] p:last-child {
+  margin-bottom: 0 !important;
+}
+
+html.dark body[data-nf-layout="insight-article"] main [data-type="page-section-content"] p {
+  color: rgba(203, 213, 225, 0.95) !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] p.text-xl,
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] p.text-2xl {
+  font-size: 1.1875rem !important;
+  line-height: 1.6 !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] li {
+  font-family: var(--font-sans, ui-sans-serif, system-ui, -apple-system, sans-serif) !important;
+  font-size: 1.0625rem !important;
+  line-height: 1.6 !important;
+  color: #425466 !important;
+  margin-bottom: 0.35rem !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] ul,
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] ol {
+  margin-top: 0.35rem !important;
+  margin-bottom: 0.65rem !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] h3 {
+  margin-top: 1.1rem !important;
+  margin-bottom: 0.45rem !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] img {
+  margin-top: 0.35rem !important;
+  margin-bottom: 0.65rem !important;
+}
+
+html.dark body[data-nf-layout="insight-article"] main [data-type="page-section-content"] li {
+  color: rgba(203, 213, 225, 0.95) !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] strong {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+html.dark body[data-nf-layout="insight-article"] main [data-type="page-section-content"] strong {
+  color: #f1f5f9 !important;
+}
+
+/* Strip all editorial “card” chrome on any article cell (incl. hover) */
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"],
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"]:hover {
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  transition: none !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"][class*="lg:col-span-6"]:has(p, h2, h3),
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"][class*="lg:col-span-6"]:has(p, h2, h3):hover {
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  transition: none !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"][class*="lg:col-span-6"]:has(p, h2, h3) {
+  border-radius: 0;
+}
+
+/* -------------------------------------------------------------------------
+ * reading: long-form slugs — stack the 12-col rows into a centered column
+ * ------------------------------------------------------------------------- */
+@media (min-width: 1024px) {
+  body[data-nf-layout="reading"] main > section .grid.grid-cols-12.gap-x-6 {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 2.75rem !important;
+  }
+
+  body[data-nf-layout="reading"] main > section .grid.grid-cols-12 > * {
+    grid-column: auto !important;
+    width: 100%;
+    max-width: min(100%, var(--nf-rhythm-prose-max));
+    justify-self: center !important;
+  }
+
+  /* Let images breathe a bit wider than body copy */
+  body[data-nf-layout="reading"] main > section .grid.grid-cols-12 > [data-type="page-section-content"]:has(img) {
+    max-width: min(100%, 52rem);
+  }
+}
+
+/* -------------------------------------------------------------------------
+ * marketing home: keep shell generous; gutters still apply from section rules
+ * ------------------------------------------------------------------------- */
+body[data-nf-layout="marketing"] {
+  --nf-rhythm-shell-max: 1560px;
+}
+
+/* -------------------------------------------------------------------------
+ * Insights listing: topic tabs + topic dropdown (insights.html)
+ * ------------------------------------------------------------------------- */
+.nf-insights-topic-tabs__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--color-nf-green, #00c78c) 22%, transparent);
+}
+
+.dark .nf-insights-topic-tabs__list {
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+.nf-insights-topic-tabs__tab {
+  font-family: inherit;
+  font-size: 0.7rem;
+  line-height: 1.25;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.65rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-nf-deep-navy, #000e38);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.dark .nf-insights-topic-tabs__tab {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.nf-insights-topic-tabs__tab:hover {
+  border-color: var(--color-nf-green, #00c78c);
+  color: var(--color-nf-green, #00c78c);
+}
+
+.nf-insights-topic-tabs__tab[aria-selected="true"] {
+  border-color: var(--color-nf-green, #00c78c);
+  background: var(--color-nf-green, #00c78c);
+  color: var(--color-nf-deep-navy, #000e38);
+}
+
+.dark .nf-insights-topic-tabs__tab[aria-selected="true"] {
+  color: var(--color-nf-deep-navy, #000e38);
+}
+
+.nf-insights-topic-tabs__tab:focus-visible {
+  outline: 2px solid var(--color-nf-green, #00c78c);
+  outline-offset: 2px;
+}
+
+.nf-insights-topic-tabs__panel-body {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.nf-insights-tab-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.nf-insights-topic-select-wrap {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.85rem;
+  margin-top: 0.35rem;
+}
+
+.nf-insights-topic-select-wrap[hidden] {
+  display: none !important;
+}
+
+.nf-insights-topic-select-label {
+  font-family: inherit;
+  font-size: 0.7rem;
+  line-height: 1.25;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-nf-deep-navy, #000e38);
+  flex-shrink: 0;
+}
+
+.nf-insights-topic-select-label::after {
+  content: ':';
+}
+
+.dark .nf-insights-topic-select-label {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* Native <select> kept for semantics; custom UI is the visible control (mirror-insights-tabs.js). */
+.nf-insights-topic-select--native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nf-insights-topic-select-ui {
+  position: relative;
+  display: inline-block;
+  min-width: min(100%, 14rem);
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.nf-insights-topic-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.5rem 1rem 0.5rem 1.15rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  text-align: left;
+  color: var(--color-nf-deep-navy, #000e38);
+  background: #fff;
+  border: 1px solid var(--color-nf-green, #00c78c);
+  border-radius: 9999px;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.nf-insights-topic-select-trigger:hover {
+  background: color-mix(in srgb, var(--color-nf-green, #92f279) 18%, #fff);
+}
+
+.nf-insights-topic-select-trigger:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-nf-green, #00c78c) 35%, transparent);
+}
+
+.nf-insights-topic-select-trigger-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nf-insights-topic-select-chevron {
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  margin-top: -0.25rem;
+  opacity: 0.72;
+  transition: transform 0.2s ease, margin 0.2s ease;
+}
+
+.nf-insights-topic-select-trigger[aria-expanded='true'] .nf-insights-topic-select-chevron {
+  transform: rotate(225deg);
+  margin-top: 0.12rem;
+}
+
+.nf-insights-topic-select-listbox {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 60;
+  margin: 0;
+  padding: 0.35rem 0;
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--color-nf-deep-navy, #0f172a) 10%, #e2e8f0);
+  border-radius: 0.75rem;
+  box-shadow:
+    0 12px 40px rgba(15, 23, 42, 0.12),
+    0 2px 8px rgba(15, 23, 42, 0.06);
+  max-height: min(280px, 45vh);
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.nf-insights-topic-select-option {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0.55rem 1rem;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  text-align: left;
+  color: var(--color-nf-deep-navy, #000e38);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.nf-insights-topic-select-option:hover,
+.nf-insights-topic-select-option:focus {
+  outline: none;
+  background: color-mix(in srgb, var(--color-nf-green, #92f279) 22%, #f8fafc);
+}
+
+.nf-insights-topic-select-option.is-selected {
+  font-weight: 600;
+  background: color-mix(in srgb, var(--color-nf-green, #92f279) 28%, #f0fdf4);
+}
+
+html.dark .nf-insights-topic-select-trigger,
+.dark .nf-insights-topic-select-trigger {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+  border-color: var(--color-nf-green, #00c78c);
+}
+
+html.dark .nf-insights-topic-select-trigger:hover,
+.dark .nf-insights-topic-select-trigger:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+html.dark .nf-insights-topic-select-listbox,
+.dark .nf-insights-topic-select-listbox {
+  background: #1e293b;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+html.dark .nf-insights-topic-select-option,
+.dark .nf-insights-topic-select-option {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+html.dark .nf-insights-topic-select-option:hover,
+html.dark .nf-insights-topic-select-option:focus,
+.dark .nf-insights-topic-select-option:hover,
+.dark .nf-insights-topic-select-option:focus {
+  background: rgba(146, 242, 121, 0.12);
+}
+
+html.dark .nf-insights-topic-select-option.is-selected,
+.dark .nf-insights-topic-select-option.is-selected {
+  background: rgba(146, 242, 121, 0.2);
+}
+
+body.nf-insights-index .nf-insights-article-card--hidden {
+  display: none !important;
+}
+
+/* Hero jump to #digital-community (chevron from postprocess); on pages without insights-explore.css */
+body.nf-insights-index a.nf-insights-jump-to-community {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  text-decoration: none !important;
+}
+body.nf-insights-index a.nf-insights-jump-to-community .nf-insights-jump-to-community__label {
+  text-decoration: none !important;
+}
+body.nf-insights-index a.nf-insights-jump-to-community .nf-insights-jump-to-community__chev {
+  flex-shrink: 0;
+  font-size: 0.92em;
+  line-height: 1;
+  font-weight: 700;
+  opacity: 0.75;
+  translate: 0 0.06em;
+}
+html.dark body.nf-insights-index a.nf-insights-jump-to-community .nf-insights-jump-to-community__chev,
+.dark body.nf-insights-index a.nf-insights-jump-to-community .nf-insights-jump-to-community__chev {
+  opacity: 0.85;
+}
+
+/* In-page anchor: clear fixed site header when jumping to Engineering community */
+body.nf-insights-index #digital-community {
+  scroll-margin-top: clamp(5.5rem, 14vw, 6.5rem);
+}
+
+/* Empty state when topic/tag filters hide every card on this page (mirror-insights-tabs.js) */
+body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-filter-empty {
+  grid-column: 1 / -1;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 clamp(1rem, 2vw, 1.5rem);
+  padding: 1.1rem 1.25rem;
+  border-radius: 0.85rem;
+  border: 1px dashed color-mix(in srgb, var(--color-nf-deep-navy, #0f172a) 18%, #cbd5e1);
+  background: color-mix(in srgb, var(--color-nf-green, #92f279) 12%, #f8fafc);
+  font: 500 0.95rem/1.45 system-ui, -apple-system, sans-serif;
+  color: #334155;
+  text-align: center;
+}
+
+body.nf-insights-index .nf-insights-filter-empty[hidden] {
+  display: none !important;
+}
+
+/* Shown instead of “Load more” when a topic/tag filter is active (JS: mirror-insights-tabs.js) */
+body.nf-insights-index .nf-insights-filter-pagination-note {
+  max-width: 42rem;
+  margin: 0 auto 2.5rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--color-nf-deep-navy, #0f172a) 12%, #cbd5e1);
+  background: #f1f5f9;
+  font: 500 0.875rem/1.45 system-ui, -apple-system, sans-serif;
+  color: #475569;
+  text-align: center;
+}
+
+body.nf-insights-index .nf-insights-filter-pagination-note[hidden] {
+  display: none !important;
+}
+
+.dark body.nf-insights-index .nf-insights-filter-pagination-note {
+  border-color: rgba(148, 163, 184, 0.4);
+  background: rgba(30, 41, 59, 0.55);
+  color: #cbd5e1;
+}
+
+.dark body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-filter-empty {
+  border-color: rgba(148, 163, 184, 0.45);
+  background: rgba(30, 41, 59, 0.65);
+  color: #e2e8f0;
+}
+
+/* -------------------------------------------------------------------------
+ * Insights index: option 2 — bento / asymmetric grid (per feed list)
+ * ------------------------------------------------------------------------- */
+body.nf-insights-index .nf-insights-feed-list--stack {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.35rem, 3.5vw, 2rem);
+}
+
+body.nf-insights-index .nf-insights-feed-list--stack > div:empty {
+  display: none;
+}
+
+/* Collapse grid rows when the article card is filter-hidden (wrapper still in DOM on desktop) */
+body.nf-insights-index
+  .nf-insights-feed-list--stack
+  > div:has(> .nf-insights-article-card.nf-insights-article-card--hidden) {
+  display: none !important;
+}
+
+body.nf-insights-index .nf-insights-feed-list--stack .nf-insights-article-card {
+  margin-bottom: 0 !important;
+}
+
+/* Topic tags as plain hashtags (mirror-insights-card-cta.js) — all pages with article cards */
+.nf-insight-card-hashtags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.65rem;
+  align-items: center;
+  padding-top: 0.5rem;
+}
+
+.nf-insight-card-hashtag {
+  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #64748b;
+  letter-spacing: 0.02em;
+}
+
+html.dark .nf-insight-card-hashtag,
+.dark .nf-insight-card-hashtag {
+  color: #94a3b8;
+}
+
+/*
+ * Listing cards: keep card hover (lift, border, shadow) but do not scale or filter the photo.
+ * Tailwind v4 uses `scale:` + group-hover — reset scale vars and both properties.
+ */
+[data-nf-insight-card] img,
+.nf-insights-article-card img,
+.nf-insights-bento-tile img,
+.nf-insight-related-card img {
+  --tw-scale-x: 1 !important;
+  --tw-scale-y: 1 !important;
+  --tw-scale-z: 1 !important;
+  scale: 1 1 !important;
+  transform: none !important;
+  filter: none !important;
+  transition: none !important;
+}
+
+@media (hover: hover) {
+  [data-nf-insight-card]:hover img,
+  .nf-insights-article-card:hover img,
+  .nf-insights-bento-tile:hover img,
+  .nf-insight-related-card:hover img,
+  [data-nf-insight-card] :where(.group):hover img,
+  .nf-insights-article-card :where(.group):hover img,
+  .nf-insights-bento-tile :where(.group):hover img,
+  .nf-insight-related-card :where(.group):hover img {
+    --tw-scale-x: 1 !important;
+    --tw-scale-y: 1 !important;
+    --tw-scale-z: 1 !important;
+    scale: 1 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* Bento tile chrome + inner flex: shared with article “related” via :is(...) rules above. */
+
+/* —— Large screens: 6-column bento —— */
+@media (min-width: 1024px) {
+  body.nf-insights-index .nf-insights-feed-list--stack {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, auto);
+    grid-auto-flow: dense;
+    gap: clamp(1rem, 2vw, 1.35rem);
+    align-items: stretch;
+  }
+
+  /* Hero: 4×2 */
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--0 {
+    grid-column: span 4;
+    grid-row: span 2;
+    min-height: 0;
+  }
+
+  /* Top-right stack */
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--1,
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--2 {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+
+  /* Wide pair */
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--3,
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--4 {
+    grid-column: span 3;
+    grid-row: span 1;
+  }
+
+  /* Three medium tiles */
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--5,
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--6,
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--7 {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+
+  /* Secondary feed: even 3-across */
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--std {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+
+  /* Slot 0: taller imagery */
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--0 img {
+    min-height: clamp(220px, 32vw, 340px);
+    aspect-ratio: 16 / 10;
+  }
+
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--0 h3 {
+    font-size: clamp(1.65rem, 2.8vw, 2.35rem) !important;
+    line-height: 1.1 !important;
+    letter-spacing: -0.025em !important;
+  }
+
+  /* Slots 1–2: portrait-ish */
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--1 img,
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--2 img {
+    aspect-ratio: 4 / 3;
+    max-height: 200px;
+  }
+
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--1 h3,
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--2 h3 {
+    font-size: clamp(1.05rem, 1.5vw, 1.2rem) !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Slots 3–7 + std */
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--3 img,
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--4 img,
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--5 img,
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--6 img,
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--7 img,
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--std img {
+    aspect-ratio: 16 / 9;
+    max-height: 200px;
+  }
+
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--3 h3,
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--4 h3 {
+    font-size: clamp(1.2rem, 1.9vw, 1.5rem) !important;
+    line-height: 1.18 !important;
+  }
+
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--5 h3,
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--6 h3,
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--7 h3,
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--std h3 {
+    font-size: clamp(1.05rem, 1.45vw, 1.25rem) !important;
+    line-height: 1.22 !important;
+  }
+}
+
+/* Tablet: 2-column mosaic */
+@media (min-width: 640px) and (max-width: 1023px) {
+  body.nf-insights-index .nf-insights-feed-list--stack {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.1rem;
+    grid-auto-flow: dense;
+  }
+
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--0 {
+    grid-column: span 2;
+  }
+
+  body.nf-insights-index .nf-insights-feed-list--stack > .nf-insights-bento-slot--std {
+    grid-column: span 1;
+  }
+
+  body.nf-insights-index .nf-insights-feed-list--stack [class*='nf-insights-bento-slot--'] img {
+    aspect-ratio: 16 / 9;
+    max-height: 220px;
+  }
+}
+
+/* Small phones: stack; strip bento spans */
+@media (max-width: 639px) {
+  body.nf-insights-index .nf-insights-feed-list--stack [class*='nf-insights-bento-slot--'] img {
+    aspect-ratio: 16 / 9;
+    max-height: 240px;
+  }
+
+  body.nf-insights-index .nf-insights-feed-list--stack [class*='nf-insights-bento-slot--'] h3 {
+    font-size: clamp(1.15rem, 4.2vw, 1.45rem) !important;
+  }
+}

@@ -1,0 +1,204 @@
+/**
+ * Service practice pages: large orbit under H2 (left col), aligned with body copy
+ * via grid row span. Labels stay horizontal (counter-rotated). Rings + core animate.
+ */
+
+/* Title column spans row 1–2 so orbit aligns with body copy in row 2 */
+@media (min-width: 1024px) {
+  body[data-nf-service-orbit] main > section:nth-of-type(2) .grid.grid-cols-12 > [data-type="page-section-content"]:first-child {
+    grid-row: span 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(1.25rem, 2.2vw, 2rem);
+  }
+}
+
+.nf-svc-orbit {
+  /* ~260–320px diameter on desktop — closer to title + paragraph scale */
+  --nf-orbit-r: min(92px, 24vw);
+  flex-shrink: 0;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .nf-svc-orbit {
+    --nf-orbit-r: min(108px, 22vw);
+  }
+}
+
+@media (min-width: 1024px) {
+  .nf-svc-orbit {
+    --nf-orbit-r: min(132px, 16vw);
+  }
+}
+
+@media (min-width: 1280px) {
+  .nf-svc-orbit {
+    --nf-orbit-r: min(142px, 14vw);
+  }
+}
+
+.nf-svc-orbit__stage {
+  position: relative;
+  width: calc(var(--nf-orbit-r) * 2 + 44px);
+  height: calc(var(--nf-orbit-r) * 2 + 44px);
+  max-width: 100%;
+}
+
+.nf-svc-orbit__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  transform: rotate(-90deg);
+  transform-origin: center center;
+  pointer-events: none;
+}
+
+.nf-svc-orbit__svg--drift {
+  animation: nf-svc-orbit-svg-drift 52s linear infinite;
+}
+
+@keyframes nf-svc-orbit-svg-drift {
+  from {
+    transform: rotate(-90deg);
+  }
+  to {
+    transform: rotate(270deg);
+  }
+}
+
+.nf-svc-orbit__track {
+  fill: none;
+  stroke: rgba(12, 35, 64, 0.16);
+  stroke-width: 1.35;
+  stroke-dasharray: 8 10;
+  opacity: 0.9;
+  animation: nf-svc-orbit-dash 22s linear infinite;
+}
+
+.nf-svc-orbit__glow-ring {
+  fill: none;
+  stroke: url(#nf-svc-orbit-grad);
+  stroke-width: 2.25;
+  stroke-dasharray: 460;
+  stroke-dashoffset: 460;
+  animation: nf-svc-orbit-draw 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes nf-svc-orbit-dash {
+  to {
+    stroke-dashoffset: -360;
+  }
+}
+
+@keyframes nf-svc-orbit-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.nf-svc-orbit__core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--nf-orbit-r) * 0.46);
+  height: calc(var(--nf-orbit-r) * 0.46);
+  margin: calc(var(--nf-orbit-r) * -0.23) 0 0 calc(var(--nf-orbit-r) * -0.23);
+  border-radius: 50%;
+  z-index: 2;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 199, 140, 0.24),
+    rgba(139, 92, 246, 0.22),
+    rgba(14, 165, 233, 0.24)
+  );
+  box-shadow: 0 10px 36px -10px rgba(15, 23, 42, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  animation: nf-svc-orbit-pulse 3.2s ease-in-out infinite;
+}
+
+@keyframes nf-svc-orbit-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.92;
+  }
+}
+
+.nf-svc-orbit__labels {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Place labels on the ring; counter-rotate so type stays horizontal */
+.nf-svc-orbit__node {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: rotate(var(--nf-orbit-a, 0deg)) translateY(calc(-1 * var(--nf-orbit-r)));
+}
+
+.nf-svc-orbit__label {
+  display: block;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%) rotate(calc(-1 * var(--nf-orbit-a, 0deg)));
+  white-space: nowrap;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: clamp(0.5625rem, 1.35vw, 0.6875rem);
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: #0f172a;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 199, 140, 0.38);
+  box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.14);
+}
+
+.nf-svc-orbit__node:nth-child(1) .nf-svc-orbit__label {
+  border-color: rgba(0, 199, 140, 0.48);
+}
+
+.nf-svc-orbit__node:nth-child(2) .nf-svc-orbit__label {
+  border-color: rgba(139, 92, 246, 0.42);
+}
+
+.nf-svc-orbit__node:nth-child(3) .nf-svc-orbit__label {
+  border-color: rgba(14, 165, 233, 0.48);
+}
+
+.dark .nf-svc-orbit__label {
+  color: #e2e8f0;
+  background: rgba(15, 23, 42, 0.92);
+  border-color: rgba(0, 199, 140, 0.45);
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nf-svc-orbit__track,
+  .nf-svc-orbit__glow-ring,
+  .nf-svc-orbit__svg--drift,
+  .nf-svc-orbit__core {
+    animation: none !important;
+  }
+
+  .nf-svc-orbit__svg--drift {
+    transform: rotate(-90deg);
+  }
+
+  .nf-svc-orbit__glow-ring {
+    stroke-dashoffset: 0;
+  }
+}
