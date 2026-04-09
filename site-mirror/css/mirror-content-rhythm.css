@@ -120,34 +120,25 @@ body[data-nf-layout]:not([data-nf-layout="audit-index"]) > main .max-w-\[1600px\
  * Not applied to insights.html / insights_N (listing pagination).
  * ------------------------------------------------------------------------- */
 body[data-nf-layout="insight-article"] {
-  /* ~680px main column — matches Stripe blog article measure */
-  --nf-stripe-article-prose: 42.5rem;
-  --nf-insight-meta-col: 10.75rem;
-  --nf-insight-meta-gap: 2.25rem;
   /*
-   * Editorial shell width — use 100vw (not %) so the custom property always resolves.
-   * Body sections also cap with max-width; padding must stay modest (see gutters below).
+   * Narrower section/header gutters than the Insights hub (do not use nf-insights-index tokens).
+   * Editorial column width matches Insights inner shell: min(1600px, --nf-rhythm-shell-max).
    */
-  --nf-insight-editorial-max: min(
-    calc(
-      var(--nf-insight-meta-col) + var(--nf-insight-meta-gap) +
-        var(--nf-stripe-article-prose)
-    ),
-    100vw
+  --nf-rhythm-gutter-min: 1.25rem;
+  --nf-rhythm-gutter-fluid: 5vw;
+  --nf-rhythm-gutter-max: 2.5rem;
+  --nf-insight-meta-col: 0rem;
+  --nf-insight-meta-gap: 0rem;
+  --nf-insight-rule-gutter: 20px;
+  --nf-insight-shell-cap: min(1600px, var(--nf-rhythm-shell-max));
+  --nf-insight-editorial-max: min(var(--nf-insight-shell-cap), 100vw);
+  --nf-stripe-article-prose: calc(
+    min(var(--nf-insight-shell-cap), 100vw) - 2 * var(--nf-insight-rule-gutter)
   );
   --nf-insight-stripe-ink: #0a2540;
   --nf-insight-stripe-muted: #697386;
   /* Breadcrumb, social link, date bar — Nearform green */
   --nf-insight-stripe-accent: var(--color-nf-green, #00c78c);
-  /*
-   * Critical: do NOT reuse marketing 24rem side gutters here — article max-width is only
-   * ~55rem; box-sizing:border-box + 24rem×2 padding collapses the prose column to a sliver.
-   */
-  --nf-rhythm-gutter-min: 1.25rem;
-  --nf-rhythm-gutter-fluid: 5vw;
-  --nf-rhythm-gutter-max: 2.5rem;
-  /* Vertical column guides: left rule sits before the author rail; 20px gutters to content */
-  --nf-insight-rule-gutter: 20px;
   --nf-insight-column-stroke: rgba(15, 23, 42, 0.07);
   --nf-insight-column-stroke-dark: rgba(255, 255, 255, 0.09);
 }
@@ -204,15 +195,12 @@ body[data-nf-layout="insight-article"] main > section:not(:first-of-type) .grid.
 }
 
 /*
- * Shared 3-column editorial grid (Stripe blog): [ meta ] [ gap ] [ prose ].
- * Same grid on title, hero, and body sections so every prose line shares one left edge.
- * .flex on sections requires grid !important.
+ * Single-column editorial shell: strokes + padding live on the inner max-w shells.
+ * (Former left meta rail for author/share is under the title via .nf-insight-article-meta-row.)
  */
 body[data-nf-layout="insight-article"] main > section:first-of-type {
   display: grid !important;
-  /* Col 3 = 1fr avoids % track sizing bugs; width is already capped by editorial max */
-  grid-template-columns:
-    minmax(0, var(--nf-insight-meta-col)) var(--nf-insight-meta-gap) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: start !important;
   justify-items: stretch;
   column-gap: 0;
@@ -226,28 +214,10 @@ body[data-nf-layout="insight-article"] main > section:first-of-type {
   flex-direction: unset !important;
 }
 
-/*
- * Title: left rule in meta column (col 1) from row 2 only — same x as hero byline stroke, not beside h1.
- * Right rule: border on title shell (prose column). Suppress stray ::after (e.g. mirror-a11y hairline).
- */
+/* Left stroke now on title inner shell (see > div[max-w]); pseudo column removed */
 body[data-nf-layout="insight-article"] main > section:first-of-type::before {
-  content: "";
-  grid-column: 1;
-  grid-row: 2;
-  width: 0;
-  margin: 0;
-  padding: 0;
-  border: none;
-  border-left: 1px solid var(--nf-insight-column-stroke);
-  align-self: stretch;
-  justify-self: start;
-  min-height: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-html.dark body[data-nf-layout="insight-article"] main > section:first-of-type::before {
-  border-left-color: var(--nf-insight-column-stroke-dark);
+  content: none !important;
+  display: none !important;
 }
 
 body[data-nf-layout="insight-article"] main > section:first-of-type::after {
@@ -327,9 +297,9 @@ html.dark body[data-nf-layout="insight-article"] main > section:first-of-type .n
   color: rgba(203, 213, 225, 0.75) !important;
 }
 
-/* Title shell: prose column only (row after kicker); right rule + gutter (left rule is col 1 ::before) */
+/* Title shell: full column width; left + right strokes with inner gutters */
 body[data-nf-layout="insight-article"] main > section:first-of-type > div[class*="max-w"] {
-  grid-column: 3;
+  grid-column: 1;
   grid-row: 2;
   max-width: none !important;
   margin-left: 0 !important;
@@ -338,15 +308,18 @@ body[data-nf-layout="insight-article"] main > section:first-of-type > div[class*
   min-width: 0 !important;
   justify-self: stretch;
   box-sizing: border-box;
+  padding-left: var(--nf-insight-rule-gutter) !important;
   padding-right: var(--nf-insight-rule-gutter) !important;
+  border-left: 1px solid var(--nf-insight-column-stroke);
   border-right: 1px solid var(--nf-insight-column-stroke);
 }
 
 html.dark body[data-nf-layout="insight-article"] main > section:first-of-type > div[class*="max-w"] {
+  border-left-color: var(--nf-insight-column-stroke-dark);
   border-right-color: var(--nf-insight-column-stroke-dark);
 }
 
-/* Date under title — brand accent bar */
+/* Date — brand accent bar (sits in .nf-insight-article-meta-row__left after author) */
 body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-date {
   display: flex !important;
   align-items: stretch;
@@ -359,6 +332,79 @@ body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-
   line-height: 1.4 !important;
   font-weight: 400 !important;
   color: var(--nf-insight-stripe-muted) !important;
+}
+
+/* Name column stacks name + green-stroke date (postprocess: stackInsightArticleDateUnderAuthor) */
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row__left .flex.items-center > .ml-4 {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  /* Tightened −40% vs 0.35rem */
+  gap: 0.21rem !important;
+}
+
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row .ml-4 .nf-insight-article-date {
+  /* Tightened −40% vs 0.25rem top */
+  margin: 0.15rem 0 0 0 !important;
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Fallback if date is still a direct child of __left (should not happen after postprocess) */
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row__left > .nf-insight-article-date {
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+/* Legacy duplicate line from source byline — hidden if postprocess has not stripped it yet */
+body[data-nf-layout="insight-article"] main .nf-insight-byline-date--hidden {
+  display: none !important;
+}
+
+/* Title row: author + date left, share icons right */
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  width: 100%;
+  /* Space below main title (doubled from 0.975rem) */
+  margin: 1.95rem 0 0 0;
+  box-sizing: border-box;
+}
+
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row__left {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem 1.15rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row__right {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row__right ul.list-none {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap;
+  align-items: center !important;
+  gap: 0.55rem 0.75rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+  border-top: none !important;
+}
+
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row__right ul.list-none > li:first-child {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  max-width: none !important;
 }
 
 body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-date__accent {
@@ -396,6 +442,13 @@ body[data-nf-layout="insight-article"] main > section:first-of-type h1 {
   letter-spacing: -0.025em !important;
   font-weight: 700 !important;
   color: var(--nf-insight-stripe-ink) !important;
+  /* Reduce single-word last lines where the engine supports it (Chromium, recent Safari) */
+  text-wrap: pretty;
+}
+
+/* Last two words kept together by mirror-insight-title-orphan.js when they fit */
+body[data-nf-layout="insight-article"] main > section:first-of-type h1 .nf-insight-title-tail {
+  white-space: nowrap;
 }
 
 html.dark body[data-nf-layout="insight-article"] main > section:first-of-type h1 {
@@ -421,12 +474,32 @@ html.dark body[data-nf-layout="insight-article"] main > section:first-of-type .g
   color: rgba(203, 213, 225, 0.88) !important;
 }
 
-/* Tighter section rhythm — less air between paragraph blocks and the next subtitle (Stripe-like) */
+/* +50% vs 1.125rem — space below author/share row to subtitle */
+body[data-nf-layout="insight-article"]
+  main
+  > section:first-of-type
+  .nf-insight-article-meta-row
+  + p:not([data-nf-insight-article-date]) {
+  margin-top: 1.6875rem !important;
+}
+
+/*
+ * Section rhythm between article blocks (hr between blocks is hidden — vertical gap is padding).
+ * Body sections (not “You may also like”): +50% vs 1.35rem / 1rem so the pause after each
+ * body column before the next subtitle is roomier.
+ */
 body[data-nf-layout="insight-article"] main > section:not(:first-of-type)[class*="px-5"],
 body[data-nf-layout="insight-article"] main > section:not(:first-of-type)[class*="md:px-7"],
 body[data-nf-layout="insight-article"] main > section:not(:first-of-type)[class*="lg:px-8"] {
   padding-top: 1.35rem !important;
   padding-bottom: 1rem !important;
+}
+
+body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="px-5"]:not(.nf-insight-related-section),
+body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="md:px-7"]:not(.nf-insight-related-section),
+body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="lg:px-8"]:not(.nf-insight-related-section) {
+  padding-top: calc(1.35rem * 1.5) !important;
+  padding-bottom: calc(1rem * 1.5) !important;
 }
 
 body[data-nf-layout="insight-article"] main > section:first-of-type {
@@ -453,8 +526,7 @@ body[data-nf-layout="insight-article"] main > section:first-of-type {
  */
 body[data-nf-layout="insight-article"] main > section.nf-insight-hero-wrap {
   display: grid !important;
-  grid-template-columns:
-    minmax(0, var(--nf-insight-meta-col)) var(--nf-insight-meta-gap) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: start !important;
   justify-items: stretch !important;
   align-content: start !important;
@@ -480,30 +552,19 @@ body[data-nf-layout="insight-article"] main > section.nf-insight-hero-wrap {
   position: static;
   overflow: visible !important;
   flex-direction: unset !important;
-  background-origin: content-box;
-  background-repeat: no-repeat;
-  background-size:
-    1px 100%,
-    1px 100%;
-  background-position:
-    left top,
-    right top;
-  background-image:
-    linear-gradient(var(--nf-insight-column-stroke), var(--nf-insight-column-stroke)),
-    linear-gradient(var(--nf-insight-column-stroke), var(--nf-insight-column-stroke));
+  /* Vertical strokes live on inner max-w (matches title column) */
+  background-image: none;
 }
 
 html.dark body[data-nf-layout="insight-article"] main > section.nf-insight-hero-wrap {
-  background-image:
-    linear-gradient(var(--nf-insight-column-stroke-dark), var(--nf-insight-column-stroke-dark)),
-    linear-gradient(var(--nf-insight-column-stroke-dark), var(--nf-insight-column-stroke-dark));
+  background-image: none;
 }
 
 body[data-nf-layout="insight-article"]
   main
   > section.nf-insight-hero-wrap
   > div[class*="max-w"] {
-  grid-column: 3;
+  grid-column: 1;
   grid-row: 1;
   max-width: none !important;
   margin-left: 0 !important;
@@ -511,58 +572,24 @@ body[data-nf-layout="insight-article"]
   width: 100% !important;
   min-width: 0 !important;
   justify-self: stretch !important;
+  padding-left: var(--nf-insight-rule-gutter) !important;
   padding-right: var(--nf-insight-rule-gutter) !important;
+  border-left: 1px solid var(--nf-insight-column-stroke);
+  border-right: 1px solid var(--nf-insight-column-stroke);
   box-sizing: border-box;
 }
 
-/* Left rail — 20px gutter between vertical rule and avatar / byline */
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] {
-  grid-column: 1;
-  grid-row: 1;
-  position: static !important;
-  z-index: auto;
-  margin: 0 !important;
-  padding-top: 0.2rem !important;
-  padding-right: 0 !important;
-  padding-bottom: 0 !important;
-  padding-left: var(--nf-insight-rule-gutter) !important;
-  max-width: 100% !important;
-  width: 100%;
-  min-width: 0 !important;
-}
-
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .flex-1 {
-  flex: 0 1 auto !important;
-  min-width: 0 !important;
-}
-
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] [class*="max-w"] {
-  max-width: 100% !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-}
-
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .flex.items-center.flex-col,
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .flex[class*="sm:flex-row"] {
-  flex-direction: column !important;
-  flex-wrap: nowrap !important;
-  align-items: flex-start !important;
-  justify-content: flex-start !important;
-  gap: 1.25rem !important;
-  width: 100% !important;
-}
-
-/* Date line removed from byline when mirrored under title */
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .nf-insight-byline-date--hidden {
-  display: none !important;
-}
-
-/* Author photo: smaller ring than template logo tile; drop navy fill behind portrait */
-body[data-nf-layout="insight-article"]
+html.dark
+  body[data-nf-layout="insight-article"]
   main
-  [data-nf-insight-hero-byline]
-  .flex.items-center
-  > div:has(> img) {
+  > section.nf-insight-hero-wrap
+  > div[class*="max-w"] {
+  border-left-color: var(--nf-insight-column-stroke-dark);
+  border-right-color: var(--nf-insight-column-stroke-dark);
+}
+
+/* Author row (in title meta row): portrait ring + name */
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row .flex.items-center > div:has(> img) {
   width: 3rem !important;
   height: 3rem !important;
   min-width: 3rem !important;
@@ -576,14 +603,14 @@ body[data-nf-layout="insight-article"]
 html.dark
   body[data-nf-layout="insight-article"]
   main
-  [data-nf-insight-hero-byline]
+  .nf-insight-article-meta-row
   .flex.items-center
   > div:has(> img) {
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22);
 }
 
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] img[alt="Author"],
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] img[alt="avatar"] {
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row img[alt="Author"],
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row img[alt="avatar"] {
   display: block !important;
   width: 100% !important;
   height: 100% !important;
@@ -592,8 +619,7 @@ body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] img[al
   border-radius: 9999px !important;
 }
 
-/* Author name: sentence case, bold — Stripe sidebar */
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .ml-4 > div:first-child {
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row .ml-4 > div:first-child {
   font-weight: 700 !important;
   text-transform: none !important;
   letter-spacing: -0.01em !important;
@@ -601,78 +627,50 @@ body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .ml-4 
   line-height: 1.35 !important;
 }
 
-/* Share label on its own row; social icons in a row directly underneath */
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] ul.list-none {
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: wrap !important;
-  align-items: flex-start !important;
-  margin: 0.65rem 0 0 !important;
-  padding-top: 0 !important;
-  padding-left: 0 !important;
-  border-top: none !important;
-  gap: 0.65rem 0.75rem !important;
-  list-style: none !important;
-}
-
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] ul.list-none > li:first-child {
-  flex: 0 0 100% !important;
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] ul.list-none > li:not(:first-child) {
-  flex: 0 0 auto !important;
-}
-
-html.dark body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] ul.list-none {
-  border-top: none !important;
-}
-
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline],
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .uppercase {
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row,
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row .uppercase {
   color: var(--nf-insight-stripe-ink) !important;
   font-size: 0.8125rem !important;
   letter-spacing: 0.06em !important;
 }
 
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .text-\[\#514b45\] {
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row .text-\[\#514b45\] {
   color: var(--nf-insight-stripe-muted) !important;
   font-size: 0.75rem !important;
   letter-spacing: 0.05em !important;
 }
 
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] a {
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row__right a {
   color: var(--nf-insight-stripe-muted) !important;
 }
 
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] a:hover {
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row__right a:hover {
   color: var(--nf-insight-stripe-ink) !important;
 }
 
-body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] svg {
+body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row__right svg {
   color: var(--nf-insight-stripe-muted) !important;
   fill: currentColor !important;
 }
 
-html.dark body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline],
-html.dark body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .uppercase {
+html.dark body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row,
+html.dark body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row .uppercase {
   color: #f8fafc !important;
 }
 
-html.dark body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] .text-\[\#514b45\] {
+html.dark body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row .text-\[\#514b45\] {
   color: rgba(203, 213, 225, 0.85) !important;
 }
 
-html.dark body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] a {
+html.dark body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row__right a {
   color: rgba(203, 213, 225, 0.85) !important;
 }
 
-html.dark body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] a:hover {
+html.dark body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row__right a:hover {
   color: #fff !important;
 }
 
-html.dark body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] svg {
+html.dark body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row__right svg {
   color: rgba(203, 213, 225, 0.8) !important;
 }
 
@@ -718,8 +716,7 @@ body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*=
 body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="md:px-7"],
 body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="lg:px-8"] {
   display: grid !important;
-  grid-template-columns:
-    minmax(0, var(--nf-insight-meta-col)) var(--nf-insight-meta-gap) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   max-width: min(100%, var(--nf-insight-editorial-max)) !important;
   margin-left: auto !important;
   margin-right: auto !important;
@@ -737,25 +734,13 @@ body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*=
     var(--nf-rhythm-gutter-fluid),
     var(--nf-rhythm-gutter-max)
   ) !important;
-  background-origin: content-box;
-  background-repeat: no-repeat;
-  background-size:
-    1px 100%,
-    1px 100%;
-  background-position:
-    left top,
-    right top;
-  background-image:
-    linear-gradient(var(--nf-insight-column-stroke), var(--nf-insight-column-stroke)),
-    linear-gradient(var(--nf-insight-column-stroke), var(--nf-insight-column-stroke));
+  background-image: none;
 }
 
 html.dark body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="px-5"],
 html.dark body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="md:px-7"],
 html.dark body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="lg:px-8"] {
-  background-image:
-    linear-gradient(var(--nf-insight-column-stroke-dark), var(--nf-insight-column-stroke-dark)),
-    linear-gradient(var(--nf-insight-column-stroke-dark), var(--nf-insight-column-stroke-dark));
+  background-image: none;
 }
 
 body[data-nf-layout="insight-article"]
@@ -770,15 +755,37 @@ body[data-nf-layout="insight-article"]
   main
   > section:nth-of-type(n + 3)[class*="lg:px-8"]
   > div[class*="max-w"] {
-  grid-column: 3;
+  grid-column: 1;
   grid-row: 1;
   max-width: none !important;
   margin-left: 0 !important;
   margin-right: 0 !important;
   width: 100% !important;
   min-width: 0 !important;
+  padding-left: var(--nf-insight-rule-gutter) !important;
   padding-right: var(--nf-insight-rule-gutter) !important;
+  border-left: 1px solid var(--nf-insight-column-stroke);
+  border-right: 1px solid var(--nf-insight-column-stroke);
   box-sizing: border-box;
+}
+
+html.dark
+  body[data-nf-layout="insight-article"]
+  main
+  > section:nth-of-type(n + 3)[class*="px-5"]
+  > div[class*="max-w"],
+html.dark
+  body[data-nf-layout="insight-article"]
+  main
+  > section:nth-of-type(n + 3)[class*="md:px-7"]
+  > div[class*="max-w"],
+html.dark
+  body[data-nf-layout="insight-article"]
+  main
+  > section:nth-of-type(n + 3)[class*="lg:px-8"]
+  > div[class*="max-w"] {
+  border-left-color: var(--nf-insight-column-stroke-dark);
+  border-right-color: var(--nf-insight-column-stroke-dark);
 }
 
 @media (max-width: 56rem) {
@@ -808,7 +815,10 @@ body[data-nf-layout="insight-article"]
     grid-row: auto;
     width: 100% !important;
     max-width: 100% !important;
+    border-left: none !important;
     border-right: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   body[data-nf-layout="insight-article"] main > section:first-of-type .nf-insight-article-kicker {
@@ -831,16 +841,15 @@ body[data-nf-layout="insight-article"]
     order: 1;
     width: 100% !important;
     max-width: 100% !important;
+    border-left: none !important;
+    border-right: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
-  body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] {
-    order: 2;
-    width: 100% !important;
-    padding-top: 0 !important;
-  }
-
-  body[data-nf-layout="insight-article"] main [data-nf-insight-hero-byline] ul.list-none {
-    margin-top: 0.5rem !important;
+  body[data-nf-layout="insight-article"] main .nf-insight-article-meta-row__right {
+    margin-left: 0 !important;
+    width: 100%;
   }
 
   body[data-nf-layout="insight-article"] main > section:nth-of-type(n + 3)[class*="px-5"],
@@ -865,6 +874,10 @@ body[data-nf-layout="insight-article"]
     grid-column: auto;
     width: 100% !important;
     max-width: 100% !important;
+    border-left: none !important;
+    border-right: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 }
 
@@ -1277,14 +1290,14 @@ html.dark body[data-nf-layout="insight-article"] main [data-type="page-section-c
   color: #f8fafc !important;
 }
 
-/* Body copy & lists — ~17px; tighter paragraph stack (less gap before next subtitle block) */
+/* Body copy & lists — ~17px; paragraph stack +50% vs 0.65rem to match roomier block→subtitle rhythm */
 body[data-nf-layout="insight-article"] main [data-type="page-section-content"] p.font-serif,
 body[data-nf-layout="insight-article"] main [data-type="page-section-content"] p {
   font-family: var(--font-sans, ui-sans-serif, system-ui, -apple-system, sans-serif) !important;
   font-size: 1.0625rem !important;
   line-height: 1.65 !important;
   color: #425466 !important;
-  margin-bottom: 0.65rem !important;
+  margin-bottom: calc(0.65rem * 1.5) !important;
 }
 
 body[data-nf-layout="insight-article"] main [data-type="page-section-content"] p:last-child {
@@ -1311,8 +1324,8 @@ body[data-nf-layout="insight-article"] main [data-type="page-section-content"] l
 
 body[data-nf-layout="insight-article"] main [data-type="page-section-content"] ul,
 body[data-nf-layout="insight-article"] main [data-type="page-section-content"] ol {
-  margin-top: 0.35rem !important;
-  margin-bottom: 0.65rem !important;
+  margin-top: calc(0.35rem * 1.5) !important;
+  margin-bottom: calc(0.65rem * 1.5) !important;
 }
 
 body[data-nf-layout="insight-article"] main [data-type="page-section-content"] h3 {
@@ -1320,7 +1333,36 @@ body[data-nf-layout="insight-article"] main [data-type="page-section-content"] h
   margin-bottom: 0.45rem !important;
 }
 
+/*
+ * Article images: span the full editorial column (same width as body copy column).
+ * Mirrored markup often wraps screenshots in <p class="… xl:max-prose"> — cancel that
+ * narrow measure so images align with the stroked prose shell, not ~65ch.
+ */
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] p:has(img),
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] li:has(img),
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] blockquote:has(img) {
+  max-width: 100% !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] figure,
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] figure > div {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+body[data-nf-layout="insight-article"] main [data-type="page-section-content"] picture {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
 body[data-nf-layout="insight-article"] main [data-type="page-section-content"] img {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  display: block !important;
   margin-top: 0.35rem !important;
   margin-bottom: 0.65rem !important;
 }

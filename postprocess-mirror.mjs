@@ -120,6 +120,14 @@ function ensureFlairAssets($, relPath = '') {
       '<script src="js/mirror-insights-card-cta.js" defer id="mirror-insights-card-cta-js"></script>',
     );
   }
+  if (
+    ($('body').attr('data-nf-layout') || '').trim() === 'insight-article' &&
+    $('script[src="js/mirror-insight-title-orphan.js"]').length === 0
+  ) {
+    $head.append(
+      '<script src="js/mirror-insight-title-orphan.js" defer id="mirror-insight-title-orphan-js"></script>',
+    );
+  }
   if ($('script[src="js/mirror-motion.js"]').length === 0) {
     $head.append('<script type="module" src="js/mirror-motion.js"></script>');
   }
@@ -203,6 +211,47 @@ function hoistInsightArticleHeroByline($) {
   $hero.prepend($byline);
 }
 
+/** e.g. "11 Mar 2026" → "11th of March, 2026" for the green-stroke line */
+function formatInsightArticleDateUkLong(raw) {
+  const t = (raw || '').replace(/\s+/g, ' ').trim();
+  if (!/^\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4}$/.test(t)) return null;
+  const m = t.match(/^(\d{1,2})\s+([A-Za-z]{3,9})\s+(\d{4})$/);
+  if (!m) return null;
+  const d = parseInt(m[1], 10);
+  const mon = m[2];
+  const y = m[3];
+  const ord = (n) => {
+    if (n >= 11 && n <= 13) return `${n}th`;
+    switch (n % 10) {
+      case 1:
+        return `${n}st`;
+      case 2:
+        return `${n}nd`;
+      case 3:
+        return `${n}rd`;
+      default:
+        return `${n}th`;
+    }
+  };
+  const monthKeys = {
+    jan: 'January',
+    feb: 'February',
+    mar: 'March',
+    apr: 'April',
+    may: 'May',
+    jun: 'June',
+    jul: 'July',
+    aug: 'August',
+    sep: 'September',
+    oct: 'October',
+    nov: 'November',
+    dec: 'December',
+  };
+  const key = mon.slice(0, 3).toLowerCase();
+  const monthName = monthKeys[key] || mon;
+  return `${ord(d)} of ${monthName}, ${y}`;
+}
+
 /**
  * Stripe blog–style article chrome: breadcrumb + social kicker, date under H1 with accent
  * (date is lifted from the hoisted byline so it sits above the hero like stripe.com/blog).
@@ -242,10 +291,90 @@ function enhanceInsightArticleStripeHeader($) {
   <span class="nf-insight-article-date__accent" aria-hidden="true"></span>
   <span class="nf-insight-article-date__text"></span>
 </p>`);
-  $dateRow.find('.nf-insight-article-date__text').text(dateText);
+  $dateRow.find('.nf-insight-article-date__text').text(formatInsightArticleDateUkLong(dateText) || dateText);
   $h1.after($dateRow);
 
   $dateSource.addClass('nf-insight-byline-date--hidden').attr('aria-hidden', 'true');
+}
+
+/**
+ * One row under the title: author + date left, share/social icons right.
+ * Removes the hoisted hero byline wrapper once pieces are moved.
+ */
+function relocateInsightArticleMetaRow($) {
+  if (($('body').attr('data-nf-layout') || '') !== 'insight-article') return;
+
+  const $existingMeta = $('.nf-insight-article-meta-row[data-nf-insight-meta-row]').first();
+  if ($existingMeta.length) {
+    const $left = $existingMeta.find('.nf-insight-article-meta-row__left');
+    const $shell = $left.children('div[class*="max-w"]').first();
+    if ($shell.length) {
+      const $auth = $shell.find('.flex-1 > div.flex.items-center').first();
+      $shell.remove();
+      if ($auth.length) $left.prepend($auth);
+    }
+    return;
+  }
+
+  const $main = $('main');
+  const $titleSec = $main.children('section').first();
+  const $date = $titleSec.find('[data-nf-insight-article-date]').first();
+  const $byline = $main.find('[data-nf-insight-hero-byline]').first();
+  if (!$titleSec.length || !$date.length || !$byline.length) return;
+
+  const $h1 = $titleSec.find('h1').first();
+  if (!$h1.length) return;
+
+  /* Inner row only — not the outer max-w shell that also has flex + items-center */
+  const $authorRow = $byline.find('.flex-1 > div.flex.items-center').first();
+  if (!$authorRow.length || !$authorRow.find('img[alt="Author"], img[alt="avatar"]').length) return;
+  const $shareUl = $byline.find('ul.list-none').first();
+  if (!$authorRow.length || !$shareUl.length) return;
+
+  const $metaRow = $(`<div class="nf-insight-article-meta-row" data-nf-insight-meta-row="">
+  <div class="nf-insight-article-meta-row__left"></div>
+  <div class="nf-insight-article-meta-row__right"></div>
+</div>`);
+  const $left = $metaRow.find('.nf-insight-article-meta-row__left');
+  const $right = $metaRow.find('.nf-insight-article-meta-row__right');
+
+  $left.append($authorRow);
+  $left.append($date);
+  $right.append($shareUl);
+
+  $h1.after($metaRow);
+  $byline.remove();
+}
+
+/**
+ * Drop duplicate plain date under the author name; move the green-stroke date into .ml-4 under the name.
+ */
+function stackInsightArticleDateUnderAuthor($) {
+  if (($('body').attr('data-nf-layout') || '') !== 'insight-article') return;
+  $('.nf-insight-article-meta-row[data-nf-insight-meta-row]').each((_, row) => {
+    const $row = $(row);
+    const $left = $row.find('.nf-insight-article-meta-row__left').first();
+    if (!$left.length) return;
+    $left.find('.nf-insight-byline-date--hidden').remove();
+    const $date = $left.find('p[data-nf-insight-article-date]').first();
+    const $nameCol = $left.find('.flex.items-center > .ml-4').first();
+    if (!$date.length || !$nameCol.length) return;
+    const dateParent = $date.parent()[0];
+    const nameColEl = $nameCol[0];
+    if (dateParent && nameColEl && dateParent === nameColEl) return;
+    $nameCol.append($date);
+  });
+}
+
+/** Upgrade short mirror dates (e.g. 11 Mar 2026) to long UK copy on re-postprocess */
+function normalizeInsightArticleDateLabels($) {
+  if (($('body').attr('data-nf-layout') || '') !== 'insight-article') return;
+  $('p[data-nf-insight-article-date] .nf-insight-article-date__text').each((_, el) => {
+    const $el = $(el);
+    const cur = ($el.text() || '').replace(/\s+/g, ' ').trim();
+    const fmt = formatInsightArticleDateUkLong(cur);
+    if (fmt) $el.text(fmt);
+  });
 }
 
 /** Generic author portrait (Unsplash, license: https://unsplash.com/license) — replaces logo avatars in hoisted bylines. */
@@ -495,6 +624,9 @@ function stripAndAnnotate(html, relPath = '') {
     hoistInsightArticleHeroByline($);
     enhanceInsightArticleStripeHeader($);
     replaceInsightArticleAuthorAvatar($);
+    relocateInsightArticleMetaRow($);
+    stackInsightArticleDateUnderAuthor($);
+    normalizeInsightArticleDateLabels($);
     enhanceInsightArticleRelatedAndPrefooter($);
   }
   if ($body.hasClass('nf-insights-index')) {

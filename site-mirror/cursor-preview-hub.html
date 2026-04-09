@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mirror previews — rendered designs</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; line-height: 1.5; color: #0f172a; background: #f8fafc; }
+    body { max-width: 42rem; margin: 0 auto; padding: 1.25rem 1.25rem 4rem; }
+    .warn {
+      background: #fff7ed;
+      border: 2px solid #f97316;
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      margin: 0 0 1.5rem;
+      font-size: 0.95rem;
+    }
+    .warn strong { color: #c2410c; }
+    h1 { font-size: 1.35rem; font-weight: 700; margin: 0 0 0.5rem; }
+    p.note { color: #64748b; font-size: 0.9rem; margin: 0 0 1.25rem; }
+    code { background: #e2e8f0; padding: 0.12em 0.35em; border-radius: 4px; font-size: 0.88em; word-break: break-all; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li { margin: 0 0 0.35rem; }
+    a {
+      display: block;
+      padding: 0.65rem 0.85rem;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      color: #0ea5e9;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    a:hover { border-color: #0ea5e9; background: #f0f9ff; }
+    .kbd { font-size: 0.82rem; color: #475569; margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid #e2e8f0; }
+  </style>
+</head>
+<body>
+  <div class="warn">
+    <strong>You should see this orange box and the link list below.</strong>
+    If Live Preview shows <strong>Index of /</strong> with <code>package.json</code> and <code>.git</code>, the server root was wrong — stop Live Preview (<strong>Cmd+Shift+P</strong> → <strong>Live Preview: Stop Server</strong>), reload the window, then run the design-hub task again (workspace is now fixed to use the <code>site-mirror</code> folder).
+  </div>
+
+  <h1>Rendered mirror pages</h1>
+  <p class="note">Links are <strong>relative</strong> so they work in Live Preview (port 3000) and in <code>npm run preview-mirror</code> (port 4173).</p>
+  <ul>
+    <li><a href="insights-explore.html">Insights — layout explorations hub</a></li>
+    <li><a href="insights-explore-list.html">Insights — timeline / list</a></li>
+    <li><a href="insights-explore-leftnav.html">Insights — left rail</a></li>
+    <li><a href="insights-explore-mosaic.html">Insights — mosaic</a></li>
+    <li><a href="insights-variants.html">Insights — variants hub</a></li>
+    <li><a href="insights.html">Insights — main mirror page</a></li>
+    <li><a href="services.html">Services — hub (orbital diagram)</a></li>
+  </ul>
+
+  <p class="kbd">
+    <strong>Embedded preview in Cursor (Live Preview):</strong><br>
+    <code>Cmd+Shift+P</code> → <strong>Tasks: Run Task</strong> → <strong>Embedded in Cursor: Live Preview — design hub</strong><br><br>
+    <strong>Simple Browser</strong> (other in-editor tab): <code>http://127.0.0.1:4173/cursor-preview-hub.html</code> (run <code>npm run preview-mirror</code> first).<br><br>
+    <strong>Terminal + Simple Browser:</strong> <code>npm run preview:cursor</code>
+  </p>
+</body>
+</html>

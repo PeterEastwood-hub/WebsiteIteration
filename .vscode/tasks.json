@@ -2,6 +2,63 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Live Preview: stop server (use after “Index of /” or changing settings)",
+      "type": "shell",
+      "command": "echo ${input:livePreviewStop}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      }
+    },
+    {
+      "label": "Embedded in Cursor: Live Preview — design hub (not Simple Browser)",
+      "type": "shell",
+      "command": "echo ${input:livePreviewHubEmbedded}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      }
+    },
+    {
+      "label": "Embedded in Cursor: Live Preview — timeline / list page",
+      "type": "shell",
+      "command": "echo ${input:livePreviewListEmbedded}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      }
+    },
+    {
+      "label": "START HERE: Simple Browser — preview hub (click links to each design)",
+      "type": "shell",
+      "command": "echo ${input:openCursorPreviewHub}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      }
+    },
+    {
+      "label": "START HERE: preview server + Simple Browser hub",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Insights compare: start preview (4173)",
+        "START HERE: Simple Browser — preview hub (click links to each design)"
+      ],
+      "problemMatcher": []
+    },
+    {
       "label": "Simple Browser: About mirror (orbital diagram)",
       "type": "shell",
       "command": "echo ${input:openAboutMirror}",
@@ -36,7 +93,7 @@
         "background": {
           "activeOnStart": true,
           "beginsPattern": ".",
-          "endsPattern": "Accepting connections at http://localhost:4173"
+          "endsPattern": "Accepting connections"
         }
       },
       "presentation": {
@@ -94,6 +151,42 @@
       }
     },
     {
+      "label": "Mirror: Simple Browser — Insights variants hub",
+      "type": "shell",
+      "command": "echo ${input:openInsightsVariantsHub}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      }
+    },
+    {
+      "label": "Mirror: Simple Browser — Services (orbital diagram)",
+      "type": "shell",
+      "command": "echo ${input:openServicesMirror}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      }
+    },
+    {
+      "label": "Mirror: Simple Browser — Insights (main mirror)",
+      "type": "shell",
+      "command": "echo ${input:openInsightsMainMirror}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      }
+    },
+    {
       "label": "Mirror: Simple Browser — Insights Explore hub",
       "type": "shell",
       "command": "echo ${input:openInsightsExploreHub}",
@@ -141,9 +234,56 @@
         "kind": "build",
         "isDefault": false
       }
+    },
+    {
+      "label": "Mirror: Simple Browser — open key pages (parallel)",
+      "dependsOrder": "parallel",
+      "dependsOn": [
+        "Mirror: Simple Browser — Insights variants hub",
+        "Mirror: Simple Browser — Insights Explore hub",
+        "Mirror: Simple Browser — Insights (main mirror)",
+        "Mirror: Simple Browser — Services (orbital diagram)"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Mirror: preview + Simple Browser — key pages (start server, then 4 tabs)",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Insights compare: start preview (4173)",
+        "Mirror: Simple Browser — open key pages (parallel)"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
     }
   ],
   "inputs": [
+    {
+      "id": "livePreviewStop",
+      "type": "command",
+      "command": "livePreview.end"
+    },
+    {
+      "id": "livePreviewHubEmbedded",
+      "type": "command",
+      "command": "livePreview.start.preview.atFileString",
+      "args": ["cursor-preview-hub.html"]
+    },
+    {
+      "id": "livePreviewListEmbedded",
+      "type": "command",
+      "command": "livePreview.start.preview.atFileString",
+      "args": ["insights-explore-list.html"]
+    },
+    {
+      "id": "openCursorPreviewHub",
+      "type": "command",
+      "command": "simpleBrowser.show",
+      "args": ["http://127.0.0.1:4173/cursor-preview-hub.html"]
+    },
     {
       "id": "openAboutMirror",
       "type": "command",
@@ -161,6 +301,24 @@
       "type": "command",
       "command": "simpleBrowser.show",
       "args": ["http://127.0.0.1:4173/insights-compare-baseline"]
+    },
+    {
+      "id": "openInsightsVariantsHub",
+      "type": "command",
+      "command": "simpleBrowser.show",
+      "args": ["http://127.0.0.1:4173/insights-variants.html"]
+    },
+    {
+      "id": "openServicesMirror",
+      "type": "command",
+      "command": "simpleBrowser.show",
+      "args": ["http://127.0.0.1:4173/services.html"]
+    },
+    {
+      "id": "openInsightsMainMirror",
+      "type": "command",
+      "command": "simpleBrowser.show",
+      "args": ["http://127.0.0.1:4173/insights.html"]
     },
     {
       "id": "openInsightsExploreHub",

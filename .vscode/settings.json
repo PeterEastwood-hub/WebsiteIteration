@@ -1,0 +1,6 @@
+{
+  "livePreview.serverRoot": "site-mirror",
+  "livePreview.defaultPreviewPath": "cursor-preview-hub.html",
+  "livePreview.openPreviewTarget": "Embedded Preview",
+  "livePreview.autoRefreshPreview": "On All Changes in Editor"
+}

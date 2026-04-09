@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <!-- Three concentric orbit guides (same geometry; different stroke colors). On site: dashed stroke + animation via CSS. -->
+  <circle cx="300" cy="300" r="250" fill="none" stroke="#00D4AA" stroke-width="1"/>
+  <circle cx="300" cy="300" r="250" fill="none" stroke="#8B5CF6" stroke-width="1"/>
+  <circle cx="300" cy="300" r="250" fill="none" stroke="#0EA5E9" stroke-width="1"/>
+</svg>

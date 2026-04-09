@@ -152,9 +152,31 @@ body > header.font-sans [data-testid="header-right"] a.rounded-full {
     border-color 0.2s ease, box-shadow 0.22s ease;
 }
 
+/**
+ * Contact pill: force readable hover/focus colors. The mirrored Tailwind utilities can
+ * apply navy fill without winning the color cascade, leaving navy-on-navy text.
+ */
 @media (hover: hover) {
   body > header.font-sans [data-testid="header-right"] a.rounded-full:hover {
     transform: translateY(-1px);
     box-shadow: 0 8px 24px -6px rgba(15, 23, 42, 0.18);
+    background-color: var(--color-nf-deep-navy, #0f172a) !important;
+    color: #f8fafc !important;
+    border-color: var(--color-nf-deep-navy, #0f172a) !important;
   }
+}
+
+/* Dark theme + green scroll header: white pill, navy label (matches original intent) */
+.dark body > header.font-sans [data-testid="header-right"] a.rounded-full:hover,
+html.green body > header.font-sans [data-testid="header-right"] a.rounded-full:hover,
+body.green > header.font-sans [data-testid="header-right"] a.rounded-full:hover {
+  background-color: #ffffff !important;
+  color: var(--color-nf-deep-navy, #0f172a) !important;
+  border-color: var(--color-nf-deep-navy, #0f172a) !important;
+  box-shadow: 0 8px 24px -6px rgba(15, 23, 42, 0.14);
+}
+
+body > header.font-sans [data-testid="header-right"] a.rounded-full:focus-visible {
+  outline: 2px solid #00c78c;
+  outline-offset: 3px;
 }

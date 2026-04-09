@@ -424,3 +424,71 @@ html.dark .orbital-core-inner {
 }
 
 /* .oc-sub uses color: inherit so it matches “AI” in light and dark */
+
+/*
+ * HTML→Figma / static capture: add ?orbitalStatic=1 (inline script on the figure
+ * adds this class before children parse). Skips scroll-trigger and animations
+ * so importers see the full diagram on first paint.
+ */
+.orbital-convergence-figure.orbital-static-export .orbital-guides svg {
+  opacity: 1 !important;
+  animation: none !important;
+}
+
+.orbital-convergence-figure.orbital-static-export .orbital-core-glow {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  animation: none !important;
+}
+
+.orbital-convergence-figure.orbital-static-export .orbital-core-glow.oc-pulse-shadow {
+  animation: none !important;
+}
+
+.orbital-convergence-figure.orbital-static-export .orbital-pulse-ring {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  animation: none !important;
+}
+
+.orbital-convergence-figure.orbital-static-export .orbital-node {
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1) !important;
+  animation: none !important;
+}
+
+.orbital-convergence-figure.orbital-static-export .orbital-node-card {
+  animation: none !important;
+}
+
+.orbital-convergence-figure.orbital-static-export .orbital-icon-wrap {
+  animation: none !important;
+}
+
+.orbital-convergence-figure.orbital-static-export .orbital-guides .oc-orbit-teal,
+.orbital-convergence-figure.orbital-static-export .orbital-guides .oc-orbit-purple,
+.orbital-convergence-figure.orbital-static-export .orbital-guides .oc-orbit-blue {
+  stroke-dashoffset: 0 !important;
+  animation: none !important;
+}
+
+/*
+ * Figma html-to-design often drops this diagram (0×0 anchor nodes, layered transforms).
+ * ?figmaRaster=1 shows a flat PNG inside the figure so the importer always gets pixels.
+ */
+.orbital-figma-ref {
+  display: none;
+  max-width: min(100%, 56rem);
+  width: 100%;
+  height: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.orbital-convergence-figure.orbital-figma-raster-scene .orbital-figma-ref {
+  display: block;
+}
+
+.orbital-convergence-figure.orbital-figma-raster-scene .orbital-stage {
+  display: none !important;
+}

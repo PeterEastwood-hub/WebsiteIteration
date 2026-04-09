@@ -1,6 +1,8 @@
 (function () {
   var root = document.getElementById('orbital-convergence');
   if (!root) return;
+  if (root.classList.contains('orbital-static-export')) return;
+  if (root.classList.contains('orbital-figma-raster-scene')) return;
 
   var reduced =
     typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
