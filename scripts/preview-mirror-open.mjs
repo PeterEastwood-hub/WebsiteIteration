@@ -1,5 +1,5 @@
 /**
- * Ensures site-mirror is served on 127.0.0.1:4173, then opens the preview hub
+ * Ensures site-mirror is served on port 4173 (localhost, IPv4 + IPv6), then opens the preview hub
  * in Cursor's Simple Browser (in-editor tab), not Chrome/Safari.
  *
  * Run: npm run preview:cursor
@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
 const PORT = 4173;
-const HUB = `http://127.0.0.1:${PORT}/cursor-preview-hub.html`;
+const HUB = `http://localhost:${PORT}/cursor-preview-hub`;
 
 function ping(cb) {
   const req = http.get(HUB, (res) => {
@@ -65,10 +65,10 @@ async function main() {
   const alreadyUp = await new Promise((r) => ping(r));
 
   if (!alreadyUp) {
-    console.log('Starting preview server on http://127.0.0.1:4173 …');
+    console.log('Starting preview server on http://localhost:4173 …');
     const child = spawn(
       'npx',
-      ['--yes', 'serve', 'site-mirror', '-l', 'tcp://127.0.0.1:4173', '--no-etag'],
+      ['--yes', 'serve', 'site-mirror', '-p', String(PORT), '--no-etag'],
       {
         cwd: root,
         detached: true,

@@ -1,5 +1,5 @@
 /**
- * Insights index: category tabs + single topic dropdown (tags per tab).
+ * Insights index: category tabs; optional per-tab tag filter (native select + custom UI).
  * Cards: [data-nf-insight-card][data-nf-insight-topics][data-nf-insight-tags].
  */
 (function () {
@@ -12,8 +12,7 @@
   var statusEl = document.getElementById('nf-insights-tab-status');
   var selectEl = document.getElementById('nf-insights-topic-select');
   var selectWrap = document.getElementById('nf-insights-topic-select-wrap');
-
-  if (!selectEl || !selectWrap) return;
+  var hasTagFilter = !!(selectEl && selectWrap);
 
   var customUi = null;
   var triggerBtn = null;
@@ -86,6 +85,7 @@
   }
 
   function rebuildSelectOptions(topic) {
+    if (!hasTagFilter) return;
     selectEl.innerHTML = '';
     var first = document.createElement('option');
     first.value = '';
@@ -112,7 +112,7 @@
   }
 
   function openTopicPopover() {
-    if (!listboxEl || !triggerBtn || selectWrap.hidden) return;
+    if (!hasTagFilter || !listboxEl || !triggerBtn || selectWrap.hidden) return;
     syncTopicListboxOptions();
     topicPopoverOpen = true;
     listboxEl.hidden = false;
@@ -199,7 +199,7 @@
   }
 
   function initCustomTopicSelect() {
-    if (selectWrap.querySelector('.nf-insights-topic-select-ui')) return;
+    if (!hasTagFilter || selectWrap.querySelector('.nf-insights-topic-select-ui')) return;
 
     var labelEl = selectWrap.querySelector('label');
     if (labelEl && !labelEl.id) labelEl.id = 'nf-insights-topic-select-label';
@@ -280,6 +280,7 @@
   }
 
   function updateSelectAria(topic) {
+    if (!hasTagFilter) return;
     var t = tabLabelByTopic[topic] || 'this category';
     var al =
       topic === 'all'
@@ -565,7 +566,9 @@
   function applyCardFilter() {
     var topic = currentTopic;
     var tagSlug =
-      topic === 'all' || selectWrap.hidden ? '' : selectEl.value.trim();
+      !hasTagFilter || topic === 'all' || selectWrap.hidden
+        ? ''
+        : selectEl.value.trim();
 
     var visible = 0;
     cards.forEach(function (card) {
@@ -611,28 +614,32 @@
 
     if (panel && activeId) panel.setAttribute('aria-labelledby', activeId);
 
-    if (resetDropdown !== false) {
-      rebuildSelectOptions(topic);
-      selectEl.value = '';
+    if (hasTagFilter) {
+      if (resetDropdown !== false) {
+        rebuildSelectOptions(topic);
+        selectEl.value = '';
+      }
+
+      if (topic === 'all') {
+        selectWrap.hidden = true;
+      } else {
+        selectWrap.hidden = false;
+      }
+
+      updateSelectAria(topic);
+      syncTopicCustomUi();
     }
 
-    if (topic === 'all') {
-      selectWrap.hidden = true;
-    } else {
-      selectWrap.hidden = false;
-    }
-
-    updateSelectAria(topic);
-    syncTopicCustomUi();
     applyCardFilter();
   }
 
-  selectEl.addEventListener('change', function () {
-    updateListboxSelection();
-    applyCardFilter();
-  });
-
-  initCustomTopicSelect();
+  if (hasTagFilter) {
+    selectEl.addEventListener('change', function () {
+      updateListboxSelection();
+      applyCardFilter();
+    });
+    initCustomTopicSelect();
+  }
 
   tabs.forEach(function (tab, i) {
     tab.addEventListener('click', function () {

@@ -282,7 +282,7 @@
       "id": "openCursorPreviewHub",
       "type": "command",
       "command": "simpleBrowser.show",
-      "args": ["http://127.0.0.1:4173/cursor-preview-hub.html"]
+      "args": ["http://localhost:4173/cursor-preview-hub"]
     },
     {
       "id": "openAboutMirror",
@@ -294,49 +294,49 @@
       "id": "openInsightsLive",
       "type": "command",
       "command": "simpleBrowser.show",
-      "args": ["http://127.0.0.1:4173/insights"]
+      "args": ["http://localhost:4173/insights"]
     },
     {
       "id": "openInsightsBaseline",
       "type": "command",
       "command": "simpleBrowser.show",
-      "args": ["http://127.0.0.1:4173/insights-compare-baseline"]
+      "args": ["http://localhost:4173/insights-compare-baseline"]
     },
     {
       "id": "openInsightsVariantsHub",
       "type": "command",
       "command": "simpleBrowser.show",
-      "args": ["http://127.0.0.1:4173/insights-variants.html"]
+      "args": ["http://localhost:4173/insights-variants.html"]
     },
     {
       "id": "openServicesMirror",
       "type": "command",
       "command": "simpleBrowser.show",
-      "args": ["http://127.0.0.1:4173/services.html"]
+      "args": ["http://localhost:4173/services.html"]
     },
     {
       "id": "openInsightsMainMirror",
       "type": "command",
       "command": "simpleBrowser.show",
-      "args": ["http://127.0.0.1:4173/insights.html"]
+      "args": ["http://localhost:4173/insights.html"]
     },
     {
       "id": "openInsightsExploreHub",
       "type": "command",
       "command": "simpleBrowser.show",
-      "args": ["http://127.0.0.1:4173/insights-explore.html"]
+      "args": ["http://localhost:4173/insights-explore.html"]
     },
     {
       "id": "openInsightsExploreLeftnav",
       "type": "command",
       "command": "simpleBrowser.show",
-      "args": ["http://127.0.0.1:4173/insights-explore-leftnav.html"]
+      "args": ["http://localhost:4173/insights-explore-leftnav.html"]
     },
     {
       "id": "openInsightsExploreList",
       "type": "command",
       "command": "simpleBrowser.show",
-      "args": ["http://127.0.0.1:4173/insights-explore-list.html"]
+      "args": ["http://localhost:4173/insights-explore-list.html"]
     }
   ]
 }

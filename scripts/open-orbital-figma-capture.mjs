@@ -25,7 +25,7 @@ const hash = [
 ].join('&');
 
 /* figmaRaster=1 swaps the DOM for a flat PNG — Figma’s importer reliably picks up <img> */
-const url = `http://127.0.0.1:${port}/services.html?orbitalStatic=1&figmaRaster=1#${hash}`;
+const url = `http://localhost:${port}/services.html?orbitalStatic=1&figmaRaster=1#${hash}`;
 
 const opener = process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open';
 const child =

@@ -71,6 +71,51 @@ html.dark .nf-explore-switch a:hover {
   color: #101510;
 }
 
+/* Community nav: optional explore-bar dropdown (unused when using global nav flyout) */
+.nf-explore-brand-dropdown {
+  position: relative;
+}
+.nf-explore-brand-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 220px;
+  padding: 8px 0;
+  background: #fff;
+  border: 1px solid #c7d0dd;
+  border-radius: 10px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease,
+    visibility 0.18s;
+  z-index: 1200;
+}
+html.dark .nf-explore-brand-menu,
+.dark .nf-explore-brand-menu {
+  background: #1e293b;
+  border-color: #475569;
+}
+.nf-explore-brand-menu__link {
+  display: block;
+  padding: 10px 16px;
+  font: 600 13px/1.3 Inter, system-ui, sans-serif;
+  color: #1e293b;
+  text-decoration: none;
+}
+html.dark .nf-explore-brand-menu__link {
+  color: #e2e8f0;
+}
+.nf-explore-brand-menu__link:hover {
+  background: #f1f5f9;
+}
+html.dark .nf-explore-brand-menu__link:hover {
+  background: #334155;
+}
+
 /* Hero CTA: Engineering community → #digital-community (postprocess adds chevron) */
 body.nf-insights-index a.nf-insights-jump-to-community {
   display: inline-flex;
@@ -309,24 +354,6 @@ body.nf-explore-page-leftnav .nf-explore-sidebar .nf-insights-tab-status {
   line-height: 1.35;
   color: #64748b;
   margin-bottom: 10px;
-}
-body.nf-explore-page-leftnav .nf-explore-sidebar .nf-insights-topic-select-wrap {
-  width: 100%;
-  margin-top: 4px;
-}
-body.nf-explore-page-leftnav .nf-explore-sidebar .nf-insights-topic-select-ui {
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-}
-body.nf-explore-page-leftnav .nf-explore-sidebar .nf-insights-topic-select-label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #64748b;
 }
 
 /* --- Disable bento/mosaic grid on left-nav page; use horizontal article rows --- */

@@ -9,12 +9,15 @@
     "patch-about-orbital": "node scripts/patch-about-orbital.mjs",
     "inject-home-ux": "node scripts/inject-home-ux.mjs",
     "build-motion": "node scripts/build-mirror-motion.mjs",
-    "preview-mirror": "npx --yes serve site-mirror -l tcp://127.0.0.1:4173 --no-etag",
+    "preview-mirror": "serve site-mirror -p 4173 --no-etag",
     "preview-mirror-open": "node scripts/preview-mirror-open.mjs",
     "preview:cursor": "node scripts/preview-mirror-open.mjs",
-    "open-mirror-explore": "open http://127.0.0.1:4173/insights-explore.html",
-    "snapshot-insights-compare": "cp site-mirror/insights.html site-mirror/insights-compare-baseline.html && echo 'Baseline: http://127.0.0.1:4173/insights-compare-baseline  (live: /insights)'",
+    "open-mirror-explore": "open http://localhost:4173/insights-explore.html",
+    "snapshot-insights-compare": "cp site-mirror/insights.html site-mirror/insights-compare-baseline.html && echo 'Baseline: http://localhost:4173/insights-compare-baseline  (live: /insights)'",
     "build-insights-explore": "python3 scripts/build-insights-explore.py",
+    "split-insights-community": "node scripts/split-insights-engineering-community.mjs",
+    "hydrate-insights-cards": "node scripts/hydrate-insights-listing-images.mjs",
+    "normalize-mirror-images": "node scripts/normalize-mirror-image-extensions.mjs",
     "capture-orbital-handoff": "node scripts/capture-orbital-handoff.mjs",
     "open-figma-orbital-capture": "node scripts/open-orbital-figma-capture.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -30,6 +33,7 @@
   },
   "devDependencies": {
     "esbuild": "^0.25.0",
-    "playwright": "^1.50.1"
+    "playwright": "^1.50.1",
+    "serve": "^14.2.4"
   }
 }

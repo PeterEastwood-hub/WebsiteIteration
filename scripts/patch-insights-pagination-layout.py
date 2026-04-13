@@ -42,10 +42,6 @@ TAB_SNIPPET = (
     '<div id="nf-insights-pill-panel" role="tabpanel" aria-labelledby="nf-insights-tab-all" '
     'class="nf-insights-topic-tabs__panel nf-insights-topic-tabs__panel-body">'
     '<span id="nf-insights-tab-status" class="nf-insights-tab-status" aria-live="polite"></span>'
-    '<div class="nf-insights-topic-select-wrap" id="nf-insights-topic-select-wrap" hidden="">'
-    '<label for="nf-insights-topic-select" class="nf-insights-topic-select-label">Topic</label>'
-    '<select id="nf-insights-topic-select" class="nf-insights-topic-select" '
-    'aria-label="Filter by tag within this category"></select>'
     "</div></div></div>"
 )
 
