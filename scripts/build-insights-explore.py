@@ -5,6 +5,7 @@ Build distinct Insights exploration pages from insights.html:
   - insights-explore-leftnav.html       — sticky left rail replaces horizontal tabs
   - insights-explore-list.html          — simple list scan
   - insights-explore-community-nav.html — Insights brand hover → Engineering Community link
+  - insights-explore-iter6.html              — sixth iteration (default listing + hooks for further CSS/JS)
 
 Regenerate after editing insights.html (and after node scripts/split-insights-engineering-community.mjs
 when splitting community articles).
@@ -37,13 +38,14 @@ CSS_LINK = '<link rel="stylesheet" href="css/insights-explore.css">'
 
 
 def replacement_header(active: str | None, *, brand_dropdown: bool = False) -> str:
-    """active: default | mosaic | leftnav | list | community_nav | None (no pill highlighted)."""
+    """active: default | mosaic | leftnav | list | community_nav | iter6 | None (no pill highlighted)."""
     links = [
         ("insights.html", "default", "Default"),
         ("insights-explore-mosaic.html", "mosaic", "Mosaic"),
         ("insights-explore-leftnav.html", "leftnav", "Left rail"),
         ("insights-explore-list.html", "list", "Timeline"),
         ("insights-explore-community-nav.html", "community_nav", "Community nav"),
+        ("insights-explore-iter6.html", "iter6", "Iteration 6"),
     ]
     nav = "".join(
         (
@@ -255,7 +257,7 @@ def build_layout_hub_page(source_text: str) -> str:
         count=1,
         flags=re.DOTALL,
     )
-    raw = re.sub(r"<title>.*?</title>", "<title>Insights — Layout explorations</title>", raw, count=1)
+    raw = re.sub(r"<title>.*?</title>", "<title>Insights Hub — layout explorations</title>", raw, count=1)
     hub_inner = """
     <style>
       .nf-explore-hub-wrap { max-width: 960px; margin: 0 auto; padding: 48px 40px 80px; }
@@ -281,8 +283,8 @@ def build_layout_hub_page(source_text: str) -> str:
       .nf-explore-hub-card a:hover { filter: brightness(0.95); }
     </style>
     <div class="nf-explore-hub-wrap">
-    <h1>Insights layout explorations</h1>
-    <p class="lead">Each link uses the same site header and navigation as the main Insights page, with a different article layout. On Community nav, hover <strong>Insights</strong> in the site header for a link to the Engineering Community page.</p>
+    <h1>Insights Hub</h1>
+    <p class="lead">Layout explorations use the same site header and navigation as the main Insights page, with a different article treatment per iteration. On Community nav, hover <strong>Insights</strong> in the site header for a link to the Engineering Community page.</p>
     <p class="note">Left rail uses plain CSS for the two-column shell (not Tailwind utilities), so the sidebar stays narrow and the feed fills the remaining width.</p>
     <div class="nf-explore-hub-grid">
       <article class="nf-explore-hub-card">
@@ -304,6 +306,11 @@ def build_layout_hub_page(source_text: str) -> str:
         <h2>Community nav</h2>
         <p>Same listing as default; hover <strong>Insights</strong> in the site header for a dropdown to the Engineering Community page (technical articles live there).</p>
         <a href="insights-explore-community-nav.html">Open Community nav</a>
+      </article>
+      <article class="nf-explore-hub-card">
+        <h2>Iteration 6</h2>
+        <p>Starts from the default listing and body class <code>nf-explore-page-iter6</code> — add scoped rules in <code>insights-explore.css</code> when you are ready.</p>
+        <a href="insights-explore-iter6.html">Open iteration 6</a>
       </article>
     </div>
     </div>
@@ -356,6 +363,13 @@ def main() -> None:
             "Insights — Community nav",
             "community_nav",
             "community",
+        ),
+        (
+            "insights-explore-iter6.html",
+            "nf-explore-page-iter6",
+            "Insights — Iteration 6",
+            "iter6",
+            "iter6",
         ),
     ]
 

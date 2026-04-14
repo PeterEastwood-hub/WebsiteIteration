@@ -1,0 +1,89 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Content hub | Nearform mirror</title>
+  <meta name="description" content="Choose Insights for business audiences or Engineering for technical depth.">
+  <link rel="stylesheet" href="css/mirror-content-rhythm.css">
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; margin: 0; background: #f8fafc; color: #0f172a; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 48px 24px 80px; }
+    h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); margin: 0 0 8px; }
+    .lead { color: #475569; margin: 0 0 32px; max-width: 56ch; line-height: 1.55; }
+    .grid { display: grid; gap: 20px; }
+    @media (min-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+    article { background: #fff; border: 1px solid #cbd5e1; border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 10px; }
+    article h2 { margin: 0; font-size: 1.15rem; }
+    article p { margin: 0; color: #475569; line-height: 1.45; flex: 1; font-size: 0.95rem; }
+    article a { display: inline-block; margin-top: 6px; font-weight: 600; font-size: 0.85rem; color: #0f172a; text-decoration: none; padding: 8px 14px; border-radius: 8px; background: #92f279; align-self: flex-start; }
+    article a:hover { filter: brightness(0.95); }
+    .note { font-size: 0.8rem; color: #64748b; margin-top: 28px; }
+  </style>
+<style id="ux-audit-sticky-header">
+  body > header.font-sans.fixed:has([data-testid="header-left"]) {
+    position: sticky !important;
+    top: 0 !important;
+    left: 0;
+    right: 0;
+    width: 100% !important;
+    z-index: 10000 !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.08);
+  }
+  body > header.font-sans.fixed:has([data-testid="header-left"])::after {
+    display: none !important;
+  }
+  body > header.font-sans.fixed:has([data-testid="header-left"]) nav,
+  body > header.font-sans.fixed:has([data-testid="header-left"]) nav a,
+  body > header.font-sans.fixed:has([data-testid="header-left"]) nav button {
+    color: #0f172a !important;
+  }
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg path:not([fill="none"]),
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg rect:not([fill="none"]),
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg circle:not([fill="none"]) {
+    fill: #0f172a !important;
+  }
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg path[stroke],
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg line,
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg polyline {
+    stroke: #0f172a !important;
+  }
+  body > header.font-sans.fixed:has([data-testid="header-left"]) button[aria-label="Toggle Nav Menu"] span {
+    background-color: #0f172a !important;
+  }
+</style><link rel="stylesheet" href="css/mirror-a11y-flair.css" id="mirror-a11y-flair-css"><link rel="stylesheet" href="css/mirror-stripe-influence.css" id="mirror-stripe-influence-css"><link rel="stylesheet" href="css/mirror-content-rhythm.css" id="mirror-content-rhythm-css"><link rel="stylesheet" href="css/mirror-services-flair.css" id="mirror-services-flair-css"><script src="js/mirror-flair.js" defer="" id="mirror-flair-js"></script><script src="js/mirror-stripe-nav.js" defer="" id="mirror-stripe-nav-js"></script><script src="js/mirror-insights-card-cta.js" defer="" id="mirror-insights-card-cta-js"></script><script type="module" src="js/mirror-motion.js"></script></head>
+<body data-nf-layout="default">
+  <div class="wrap">
+    <h1>Content hub</h1>
+    <p class="lead">Pick the stream that matches your role. <strong>Insights</strong> is written for decision-makers and executives; <strong>Engineering</strong> is for practitioners shipping software.</p>
+    <div class="grid">
+      <article>
+        <h2>Insights</h2>
+        <p>Strategy, industry commentary, POVs, and leadership stories — with consolidated topics, formats, and filters on the main listing.</p>
+        <a href="insights.html">Open Insights</a>
+      </article>
+      <article>
+        <h2>Engineering</h2>
+        <p>Tutorials, deep dives, tooling, and open source releases. Granular technical tags remain on this feed in the mirror.</p>
+        <a href="engineering.html">Open Engineering</a>
+      </article>
+    </div>
+    <p class="note">Static mirror: <code>engineering.html</code> forwards to the mirrored Engineering Community listing. Production should expose <code>/engineering/</code> with a 301 from <code>/digital-community/</code>.</p>
+  </div>
+
+
+<div id="ux-audit-spacer" style="height:56px" aria-hidden="true"></div>
+<div id="ux-audit-bar" role="region" aria-label="UX audit notes" style="position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:#12121a;color:#e8e8ef;padding:10px 16px;box-shadow:0 -4px 24px rgba(0,0,0,.35);font:14px/1.4 system-ui,-apple-system,sans-serif;display:flex;align-items:center;gap:12px;border-top:1px solid #2a2a38;">
+  <label for="ux-audit-notes" style="white-space:nowrap;font-weight:600;flex-shrink:0;">UX notes</label>
+  <input id="ux-audit-notes" type="text" placeholder="Notes for this page (saved locally in your browser)…" style="flex:1;min-width:0;padding:8px 12px;border-radius:8px;border:1px solid #3d3d52;background:#fff;color:#111;" autocomplete="off">
+</div>
+<script>
+(function(){
+  var el = document.getElementById('ux-audit-notes');
+  if (!el) return;
+  var k = 'ux-audit-notes:' + location.pathname;
+  try { el.value = localStorage.getItem(k) || ''; } catch (e) {}
+  el.addEventListener('input', function () {
+    try { localStorage.setItem(k, el.value); } catch (e) {}
+  });
+})();
+</script></body></html>

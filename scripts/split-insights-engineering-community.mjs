@@ -256,15 +256,18 @@ function main() {
   const navClose = "</nav></div></header>";
   let htmlOut = $.html();
   if (!htmlOut.includes("insights-explore-community-nav.html")) {
-    const needle = '<a href="insights-explore-list.html">Timeline</a>' + navClose;
-    const insert =
-      '<a href="insights-explore-list.html">Timeline</a>' +
-      '<a href="insights-explore-community-nav.html">Community nav</a>' +
-      navClose;
-    if (!htmlOut.includes(needle)) {
+    const timeline = '<a href="insights-explore-list.html">Timeline</a>';
+    const community = '<a href="insights-explore-community-nav.html">Community nav</a>';
+    const iter6 = '<a href="insights-explore-iter6.html">Iteration 6</a>';
+    const needleBare = timeline + navClose;
+    const needleWithIter6 = timeline + iter6 + navClose;
+    if (htmlOut.includes(needleBare)) {
+      htmlOut = htmlOut.replace(needleBare, timeline + community + navClose);
+    } else if (htmlOut.includes(needleWithIter6)) {
+      htmlOut = htmlOut.replace(needleWithIter6, timeline + community + iter6 + navClose);
+    } else {
       throw new Error("Could not find explore nav to insert Community nav link");
     }
-    htmlOut = htmlOut.replace(needle, insert);
   }
   fs.writeFileSync(INSIGHTS, htmlOut, "utf8");
 

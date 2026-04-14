@@ -1,0 +1,16 @@
+{
+  "featuredOrder": [
+    "moving-beyond-the-hype-engineering-for-the-ai-era",
+    "implementing-model-context-protocol-mcp-tips-tricks-and-pitfalls"
+  ],
+  "overrides": {
+    "moving-beyond-the-hype-engineering-for-the-ai-era": {
+      "format": "deep-dive",
+      "excerpt": "A longer lens on what it takes to ship AI systems that stay reliable once the hype cycle moves on."
+    },
+    "implementing-model-context-protocol-mcp-tips-tricks-and-pitfalls": {
+      "format": "tutorial",
+      "excerpt": "Practical patterns for shipping MCP servers models can use safely — validation, tool design, and production pitfalls."
+    }
+  }
+}

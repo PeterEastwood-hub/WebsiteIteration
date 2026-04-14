@@ -81,10 +81,73 @@
     card.setAttribute('data-nf-image-unwrapped', '1');
   }
 
+  function formatBadgeLabel(slug) {
+    var map = {
+      opinion: 'Opinion',
+      interview: 'Interview',
+      tutorial: 'Tutorial',
+      'deep-dive': 'Deep Dive',
+      report: 'Report',
+      news: 'News',
+      'event-recap': 'Event Recap',
+      'case-study': 'Case study',
+      'open-source-release': 'Open Source Release',
+    };
+    return map[slug] || slug;
+  }
+
+  function injectFormatAndReading(card) {
+    if (card.getAttribute('data-nf-format-injected') === '1') return;
+    var fmt = (card.getAttribute('data-nf-insight-format') || '').trim();
+    var mins = (card.getAttribute('data-nf-insight-reading-minutes') || '').trim();
+    var industry = (card.getAttribute('data-nf-insight-industry') || '').trim();
+    if (!fmt && !mins && !industry) return;
+    card.setAttribute('data-nf-format-injected', '1');
+
+    var head = card.querySelector('.nf-insight-related-card-head');
+    if (!head) return;
+
+    if (fmt) {
+      var badge = document.createElement('span');
+      badge.className =
+        'nf-insight-card-format-badge nf-insight-card-format-badge--' +
+        fmt.replace(/[^a-z-]/g, '');
+      badge.setAttribute('data-nf-insight-format-badge', fmt);
+      badge.textContent = formatBadgeLabel(fmt);
+      head.insertBefore(badge, head.firstChild);
+    }
+
+    if (industry) {
+      var labels = {
+        'banking-financial-services': 'Banking & Financial Services',
+        healthcare: 'Healthcare',
+        'retail-ecommerce': 'Retail & E-commerce',
+        telecommunications: 'Telecommunications & Media',
+      };
+      var ind = document.createElement('span');
+      ind.className = 'nf-insight-card-industry-badge';
+      ind.textContent = labels[industry] || industry;
+      var hashRow = head.querySelector('.nf-insight-card-hashtags');
+      if (hashRow && hashRow.nextSibling) head.insertBefore(ind, hashRow.nextSibling);
+      else head.appendChild(ind);
+    }
+
+    if (mins) {
+      var meta = card.querySelector('.nf-insight-related-card-meta');
+      if (meta) {
+        var rt = document.createElement('span');
+        rt.className = 'nf-insight-card-reading-time';
+        rt.textContent = mins + ' min read';
+        meta.appendChild(rt);
+      }
+    }
+  }
+
   function enhanceCard(card) {
     removeLearnMore(card);
     convertPillsToHashtags(card);
     unwrapImageLink(card);
+    injectFormatAndReading(card);
   }
 
   function run() {

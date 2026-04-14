@@ -1,5 +1,5 @@
 /**
- * Insights layout explorations — three intentionally different presentations.
+ * Insights layout explorations — distinct presentations (including iteration 6 hooks).
  * Do not rely on Tailwind classes inside generated explore HTML: the mirror CSS
  * bundle may not include arbitrary utilities (e.g. lg:flex-row), which broke the
  * left-nav layout. Use these plain-CSS hooks instead.
@@ -672,4 +672,13 @@ body.nf-explore-page-list .nf-insights-article-card .flex.gap-3 span {
   text-transform: none !important;
   letter-spacing: normal !important;
   color: #64748b !important;
+}
+
+/* =============================================================================
+   ITERATION 6 — default listing + scoped hooks (customise here with the team).
+   ============================================================================= */
+
+body.nf-explore-page-iter6 {
+  /* Hook for iteration 6 — extend with layout tokens, grid overrides, typography, etc. */
+  --nf-explore-iter6-slot: 1;
 }

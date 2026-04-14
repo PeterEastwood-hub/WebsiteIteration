@@ -3,6 +3,11 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  enrichEngineeringListingCheerio,
+  enrichInsightsListingCheerio,
+  enhanceInsightArticleFormatPill,
+} from './scripts/insights-redesign-enrich.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, 'site-mirror');
@@ -118,6 +123,14 @@ function ensureFlairAssets($, relPath = '') {
   if ($('script[src="js/mirror-insights-card-cta.js"]').length === 0) {
     $head.append(
       '<script src="js/mirror-insights-card-cta.js" defer id="mirror-insights-card-cta-js"></script>',
+    );
+  }
+  if (
+    $('body').hasClass('nf-insights-redesign') &&
+    $('script[src="js/mirror-insights-redesign.js"]').length === 0
+  ) {
+    $head.append(
+      '<script src="js/mirror-insights-redesign.js" defer id="mirror-insights-redesign-js"></script>',
     );
   }
   if (
@@ -481,6 +494,50 @@ function flattenInsightsNav($) {
 }
 
 /**
+ * After flatten: restore a compact Insights flyout (All insights + Engineering + Content hub).
+ */
+function upgradeInsightsNavWithEngineeringDropdown($) {
+  const $a = $('ul[data-testid="header-center"] > li > a[href="insights.html"]').first();
+  if (!$a.length) return;
+  const $li = $a.parent();
+  if ($li.children('div.group.relative').length) return;
+
+  const classes = $a.attr('class') || '';
+  const text = ($a.text() || '').replace(/\s+/g, ' ').trim() || 'Insights';
+  const ddClass =
+    'relative dark:text-background outline-none px-5 py-4 block hov:bg-nf-light-grey dark:hov:bg-nf-muted-grey transition-colors duration-200 ease-in-out';
+
+  const $group = $('<div class="group relative"></div>');
+  const $main = $('<a></a>').attr('class', classes).attr('href', 'insights.html').text(text);
+  const $panel = $(`
+<div class="absolute top-full w-max p-10 -m-10 -translate-x-6 transition-all transition-discrete invisible group-hov:visible opacity-0 group-hov:opacity-100 translate-y-6 group-hov:translate-y-4">
+  <div class="py-2 border shadow-sm rounded-lg bg-white text-nf-deep-navy border-nf-light-grey dark:bg-nf-deep-navy dark:text-white dark:border-white">
+  </div>
+</div>`);
+  const $inner = $panel.find('div').first();
+  $inner.append(
+    $('<a></a>')
+      .attr('class', ddClass)
+      .attr('href', 'insights.html')
+      .text('All insights'),
+  );
+  $inner.append(
+    $('<a></a>')
+      .attr('class', ddClass)
+      .attr('href', 'engineering.html')
+      .text('Engineering'),
+  );
+  $inner.append(
+    $('<a></a>')
+      .attr('class', ddClass)
+      .attr('href', 'content-hub.html')
+      .text('Content hub'),
+  );
+  $group.append($main, $panel);
+  $li.empty().append($group);
+}
+
+/**
  * Hero “Engineering community” jump (#digital-community): add a trailing chevron so it reads as in-page anchor.
  */
 function enhanceInsightsCommunityJumpLink($) {
@@ -571,8 +628,19 @@ function inferNfLayout(relPath) {
   return 'default';
 }
 
+function hintDigitalCommunityEngineeringRedirect($, relPath) {
+  const norm = relPath.split(path.sep).join('/');
+  if (path.posix.basename(norm) !== 'digital-community.html') return;
+  const $head = $('head');
+  if ($head.find('meta[data-nf-eng-redirect]').length) return;
+  $head.prepend(
+    '<meta data-nf-eng-redirect="1" http-equiv="refresh" content="0; url=engineering.html">',
+  );
+}
+
 function stripAndAnnotate(html, relPath = '') {
   const $ = load(html, { decodeEntities: false });
+  hintDigitalCommunityEngineeringRedirect($, relPath);
   $('script').each((_, el) => {
     if (isTrackingScript($, el)) $(el).remove();
   });
@@ -628,12 +696,21 @@ function stripAndAnnotate(html, relPath = '') {
     stackInsightArticleDateUnderAuthor($);
     normalizeInsightArticleDateLabels($);
     enhanceInsightArticleRelatedAndPrefooter($);
+    enhanceInsightArticleFormatPill($, relPath.split(path.sep).join('/'), root);
   }
   if ($body.hasClass('nf-insights-index')) {
     wrapInsightsIndexArticleCards($);
     enhanceInsightsCommunityJumpLink($);
+    const listingCtx = {
+      fileAbs: path.join(root, relPath.split(path.sep).join('/')),
+      relPosix: relPath.split(path.sep).join('/'),
+      siteMirrorRoot: root,
+    };
+    enrichInsightsListingCheerio($, listingCtx);
+    enrichEngineeringListingCheerio($, listingCtx);
   }
   flattenInsightsNav($);
+  upgradeInsightsNavWithEngineeringDropdown($);
   ensureFlairAssets($, relPath);
   if ($('#ux-audit-bar').length === 0) {
     $('body').append(BAR_HTML);

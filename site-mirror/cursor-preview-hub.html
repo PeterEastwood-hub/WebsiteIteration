@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mirror previews — rendered designs</title>
@@ -34,8 +32,40 @@
     a:hover { border-color: #0ea5e9; background: #f0f9ff; }
     .kbd { font-size: 0.82rem; color: #475569; margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid #e2e8f0; }
   </style>
-</head>
-<body>
+<style id="ux-audit-sticky-header">
+  body > header.font-sans.fixed:has([data-testid="header-left"]) {
+    position: sticky !important;
+    top: 0 !important;
+    left: 0;
+    right: 0;
+    width: 100% !important;
+    z-index: 10000 !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.08);
+  }
+  body > header.font-sans.fixed:has([data-testid="header-left"])::after {
+    display: none !important;
+  }
+  body > header.font-sans.fixed:has([data-testid="header-left"]) nav,
+  body > header.font-sans.fixed:has([data-testid="header-left"]) nav a,
+  body > header.font-sans.fixed:has([data-testid="header-left"]) nav button {
+    color: #0f172a !important;
+  }
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg path:not([fill="none"]),
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg rect:not([fill="none"]),
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg circle:not([fill="none"]) {
+    fill: #0f172a !important;
+  }
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg path[stroke],
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg line,
+  body > header.font-sans.fixed:has([data-testid="header-left"]) svg polyline {
+    stroke: #0f172a !important;
+  }
+  body > header.font-sans.fixed:has([data-testid="header-left"]) button[aria-label="Toggle Nav Menu"] span {
+    background-color: #0f172a !important;
+  }
+</style><link rel="stylesheet" href="css/mirror-a11y-flair.css" id="mirror-a11y-flair-css"><link rel="stylesheet" href="css/mirror-stripe-influence.css" id="mirror-stripe-influence-css"><link rel="stylesheet" href="css/mirror-content-rhythm.css" id="mirror-content-rhythm-css"><link rel="stylesheet" href="css/mirror-services-flair.css" id="mirror-services-flair-css"><script src="js/mirror-flair.js" defer="" id="mirror-flair-js"></script><script src="js/mirror-stripe-nav.js" defer="" id="mirror-stripe-nav-js"></script><script src="js/mirror-insights-card-cta.js" defer="" id="mirror-insights-card-cta-js"></script><script type="module" src="js/mirror-motion.js"></script></head>
+<body data-nf-layout="default">
   <div class="warn">
     <strong>You should see this orange box and the link list below.</strong>
     If Live Preview shows <strong>Index of /</strong> with <code>package.json</code> and <code>.git</code>, the server root was wrong — stop Live Preview (<strong>Cmd+Shift+P</strong> → <strong>Live Preview: Stop Server</strong>), reload the window, then run the design-hub task again (workspace is now fixed to use the <code>site-mirror</code> folder).
@@ -44,14 +74,17 @@
   <h1>Rendered mirror pages</h1>
   <p class="note">Links are <strong>relative</strong> so they work in Live Preview (port 3000) and in <code>npm run preview-mirror</code> (port 4173).</p>
   <ul>
-    <li><a href="insights-explore.html">Insights — layout explorations hub</a></li>
+    <li><a href="insights-explore.html">Insights Hub — layout explorations</a></li>
     <li><a href="insights-explore-list.html">Insights — timeline / list</a></li>
     <li><a href="insights-explore-leftnav.html">Insights — left rail</a></li>
     <li><a href="insights-explore-mosaic.html">Insights — mosaic</a></li>
     <li><a href="insights-explore-community-nav.html">Insights — Community nav (site header Insights → Engineering Community)</a></li>
+    <li><a href="insights-explore-iter6.html">Insights Hub — iteration 6 (draft slot)</a></li>
     <li><a href="insights-engineering-community.html">Insights — Engineering Community page</a></li>
     <li><a href="insights-variants.html">Insights — variants hub</a></li>
-    <li><a href="insights.html">Insights — main mirror page</a></li>
+    <li><a href="insights.html">Insights — main mirror page (redesign filters)</a></li>
+    <li><a href="engineering.html">Engineering — alias to community feed</a></li>
+    <li><a href="content-hub.html">Content hub — Insights vs Engineering</a></li>
     <li><a href="services.html">Services — hub (orbital diagram)</a></li>
   </ul>
 
@@ -61,5 +94,21 @@
     <strong>Simple Browser</strong> (other in-editor tab): <code>http://localhost:4173/cursor-preview-hub</code> (run <code>npm run preview-mirror</code> first — use <code>localhost</code> so IPv6 works).<br><br>
     <strong>Terminal + Simple Browser:</strong> <code>npm run preview:cursor</code>
   </p>
-</body>
-</html>
+
+
+<div id="ux-audit-spacer" style="height:56px" aria-hidden="true"></div>
+<div id="ux-audit-bar" role="region" aria-label="UX audit notes" style="position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:#12121a;color:#e8e8ef;padding:10px 16px;box-shadow:0 -4px 24px rgba(0,0,0,.35);font:14px/1.4 system-ui,-apple-system,sans-serif;display:flex;align-items:center;gap:12px;border-top:1px solid #2a2a38;">
+  <label for="ux-audit-notes" style="white-space:nowrap;font-weight:600;flex-shrink:0;">UX notes</label>
+  <input id="ux-audit-notes" type="text" placeholder="Notes for this page (saved locally in your browser)…" style="flex:1;min-width:0;padding:8px 12px;border-radius:8px;border:1px solid #3d3d52;background:#fff;color:#111;" autocomplete="off">
+</div>
+<script>
+(function(){
+  var el = document.getElementById('ux-audit-notes');
+  if (!el) return;
+  var k = 'ux-audit-notes:' + location.pathname;
+  try { el.value = localStorage.getItem(k) || ''; } catch (e) {}
+  el.addEventListener('input', function () {
+    try { localStorage.setItem(k, el.value); } catch (e) {}
+  });
+})();
+</script></body></html>

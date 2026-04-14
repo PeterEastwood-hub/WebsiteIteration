@@ -5,6 +5,7 @@
 (function () {
   var root = document.querySelector('[data-nf-insights-tabs]');
   if (!root) return;
+  if (document.body.classList.contains('nf-insights-redesign')) return;
 
   var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
   var cards = document.querySelectorAll('[data-nf-insight-card]');
