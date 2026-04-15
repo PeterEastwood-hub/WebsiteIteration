@@ -10,10 +10,14 @@
     document.body.classList.contains('nf-explore-page-iter9-insights') ||
     document.body.classList.contains('nf-explore-page-iter8-engineering') ||
     document.body.classList.contains('nf-explore-page-iter9-engineering');
-  /** Iterations 8 & 9 — content-driven topic tabs + format accordion defaults (see build prompt). */
+  /** Iterations 8 & 9 — Insights + Engineering listings: topic tabs only (no redesign format/topic drawer). */
   var isIter789DualStream =
     document.body.classList.contains('nf-explore-page-iter8-insights') ||
     document.body.classList.contains('nf-explore-page-iter9-insights') ||
+    document.body.classList.contains('nf-explore-page-iter8-engineering') ||
+    document.body.classList.contains('nf-explore-page-iter9-engineering');
+  /** Engineering iter 8/9: each article keeps the same bento slot as on “All topics” (feed DOM order, incl. hidden). */
+  var isEngIter89EngOnly =
     document.body.classList.contains('nf-explore-page-iter8-engineering') ||
     document.body.classList.contains('nf-explore-page-iter9-engineering');
   var root = document.querySelector('[data-nf-insights-tabs]');
@@ -141,6 +145,20 @@
         }
       });
 
+      var slotForRow = new WeakMap();
+      var useStableEngSlots = isEngIter89EngOnly && isPrimary;
+      if (useStableEngSlots) {
+        var ord = 0;
+        children.forEach(function (child) {
+          var c = cardFromFeedRow(child);
+          if (!c) return;
+          if (c.classList.contains('nf-insights-article-card--community-landing')) return;
+          if (c.getAttribute && c.getAttribute('data-nf-insight-featured') === '1') return;
+          slotForRow.set(child, ord % 8);
+          ord += 1;
+        });
+      }
+
       var n = 0;
       children.forEach(function (child) {
         var card = cardFromFeedRow(child);
@@ -148,8 +166,12 @@
         card.classList.add('nf-insights-bento-tile');
         ensureInsightCardStackLayout(card);
         if (isPrimary) {
-          child.classList.add(BENTO_PREFIX + String(n % 8));
-          n += 1;
+          if (useStableEngSlots && slotForRow.has(child)) {
+            child.classList.add(BENTO_PREFIX + String(slotForRow.get(child)));
+          } else {
+            child.classList.add(BENTO_PREFIX + String(n % 8));
+            n += 1;
+          }
         } else {
           child.classList.add(BENTO_PREFIX + 'std');
         }
@@ -159,6 +181,11 @@
 
   function readUrlState() {
     var u = new URL(window.location.href);
+    if (isIter789DualStream) {
+      state.topics = [];
+      state.format = '';
+      return;
+    }
     state.topics = u.searchParams.getAll('topic').filter(Boolean).slice(0, 2);
     state.format = u.searchParams.get('format') || '';
   }
@@ -214,7 +241,8 @@
 
   /** Topic scope only (ignores format filter) — used for format option list and card visibility. */
   function topicFilterMatches(card) {
-    if (isIter7) return cardMatchesTabTopicOnly(card);
+    /** Legacy topic tabs (iter 7–9 listings): match visible tab + optional tag — not redesign URL state. */
+    if (isIter7 || isIter789DualStream) return cardMatchesTabTopicOnly(card);
     if (!state.topics.length) return true;
     var cats = (card.getAttribute('data-nf-insight-categories') || '').trim().split(/\s+/).filter(Boolean);
     var t;
@@ -227,7 +255,7 @@
   function cardMatches(card) {
     var fmt = (card.getAttribute('data-nf-insight-format') || '').trim();
     if (!topicFilterMatches(card)) return false;
-    if (state.format && fmt !== state.format) return false;
+    if (!isIter789DualStream && state.format && fmt !== state.format) return false;
     return true;
   }
 
@@ -236,6 +264,12 @@
     if (state.format && formatCount(state.format) === 0) {
       state.format = '';
       writeUrlState(true);
+    }
+    /** Topic visibility + empty/load-more chrome for these pages live in mirror-insights-tabs.js. */
+    if (isIter789DualStream) {
+      updateEditorialLayout();
+      syncUiFromState();
+      return;
     }
     var visible = 0;
     cards().forEach(function (card) {
@@ -251,6 +285,7 @@
 
   function updateStatusText(visible) {
     if (!statusEl) return;
+    if (isIter789DualStream) return;
     var parts = [];
     if (state.topics.length) {
       parts.push(
@@ -305,6 +340,7 @@
   }
 
   function filterIsActive() {
+    if (isIter789DualStream) return false;
     return state.topics.length > 0 || !!state.format;
   }
 
@@ -770,7 +806,14 @@
 
   if (!isIter7) hideLegacyTabs();
   ensureAuxUi();
-  buildFilterPanel();
+  if (!isIter789DualStream) {
+    buildFilterPanel();
+  } else {
+    window.addEventListener('popstate', function () {
+      readUrlState();
+      applyCardFilter();
+    });
+  }
   readUrlState();
   if (!isIter7) promoteFeaturedCard();
 
@@ -780,7 +823,8 @@
   });
 
   applyCardFilter();
-  if (isIter7) {
+  /** Only iteration 7 uses the static “8 of 24” pagination note; iter8/9 keep real Load more + fetch wiring. */
+  if (document.body.classList.contains('nf-explore-page-iter7')) {
     applyIter7PaginationPrototype();
   } else {
     verifyNextPageExists();

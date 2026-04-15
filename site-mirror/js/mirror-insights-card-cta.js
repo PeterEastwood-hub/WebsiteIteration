@@ -1,7 +1,7 @@
 /**
  * Insights listing cards: strip “Learn more” CTA, replace topic pill links with hashtag text,
- * and unwrap the hero image so only the title links to the article (except iter8/9 Engineering
- * listings, where the image stays linked so cards navigate like the source Engineering feed).
+ * and unwrap the hero image so only the title links to the article — including iteration 8/9
+ * Engineering listings so article layout matches iteration 8/9 Insights.
  * Idempotent; runs on pages with [data-nf-insight-card].
  */
 (function () {
@@ -85,12 +85,6 @@
 
   function unwrapImageLink(card) {
     if (card.getAttribute('data-nf-image-unwrapped') === '1') return;
-    var b = document.body;
-    if (
-      b.classList.contains('nf-explore-page-iter8-engineering') ||
-      b.classList.contains('nf-explore-page-iter9-engineering')
-    )
-      return;
     var imgLink = card.querySelector(':scope > a');
     if (!imgLink || !imgLink.querySelector('img') || imgLink.querySelector('h3')) return;
     var div = document.createElement('div');
@@ -166,6 +160,23 @@
 
   /** Query keys for ?topic= on iter 8/9 listing pill links (see build prompt). */
   function topicParamFromDisplayLabel(lab) {
+    var b = document.body;
+    if (
+      b.classList.contains('nf-explore-page-iter8-engineering') ||
+      b.classList.contains('nf-explore-page-iter9-engineering') ||
+      b.classList.contains('nf-explore-page-iter8-insights') ||
+      b.classList.contains('nf-explore-page-iter9-insights')
+    ) {
+      var hub = {
+        'AI & Data Solutions': 'ai-data-solutions',
+        'Enterprise Modernisation': 'enterprise-modernisation',
+        'Platform Engineering': 'platform-engineering',
+        'Product & Design': 'product-design',
+        'Node.js & Backend': 'nodejs-backend',
+        'Frontend & React': 'frontend-react',
+      };
+      if (hub[lab]) return hub[lab];
+    }
     var m = {
       'AI & data': 'ai-data',
       'Strategy & change': 'strategy-change',
@@ -237,6 +248,21 @@
       security: 'Build & stacks',
       infrastructure: 'Build & stacks',
     };
+    if (
+      cl.contains('nf-explore-page-iter8-engineering') ||
+      cl.contains('nf-explore-page-iter9-engineering') ||
+      cl.contains('nf-explore-page-iter8-insights') ||
+      cl.contains('nf-explore-page-iter9-insights')
+    ) {
+      Object.assign(labelBySlug, {
+        'ai-data-solutions': 'AI & Data Solutions',
+        'enterprise-modernisation': 'Enterprise Modernisation',
+        'platform-engineering': 'Platform Engineering',
+        'product-design': 'Product & Design',
+        'nodejs-backend': 'Node.js & Backend',
+        'frontend-react': 'Frontend & React',
+      });
+    }
     row.textContent = '';
     var used = {};
     var n = 0;

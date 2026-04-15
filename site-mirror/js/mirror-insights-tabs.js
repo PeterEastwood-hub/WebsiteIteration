@@ -22,9 +22,17 @@
   var statusEl = document.getElementById('nf-insights-tab-status');
   var selectEl = document.getElementById('nf-insights-topic-select');
   var selectWrap = document.getElementById('nf-insights-topic-select-wrap');
+  var isEngIter89Listing =
+    document.body.classList.contains('nf-explore-page-iter8-engineering') ||
+    document.body.classList.contains('nf-explore-page-iter9-engineering');
+  /** Iteration 8/9 Insights + Engineering: shared hub topic tabs (same ids as HTML data-nf-tab-topic). */
+  var isIter89HubListing =
+    isEngIter89Listing ||
+    document.body.classList.contains('nf-explore-page-iter8-insights') ||
+    document.body.classList.contains('nf-explore-page-iter9-insights');
   var hasTagFilter = !!(selectEl && selectWrap);
-  /** Iteration 9 Engineering: hide per-tab “all in this category” tag dropdown (Build keeps none; others had empty UX). */
-  if (document.body.classList.contains('nf-explore-page-iter9-engineering')) {
+  /** Iteration 8/9 hub listings: no “All in this category” field — topic pills drive tab + tag filter. */
+  if (isIter89HubListing) {
     hasTagFilter = false;
     if (selectWrap) {
       selectWrap.hidden = true;
@@ -79,7 +87,39 @@
     strategy: 'Strategy and change',
   };
 
+  /** Iteration 8/9 hub listings — six topics + All (matches HTML + card data-nf-insight-topics). */
+  if (isIter89HubListing) {
+    INSIGHTS_TAGS_BY_TOPIC = {
+      'ai-data-solutions': [],
+      'enterprise-modernisation': [],
+      'platform-engineering': [],
+      'product-design': [],
+      'nodejs-backend': [],
+      'frontend-react': [],
+    };
+    statusByTopic = {
+      all: 'Showing all topics.',
+      'ai-data-solutions': 'Showing AI & Data Solutions articles.',
+      'enterprise-modernisation': 'Showing Enterprise Modernisation articles.',
+      'platform-engineering': 'Showing Platform Engineering articles.',
+      'product-design': 'Showing Product & Design articles.',
+      'nodejs-backend': 'Showing Node.js & Backend articles.',
+      'frontend-react': 'Showing Frontend & React articles.',
+    };
+    tabLabelByTopic = {
+      all: 'all topics',
+      'ai-data-solutions': 'AI & Data Solutions',
+      'enterprise-modernisation': 'Enterprise Modernisation',
+      'platform-engineering': 'Platform Engineering',
+      'product-design': 'Product & Design',
+      'nodejs-backend': 'Node.js & Backend',
+      'frontend-react': 'Frontend & React',
+    };
+  }
+
   var currentTopic = 'all';
+  /** Engineering iter 8/9: when set, only cards whose data-nf-insight-tags include this slug (pill click / ?topic=). */
+  var engPillTagSlug = '';
 
   /** Empty filter message; hide “Load more” when filtered (pagination drops the filter). */
   var emptyState = null;
@@ -89,6 +129,9 @@
   var nextPageAvailable = null;
 
   function formatTagLabel(slug) {
+    if (isIter89HubListing && slug && slug !== 'all' && tabLabelByTopic[slug]) {
+      return tabLabelByTopic[slug];
+    }
     if (slug === 'ai') return 'AI';
     if (slug === 'd3') return 'D3';
     if (slug === 'graphql') return 'GraphQL';
@@ -566,6 +609,20 @@
         }
       });
 
+      var slotForRow = new WeakMap();
+      var useStableEngSlots = isEngIter89Listing && isPrimary;
+      if (useStableEngSlots) {
+        var ord = 0;
+        children.forEach(function (child) {
+          var c = cardFromFeedRow(child);
+          if (!c) return;
+          if (c.classList.contains('nf-insights-article-card--community-landing')) return;
+          if (c.getAttribute && c.getAttribute('data-nf-insight-featured') === '1') return;
+          slotForRow.set(child, ord % 8);
+          ord += 1;
+        });
+      }
+
       var n = 0;
       children.forEach(function (child) {
         var card = cardFromFeedRow(child);
@@ -573,8 +630,12 @@
         card.classList.add('nf-insights-bento-tile');
         ensureInsightCardStackLayout(card);
         if (isPrimary) {
-          child.classList.add(BENTO_PREFIX + String(n % 8));
-          n += 1;
+          if (useStableEngSlots && slotForRow.has(child)) {
+            child.classList.add(BENTO_PREFIX + String(slotForRow.get(child)));
+          } else {
+            child.classList.add(BENTO_PREFIX + String(n % 8));
+            n += 1;
+          }
         } else {
           child.classList.add(BENTO_PREFIX + 'std');
         }
@@ -584,10 +645,12 @@
 
   function applyCardFilter() {
     var topic = currentTopic;
-    var tagSlug =
-      !hasTagFilter || topic === 'all' || selectWrap.hidden
-        ? ''
-        : selectEl.value.trim();
+    var tagSlug = '';
+    if (isIter89HubListing && engPillTagSlug) {
+      tagSlug = engPillTagSlug;
+    } else if (hasTagFilter && topic !== 'all' && selectWrap && !selectWrap.hidden) {
+      tagSlug = selectEl && selectEl.value ? selectEl.value.trim() : '';
+    }
 
     var visible = 0;
     cards.forEach(function (card) {
@@ -598,7 +661,8 @@
 
       var show;
       if (topic === 'all') {
-        show = true;
+        if (!tagSlug) show = true;
+        else show = tags.indexOf(tagSlug) !== -1;
       } else if (topics.length === 0 || topics.indexOf(topic) === -1) {
         show = false;
       } else if (!tagSlug) {
@@ -620,6 +684,9 @@
   }
 
   function selectTopic(topic, focusTab, resetDropdown) {
+    if (!isIter89HubListing || resetDropdown !== false) {
+      engPillTagSlug = '';
+    }
     currentTopic = topic;
     var activeId = null;
 
@@ -653,6 +720,19 @@
     }
 
     applyCardFilter();
+
+    if (isIter89HubListing && resetDropdown !== false) {
+      try {
+        var u2 = new URL(window.location.href);
+        if (topic === 'all') {
+          u2.searchParams.delete('topic');
+        } else {
+          u2.searchParams.set('topic', topic);
+        }
+        var q2 = u2.searchParams.toString();
+        history.replaceState({}, '', u2.pathname + (q2 ? '?' + q2 : '') + u2.hash);
+      } catch (e3) {}
+    }
   }
 
   function shouldPruneTopicTabsByContent() {
@@ -734,6 +814,17 @@
   function tabTopicFromUrlParam(raw) {
     if (!raw) return null;
     var k = String(raw).trim().toLowerCase();
+    if (isIter89HubListing) {
+      var engMap = {
+        'ai-data-solutions': 'ai-data-solutions',
+        'enterprise-modernisation': 'enterprise-modernisation',
+        'platform-engineering': 'platform-engineering',
+        'product-design': 'product-design',
+        'nodejs-backend': 'nodejs-backend',
+        'frontend-react': 'frontend-react',
+      };
+      if (engMap[k]) return engMap[k];
+    }
     var map = {
       'strategy-change': 'strategy',
       strategy: 'strategy',
@@ -776,7 +867,42 @@
   }
 
   if (initial) {
-    selectTopic(initial.getAttribute('data-nf-tab-topic'), false, true);
+    var resetDd = !(isIter89HubListing && appliedTopicFromUrl);
+    selectTopic(initial.getAttribute('data-nf-tab-topic'), false, resetDd);
+  }
+  if (isIter89HubListing && appliedTopicFromUrl && urlTabId) {
+    engPillTagSlug = urlTabId;
+    applyCardFilter();
+  }
+
+  if (isIter89HubListing) {
+    document.addEventListener(
+      'click',
+      function (e) {
+        var a = e.target.closest('a.nf-insight-card-hashtag--iter7');
+        if (!a || !a.closest('[data-nf-insight-card]')) return;
+        var href = a.getAttribute('href') || '';
+        var rawParam = null;
+        try {
+          var u = new URL(href, window.location.href);
+          rawParam = u.searchParams.get('topic');
+        } catch (err1) {
+          rawParam = null;
+        }
+        if (!rawParam) return;
+        var mapped = tabTopicFromUrlParam(rawParam);
+        if (!mapped || mapped === 'all') return;
+        e.preventDefault();
+        engPillTagSlug = mapped;
+        selectTopic(mapped, false, false);
+        try {
+          var nu = new URL(window.location.href);
+          nu.searchParams.set('topic', String(rawParam).trim());
+          history.replaceState({}, '', nu.pathname + (nu.search ? nu.search : '') + nu.hash);
+        } catch (err2) {}
+      },
+      true,
+    );
   }
 
   if (appliedTopicFromUrl) {

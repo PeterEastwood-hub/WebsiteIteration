@@ -1,7 +1,7 @@
 /**
- * Insights explore — iterations 8 & 9: featured hero on Insights listings only; Engineering
- * listings start at filters + grid (no hero). Cross-stream modules at list foot; topic pills
- * on cards are filter links (see mirror-insights-card-cta.js).
+ * Insights explore — iterations 8 & 9: featured hero on Insights and Engineering listings;
+ * format/topic drawer is handled in mirror-insights-redesign.js (disabled for these pages).
+ * Cross-stream modules at list foot; topic pills on cards are filter links (see mirror-insights-card-cta.js).
  */
 (function () {
   var b = document.body;
@@ -17,7 +17,7 @@
   var insListing =
     is8i || is8e ? 'insights-explore-iter8.html' : 'insights-explore-iter9.html';
 
-  var HERO = {
+  var HERO_INSIGHTS = {
     href: 'moving-beyond-the-hype-engineering-for-the-ai-era.html',
     title: 'Moving beyond the hype: Engineering for the AI era',
     img:
@@ -28,6 +28,20 @@
     date: '11 Mar 2026',
     read: '6 min read',
     format: 'Deep dive',
+  };
+
+  /** Same featured shell as Insights; article appears in the Engineering primary feed — duplicate row removed below. */
+  var HERO_ENGINEERING = {
+    href: 'implementing-model-context-protocol-mcp-tips-tricks-and-pitfalls.html',
+    title: 'WebMCP: Turning web pages into tools for AI agents',
+    img:
+      'https://res.cloudinary.com/nearform-website/image/upload/f_auto,q_auto,w_1600,h_900/A_2',
+    excerpt:
+      'A practical walkthrough of the Model Context Protocol and how we wire real systems so agents can use your product surfaces safely and predictably.',
+    author: 'Nearform',
+    date: '10 Dec 2025',
+    read: '8 min read',
+    format: 'Tutorial',
   };
 
   /** Curated strategic / business Insights articles (mirrors cross-stream on Engineering listings). */
@@ -98,7 +112,23 @@
     );
   }
 
-  function insertFeaturedHero() {
+  /** Remove grid row whose card links to the same article as the featured hero (avoids duplicate listing). */
+  function removePrimaryFeedRowForArticleHref(href) {
+    if (!href) return;
+    document.querySelectorAll('.nf-insights-feed--primary [data-nf-insight-card]').forEach(function (card) {
+      var a = card.querySelector('a[href$=".html"]');
+      if (!a) return;
+      var h = (a.getAttribute('href') || '').split('#')[0].split('?')[0];
+      var target = href.split('#')[0].split('?')[0];
+      if (h === target) {
+        var row = card.closest('.mb-8');
+        if (row && row.parentNode) row.parentNode.removeChild(row);
+      }
+    });
+  }
+
+  function insertFeaturedHero(hero) {
+    var H = hero || HERO_INSIGHTS;
     if (document.getElementById('nf-explore-iter7-featured')) return;
     var firstPrimary = document.querySelector('section.nf-insights-feed--primary');
     if (!firstPrimary || !firstPrimary.parentNode) return;
@@ -112,36 +142,40 @@
       '<div class="nf-explore-iter7-featured__shell w-full max-w-[1600px] mx-auto min-w-0">' +
       '<div class="nf-explore-iter7-featured__inner">' +
       '<a class="nf-explore-iter7-featured__media" href="' +
-      HERO.href +
+      H.href +
       '"><img src="' +
-      HERO.img +
+      H.img +
       '" alt="" width="1600" height="900" loading="lazy" decoding="async" /></a>' +
       '<div class="nf-explore-iter7-featured__body">' +
       '<span class="nf-explore-iter7-featured__kicker"><span class="nf-explore-iter7-featured__pick">Featured</span>' +
       '<span class="nf-explore-iter7-featured__fmt">' +
-      HERO.format +
+      H.format +
       '</span></span>' +
       '<h2 class="nf-explore-iter7-featured__title"><a href="' +
-      HERO.href +
+      H.href +
       '">' +
-      HERO.title +
+      H.title +
       '</a></h2>' +
       '<p class="nf-explore-iter7-featured__meta">' +
-      HERO.author +
+      H.author +
       ' · ' +
-      HERO.date +
+      H.date +
       ' · ' +
-      HERO.read +
+      H.read +
       '</p>' +
       '<p class="nf-explore-iter7-featured__excerpt">' +
-      HERO.excerpt +
+      H.excerpt +
       '</p>' +
       '<a class="nf-explore-iter7-featured__cta" href="' +
-      HERO.href +
+      H.href +
       '">Read article →</a>' +
       '</div></div></div>';
     firstPrimary.parentNode.insertBefore(el, firstPrimary);
     removeFeaturedDuplicateFromPrimaryFeeds();
+    removePrimaryFeedRowForArticleHref(H.href);
+    try {
+      window.dispatchEvent(new CustomEvent('nf-insights-list-topic-changed'));
+    } catch (e) {}
   }
 
   function communityCardHtml(c) {
@@ -195,7 +229,7 @@
 
     var loadWrap = document.querySelector('.flex-1.mx-auto.mb-16');
     if (loadWrap && loadWrap.parentNode) {
-      loadWrap.parentNode.insertBefore(mod, loadWrap);
+      loadWrap.parentNode.insertBefore(mod, loadWrap.nextSibling);
     } else {
       var feeds = document.querySelectorAll('section.nf-insights-feed--primary');
       var last = feeds[feeds.length - 1];
@@ -229,7 +263,7 @@
 
     var loadWrap = document.querySelector('.flex-1.mx-auto.mb-16');
     if (loadWrap && loadWrap.parentNode) {
-      loadWrap.parentNode.insertBefore(mod, loadWrap);
+      loadWrap.parentNode.insertBefore(mod, loadWrap.nextSibling);
     } else {
       var feeds = document.querySelectorAll('section.nf-insights-feed--primary');
       var last = feeds[feeds.length - 1];
@@ -237,8 +271,45 @@
     }
   }
 
+  /** Engineering listings ship without a Load more row; Insights already has one or two in HTML. */
+  function ensureIter89LoadMoreRow() {
+    if (!is8i && !is9i && !is8e && !is9e) return;
+    var hasLoad = false;
+    document.querySelectorAll('a[target="_self"]').forEach(function (a) {
+      if ((a.textContent || '').trim() === 'Load More') hasLoad = true;
+    });
+    if (hasLoad) return;
+    var href = 'insights-engineering-community.html';
+    if (is8i || is9i) {
+      href = 'insights_9.html';
+    }
+    var wrap = document.createElement('div');
+    wrap.className = 'flex-1 mx-auto mb-16';
+    wrap.innerHTML =
+      '<div class="group relative overflow-hidden inline-flex justify-center items-center font-sans rounded-full px-4 py-2.5 cursor-pointer link-button-transition dark:text-white disabled:pointer-events-none disabled:opacity-40 disabled:text-nf-deep-grey disabled:bg-nf-grey text-nf-deep-navy border border-nf-green hover:bg-nf-green hover:text-nf-deep-navy dark:border-nf-green dark:hover:bg-nf-green dark:hover:text-nf-deep-navy text-base/4 tracking-[0.1em] inline-flex items-center">' +
+      '<span class="relative inline-block transition-transform duration-300 ease-in-out">' +
+      '<a target="_self" href="' +
+      href +
+      '">Load More</a></span></div>';
+    var mod =
+      document.getElementById('nf-explore-iter7-insights-module') ||
+      document.getElementById('nf-explore-iter7-engineering-module');
+    if (mod && mod.parentNode) {
+      mod.parentNode.insertBefore(wrap, mod);
+      return;
+    }
+    var feeds = document.querySelectorAll('section.nf-insights-feed--primary');
+    var last = feeds[feeds.length - 1];
+    if (last && last.parentNode) {
+      last.parentNode.insertBefore(wrap, last.nextSibling);
+    }
+  }
+
   if (is8i || is9i) {
-    insertFeaturedHero();
+    insertFeaturedHero(HERO_INSIGHTS);
+  }
+  if (is8e || is9e) {
+    insertFeaturedHero(HERO_ENGINEERING);
   }
   if (is8i || is9i) {
     replaceEngineeringCommunityModule();
@@ -246,4 +317,5 @@
   if (is8e || is9e) {
     replaceInsightsStreamModule();
   }
+  ensureIter89LoadMoreRow();
 })();

@@ -40,6 +40,33 @@ CTA_MARKER = (
 
 CSS_LINK = '<link rel="stylesheet" href="css/insights-explore.css">'
 
+# Iteration 8/9 listings: run iter8-9-listing before tabs/redesign so the featured hero and duplicate
+# primary-row removal run before the first bento layout (stable slots match “All topics”).
+_FLAIR_TABS_CTA_SCRIPTS = (
+    '<script src="js/mirror-flair.js" defer=""></script>'
+    '<script src="js/mirror-insights-tabs.js" defer=""></script>'
+    '<script src="js/mirror-insights-card-cta.js" defer=""></script>'
+)
+_FLAIR_LISTING_CTA_TABS_SCRIPTS = (
+    '<script src="js/mirror-flair.js" defer=""></script>'
+    '<script src="js/mirror-insights-iter8-9-listing.js" defer="" id="mirror-insights-iter8-9-listing-js"></script>'
+    '<script src="js/mirror-insights-card-cta.js" defer=""></script>'
+    '<script src="js/mirror-insights-tabs.js" defer=""></script>'
+)
+_REDESIGN_PLUS_ITER89_LISTING = (
+    '<script src="js/mirror-insights-redesign.js" defer="" id="mirror-insights-redesign-js"></script>'
+    '<script src="js/mirror-insights-iter8-9-listing.js" defer="" id="mirror-insights-iter8-9-listing-js"></script>'
+)
+_REDESIGN_SCRIPT_ONLY = '<script src="js/mirror-insights-redesign.js" defer="" id="mirror-insights-redesign-js"></script>'
+
+
+def patch_iter789_listing_script_order(html: str) -> str:
+    """Promote iter8-9-listing.js ahead of card-cta/tabs; drop duplicate tag after redesign if present."""
+    h = html.replace(_REDESIGN_PLUS_ITER89_LISTING, _REDESIGN_SCRIPT_ONLY, 1)
+    if _FLAIR_TABS_CTA_SCRIPTS in h:
+        h = h.replace(_FLAIR_TABS_CTA_SCRIPTS, _FLAIR_LISTING_CTA_TABS_SCRIPTS, 1)
+    return h
+
 
 def replace_body_explore_class(html: str, explore_page_class: str, *, keep_redesign: bool) -> str:
     """Append a single nf-explore-page-* class; strip any previous explore page class.
@@ -561,10 +588,10 @@ def patch_insights_listing_iter789(
     h = re.sub(r"<title>.*?</title>", f"<title>{title}</title>", h, count=1)
     h = h.replace("nf-explore-page-iter7", body_class)
     old_js = '<script src="js/mirror-insights-iter7.js" defer="" id="mirror-insights-iter7-js"></script>'
-    new_js = '<script src="js/mirror-insights-iter8-9-listing.js" defer="" id="mirror-insights-iter8-9-listing-js"></script>'
     if old_js not in h:
         raise RuntimeError("Expected iter7 listing script tag in iter7 HTML source")
-    h = h.replace(old_js, new_js, 1)
+    h = h.replace(old_js, "", 1)
+    h = patch_iter789_listing_script_order(h)
     h = patch_iter789_insights_hero_engineering_jump(h, iteration=iteration)
     h = inject_iter789_insights_hero_subtext(h)
     if nav_mode == "iter8_peer":
@@ -572,7 +599,191 @@ def patch_insights_listing_iter789(
     else:
         h = apply_iter9_insights_nav(h)
     h = inject_listing_bottom_cta_insights(h, iteration=iteration)
+    h = patch_iter89_insights_hub_topic_tabs(h)
+    h = patch_iter89_insights_hub_card_topics(h)
+    h = patch_iter89_insights_remove_engineering_community_cta(h)
     return h
+
+
+# Iteration 8/9 Insights: remove static “Engineering Community … dedicated page” strip above the feeds.
+_INSIGHTS_COMMUNITY_CTA_SECTION = re.compile(
+    r'<section class="w-full flex px-5 md:px-7 lg:px-8 mt-12 pt-20 pb-8 items-start nf-insights-community-cta">.*?</section>',
+    re.DOTALL,
+)
+
+
+def patch_iter89_insights_remove_engineering_community_cta(html: str) -> str:
+    html2, n = _INSIGHTS_COMMUNITY_CTA_SECTION.subn("", html, count=1)
+    if n != 1:
+        raise RuntimeError(
+            "Iteration 8/9 insights: expected one nf-insights-community-cta section to remove"
+        )
+    return html2
+
+
+# Iteration 8/9 — shared hub topic tabs (Insights + Engineering listings; no Industry Insights tab).
+_ITER89_HUB_TOPIC_TAB_BUTTONS = (
+    '<button type="button" role="tab" id="nf-insights-tab-all" aria-selected="true" '
+    'aria-controls="nf-insights-pill-panel" data-nf-tab-topic="all" class="nf-insights-topic-tabs__tab">All topics</button>'
+    '<button type="button" role="tab" id="nf-insights-tab-ai-data-solutions" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="ai-data-solutions" '
+    'class="nf-insights-topic-tabs__tab">AI &amp; Data Solutions</button>'
+    '<button type="button" role="tab" id="nf-insights-tab-enterprise-modernisation" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="enterprise-modernisation" '
+    'class="nf-insights-topic-tabs__tab">Enterprise Modernisation</button>'
+    '<button type="button" role="tab" id="nf-insights-tab-platform-engineering" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="platform-engineering" '
+    'class="nf-insights-topic-tabs__tab">Platform Engineering</button>'
+    '<button type="button" role="tab" id="nf-insights-tab-product-design" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="product-design" '
+    'class="nf-insights-topic-tabs__tab">Product &amp; Design</button>'
+    '<button type="button" role="tab" id="nf-insights-tab-nodejs-backend" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="nodejs-backend" '
+    'class="nf-insights-topic-tabs__tab">Node.js &amp; Backend</button>'
+    '<button type="button" role="tab" id="nf-insights-tab-frontend-react" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="frontend-react" '
+    'class="nf-insights-topic-tabs__tab">Frontend &amp; React</button>'
+)
+
+_INSIGHTS_ITER89_HUB_TOPIC_TABLIST = (
+    '<div role="tablist" aria-label="Browse insights by topic" class="nf-insights-topic-tabs__list">'
+    + _ITER89_HUB_TOPIC_TAB_BUTTONS
+    + "</div>"
+)
+
+_ENG_ITER89_TOPIC_TABLIST = (
+    '<div role="tablist" aria-label="Browse engineering articles by topic" class="nf-insights-topic-tabs__list">'
+    + _ITER89_HUB_TOPIC_TAB_BUTTONS
+    + "</div>"
+)
+
+_ENG_TOPIC_TABLIST_OLD = re.compile(
+    r'<div role="tablist" aria-label="Browse insights by topic" class="nf-insights-topic-tabs__list">.*?</div>\s*'
+    r'<div id="nf-insights-pill-panel"',
+    re.DOTALL,
+)
+
+# (article href basename, data-nf-insight-topics, data-nf-insight-tags) — tags drive listing pill links.
+_ENG_ITER89_ARTICLE_TOPIC_ROWS: tuple[tuple[str, str, str], ...] = (
+    (
+        "why-plan-mode-is-not-enough-better-outcomes-with-spec-driven-development.html",
+        "product-design",
+        "product-design",
+    ),
+    (
+        "designers-and-ai-native-engineering-building-real-products-with-bmad-and-ai-driven-ides.html",
+        "frontend-react",
+        "frontend-react",
+    ),
+    (
+        "browser-based-vector-search-fast-private-and-no-backend-required.html",
+        "platform-engineering",
+        "platform-engineering",
+    ),
+    (
+        "implementing-model-context-protocol-mcp-tips-tricks-and-pitfalls.html",
+        "nodejs-backend",
+        "nodejs-backend",
+    ),
+    (
+        "cursor-vs-copilot-what-tool-has-the-best-planning-mode.html",
+        "product-design",
+        "product-design",
+    ),
+    (
+        "ai-beyond-the-cloud-the-current-and-future-state-of-on-device-generative-ai.html",
+        "ai-data-solutions",
+        "ai-data-solutions",
+    ),
+    (
+        "temporal-workflow-debt-the-hidden-blocker-in-enterprise-ai-integration.html",
+        "enterprise-modernisation",
+        "enterprise-modernisation",
+    ),
+)
+
+
+_LEGACY_TOPICS_TOKEN_TO_HUB: dict[str, str] = {
+    "build": "nodejs-backend",
+    "ai-data": "ai-data-solutions",
+    "cloud": "platform-engineering",
+    "product": "product-design",
+    "strategy": "enterprise-modernisation",
+}
+
+_ITER89_INSIGHTS_CARD_TOPICS_TAGS_RE = re.compile(
+    r'(<div class="mb-8 nf-insights-article-card(?: nf-insights-article-card--community-landing)?" '
+    r'data-nf-insight-card="" data-nf-insight-topics=")([^"]+)(" data-nf-insight-tags=")([^"]*)(")',
+)
+
+
+def _legacy_topics_tokens_to_hub_slugs(raw: str) -> str:
+    """Map iteration-7 listing topic tokens onto iteration-8/9 hub slugs (space-separated, deduped)."""
+    hubs: list[str] = []
+    seen: set[str] = set()
+    for tok in (raw or "").split():
+        hub = _LEGACY_TOPICS_TOKEN_TO_HUB.get(tok)
+        if hub and hub not in seen:
+            seen.add(hub)
+            hubs.append(hub)
+    return " ".join(hubs) if hubs else "platform-engineering"
+
+
+def patch_iter89_insights_hub_topic_tabs(html: str) -> str:
+    repl = _INSIGHTS_ITER89_HUB_TOPIC_TABLIST + '<div id="nf-insights-pill-panel"'
+    html2, n = _ENG_TOPIC_TABLIST_OLD.subn(repl, html, count=1)
+    if n != 1:
+        raise RuntimeError("Iteration 8/9 insights hub: expected one topic tablist to replace")
+    return html2
+
+
+def patch_iter89_insights_hub_card_topics(html: str) -> str:
+    """Align card data-nf-insight-topics/tags with hub tab ids (mirrors mirror-insights-tabs.js)."""
+
+    def _repl(m: re.Match[str]) -> str:
+        new_slugs = _legacy_topics_tokens_to_hub_slugs(m.group(2))
+        return m.group(1) + new_slugs + m.group(3) + new_slugs + m.group(5)
+
+    html2, n = _ITER89_INSIGHTS_CARD_TOPICS_TAGS_RE.subn(_repl, html)
+    if n < 8:
+        raise RuntimeError(f"Iteration 8/9 insights hub: expected card topic rewrites, got {n}")
+    return html2
+
+
+def patch_iter89_engineering_topic_tabs(html: str) -> str:
+    repl = _ENG_ITER89_TOPIC_TABLIST + '<div id="nf-insights-pill-panel"'
+    html2, n = _ENG_TOPIC_TABLIST_OLD.subn(repl, html, count=1)
+    if n != 1:
+        raise RuntimeError("Iteration 8/9 engineering: expected one topic tablist to replace")
+    return html2
+
+
+def patch_iter89_engineering_card_topics(html: str) -> str:
+    for basename, topics, tags in _ENG_ITER89_ARTICLE_TOPIC_ROWS:
+        # Anchor to the listing hero image link only (avoids matching a later in-card href).
+        pat = (
+            r'(<div class="mb-8 nf-insights-article-card(?: nf-insights-article-card--community-landing)?" '
+            r'data-nf-insight-card="" data-nf-insight-topics=")([^"]+)(" data-nf-insight-tags=")([^"]*)(")([^>]*>'
+            r'<a class="group overflow-hidden block mb-4 w-full"[^>]*href="'
+            + re.escape(basename)
+            + r'")'
+        )
+
+        def make_repl(
+            new_topics: str,
+            new_tags: str,
+        ) -> object:
+            def _repl(m: re.Match[str]) -> str:
+                return m.group(1) + new_topics + m.group(3) + new_tags + m.group(5) + m.group(6)
+
+            return _repl
+
+        html, nm = re.subn(pat, make_repl(topics, tags), html)
+        if nm < 1:
+            raise RuntimeError(
+                f"Iteration 8/9 engineering: no card match for article {basename} (got {nm})"
+            )
+    return html
 
 
 def build_engineering_listing_iter789(
@@ -618,19 +829,15 @@ def build_engineering_listing_iter789(
     )
     if nb != 1:
         raise RuntimeError(f"Iteration {iteration} engineering: body class replace failed")
-    if "mirror-insights-iter8-9-listing.js" not in h:
-        h = h.replace(
-            '<script src="js/mirror-insights-redesign.js" defer="" id="mirror-insights-redesign-js"></script>',
-            '<script src="js/mirror-insights-redesign.js" defer="" id="mirror-insights-redesign-js"></script>'
-            '<script src="js/mirror-insights-iter8-9-listing.js" defer="" id="mirror-insights-iter8-9-listing-js"></script>',
-            1,
-        )
+    h = patch_iter789_listing_script_order(h)
     if nav_mode == "iter8_peer":
         h = apply_iter8_peer_nav(h)
     else:
         h = apply_iter9_insights_nav(h)
     h = patch_iter789_engineering_listing_copy(h, iteration=iteration)
     h = inject_iter789_engineering_hero_subtext(h)
+    h = patch_iter89_engineering_topic_tabs(h)
+    h = patch_iter89_engineering_card_topics(h)
     return h
 
 
@@ -894,6 +1101,11 @@ def build_layout_hub_page(source_text: str) -> str:
     <p class="lead">Layout explorations use the same site header and navigation as the main Insights page, with a different article treatment per iteration. On Community nav, hover <strong>Insights</strong> in the site header for a link to the Engineering Community page.</p>
     <p class="note">Left rail uses plain CSS for the two-column shell (not Tailwind utilities), so the sidebar stays narrow and the feed fills the remaining width.</p>
     <div class="nf-explore-hub-grid">
+      <article class="nf-explore-hub-card">
+        <h2>Default</h2>
+        <p>Production-style Insights index: mosaic primary grid, topic tabs, and the same layout switcher as every exploration page.</p>
+        <a href="insights.html">Open default</a>
+      </article>
       <article class="nf-explore-hub-card">
         <h2>Mosaic</h2>
         <p>Bento-style primary grid from the main Insights CSS, plus a denser 3-column secondary river for discovery.</p>

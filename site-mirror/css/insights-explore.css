@@ -700,12 +700,31 @@ body.nf-explore-page-iter6 {
   --nf-explore-iter6-slot: 1;
 }
 
-/* Iteration 9 Engineering only: hide legacy per-tab tag dropdown (“All in this category…”) under topic pills. */
+/* Iteration 8/9 Engineering: hide per-tab tag dropdown (“All in this category…”) — pills drive filter. */
+body.nf-explore-page-iter8-engineering #nf-insights-topic-select-wrap,
+body.nf-explore-page-iter8-engineering .nf-insights-topic-select-wrap,
 body.nf-explore-page-iter9-engineering #nf-insights-topic-select-wrap,
 body.nf-explore-page-iter9-engineering .nf-insights-topic-select-wrap {
   display: none !important;
   visibility: hidden !important;
   pointer-events: none !important;
+}
+
+/* Engineering iter 8/9: topic tabs hide feed rows; `dense` repacks remaining tiles and breaks the
+   stable bento spans — use row flow so each visible card keeps its slot footprint in source order. */
+@media (min-width: 1024px) {
+  :is(body.nf-explore-page-iter8-engineering, body.nf-explore-page-iter9-engineering)
+    .nf-insights-feed--primary
+    .nf-insights-feed-list--stack {
+    grid-auto-flow: row;
+  }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  :is(body.nf-explore-page-iter8-engineering, body.nf-explore-page-iter9-engineering)
+    .nf-insights-feed--primary
+    .nf-insights-feed-list--stack {
+    grid-auto-flow: row;
+  }
 }
 
 /* =============================================================================
