@@ -2084,7 +2084,7 @@ html.dark .nf-insights-redesign-filters__toggle {
   gap: 0.65rem;
 }
 
-/* Three filter blocks (topic/tags, format, industry) in one row above the fold on wide viewports */
+/* Filter blocks (topic/tags, format) in one row above the fold on wide viewports */
 @media (min-width: 900px) {
   .nf-insights-redesign-filters__sections {
     flex-direction: row;
@@ -2566,4 +2566,10 @@ body.nf-insights-index.nf-insights-redesign--engineering .nf-insights-article-ca
 html.dark .nf-insight-format-pill {
   background: rgba(99, 102, 241, 0.25);
   color: #e0e7ff;
+}
+
+/* Hide inlined mirror prototype UX notes bar + bottom spacer (HTML still loads rhythm.css). */
+#ux-audit-bar,
+#ux-audit-spacer {
+  display: none !important;
 }

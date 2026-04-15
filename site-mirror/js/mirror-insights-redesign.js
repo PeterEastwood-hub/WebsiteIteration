@@ -4,6 +4,18 @@
  */
 (function () {
   if (!document.body.classList.contains('nf-insights-redesign')) return;
+  var isIter7 =
+    document.body.classList.contains('nf-explore-page-iter7') ||
+    document.body.classList.contains('nf-explore-page-iter8-insights') ||
+    document.body.classList.contains('nf-explore-page-iter9-insights') ||
+    document.body.classList.contains('nf-explore-page-iter8-engineering') ||
+    document.body.classList.contains('nf-explore-page-iter9-engineering');
+  /** Iterations 8 & 9 — content-driven topic tabs + format accordion defaults (see build prompt). */
+  var isIter789DualStream =
+    document.body.classList.contains('nf-explore-page-iter8-insights') ||
+    document.body.classList.contains('nf-explore-page-iter9-insights') ||
+    document.body.classList.contains('nf-explore-page-iter8-engineering') ||
+    document.body.classList.contains('nf-explore-page-iter9-engineering');
   var root = document.querySelector('[data-nf-insights-tabs]');
   if (!root) return;
 
@@ -27,12 +39,6 @@
     { id: 'case-study', label: 'Case study' },
     { id: 'open-source-release', label: 'Open Source Release' },
   ];
-  var INDUSTRIES = [
-    { id: 'banking-financial-services', label: 'Banking & Financial Services' },
-    { id: 'healthcare', label: 'Healthcare' },
-    { id: 'retail-ecommerce', label: 'Retail & E-commerce' },
-    { id: 'telecommunications', label: 'Telecommunications & Media' },
-  ];
 
   var tabList = root.querySelector('.nf-insights-topic-tabs__list');
   var panel = root.querySelector('#nf-insights-pill-panel');
@@ -46,7 +52,6 @@
   var state = {
     topics: [],
     format: '',
-    industry: '',
   };
 
   var emptyState = null;
@@ -156,7 +161,6 @@
     var u = new URL(window.location.href);
     state.topics = u.searchParams.getAll('topic').filter(Boolean).slice(0, 2);
     state.format = u.searchParams.get('format') || '';
-    state.industry = u.searchParams.get('industry') || '';
   }
 
   function writeUrlState(replace) {
@@ -166,7 +170,6 @@
       u.searchParams.append('topic', t);
     });
     if (state.format) u.searchParams.set('format', state.format);
-    if (state.industry) u.searchParams.set('industry', state.industry);
     var next = u.pathname + (u.search ? u.search : '') + u.hash;
     if (replace) history.replaceState({}, '', next);
     else history.pushState({}, '', next);
@@ -189,23 +192,51 @@
     return n;
   }
 
-  function cardMatches(card) {
-    var fmt = (card.getAttribute('data-nf-insight-format') || '').trim();
-    var ind = (card.getAttribute('data-nf-insight-industry') || '').trim();
+  /** Same topic rules as mirror-insights-tabs (iteration 7 legacy tabs). */
+  function cardMatchesTabTopicOnly(card) {
+    var tab = document.querySelector('.nf-insights-topic-tabs__tab[aria-selected="true"]');
+    var topic = tab ? (tab.getAttribute('data-nf-tab-topic') || 'all') : 'all';
+    var selectEl = document.getElementById('nf-insights-topic-select');
+    var selectWrap = document.getElementById('nf-insights-topic-select-wrap');
+    var tagSlug = '';
+    if (selectEl && selectWrap && topic !== 'all' && !selectWrap.hidden) {
+      tagSlug = (selectEl.value || '').trim();
+    }
+    var rawTopics = (card.getAttribute('data-nf-insight-topics') || '').trim();
+    var topics = rawTopics ? rawTopics.split(/\s+/) : [];
+    var rawTags = (card.getAttribute('data-nf-insight-tags') || '').trim();
+    var tags = rawTags ? rawTags.split(/\s+/) : [];
+    if (topic === 'all') return true;
+    if (topics.length === 0 || topics.indexOf(topic) === -1) return false;
+    if (!tagSlug) return true;
+    return tags.indexOf(tagSlug) !== -1;
+  }
+
+  /** Topic scope only (ignores format filter) — used for format option list and card visibility. */
+  function topicFilterMatches(card) {
+    if (isIter7) return cardMatchesTabTopicOnly(card);
+    if (!state.topics.length) return true;
+    var cats = (card.getAttribute('data-nf-insight-categories') || '').trim().split(/\s+/).filter(Boolean);
     var t;
-    var cats = (card.getAttribute('data-nf-insight-categories') || '')
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean);
     for (t = 0; t < state.topics.length; t++) {
       if (cats.indexOf(state.topics[t]) === -1) return false;
     }
+    return true;
+  }
+
+  function cardMatches(card) {
+    var fmt = (card.getAttribute('data-nf-insight-format') || '').trim();
+    if (!topicFilterMatches(card)) return false;
     if (state.format && fmt !== state.format) return false;
-    if (state.industry && ind !== state.industry) return false;
     return true;
   }
 
   function applyCardFilter() {
+    refreshFormatFilterButtons();
+    if (state.format && formatCount(state.format) === 0) {
+      state.format = '';
+      writeUrlState(true);
+    }
     var visible = 0;
     cards().forEach(function (card) {
       var show = cardMatches(card);
@@ -229,7 +260,6 @@
       );
     }
     if (state.format) parts.push(labelFor(state.format, FORMATS));
-    if (state.industry) parts.push(labelFor(state.industry, INDUSTRIES));
     var filterBit = parts.length ? ' for ' + parts.join(' · ') : '';
     statusEl.textContent =
       visible === 0
@@ -275,7 +305,7 @@
   }
 
   function filterIsActive() {
-    return state.topics.length > 0 || !!state.format || !!state.industry;
+    return state.topics.length > 0 || !!state.format;
   }
 
   function updateFilterChrome(visible) {
@@ -314,6 +344,16 @@
     } else {
       emptyState.hidden = true;
     }
+  }
+
+  function applyIter7PaginationPrototype() {
+    ensureAuxUi();
+    if (!loadMoreWraps || !loadMoreWraps.length) return;
+    loadMoreWraps.forEach(function (w) {
+      w.hidden = false;
+      w.innerHTML =
+        '<p class="nf-insights-iter7-pagination-note" role="note">Showing 8 of 24 articles — pagination will load dynamically in production.</p>';
+    });
   }
 
   function verifyNextPageExists() {
@@ -436,7 +476,6 @@
   function clearAllFilters() {
     state.topics = [];
     state.format = '';
-    state.industry = '';
     writeUrlState(true);
     applyCardFilter();
   }
@@ -461,12 +500,6 @@
     applyCardFilter();
   }
 
-  function setIndustry(id) {
-    state.industry = state.industry === id ? '' : id;
-    writeUrlState(true);
-    applyCardFilter();
-  }
-
   function topicCount(id) {
     var n = 0;
     cards().forEach(function (card) {
@@ -476,20 +509,34 @@
     return n;
   }
 
+  /** Count cards with this format among those matching the current topic tab / topic drawer. */
   function formatCount(id) {
     var n = 0;
     cards().forEach(function (card) {
+      if (!topicFilterMatches(card)) return;
       if ((card.getAttribute('data-nf-insight-format') || '') === id) n += 1;
     });
     return n;
   }
 
-  function industryCount(id) {
-    var n = 0;
-    cards().forEach(function (card) {
-      if ((card.getAttribute('data-nf-insight-industry') || '') === id) n += 1;
-    });
-    return n;
+  function refreshFormatFilterButtons() {
+    var body = document.getElementById('nf-redesign-format');
+    if (!body) return;
+    var html = FORMATS.map(function (t) {
+      var c = formatCount(t.id);
+      if (c === 0) return '';
+      return (
+        '<button type="button" class="nf-insights-redesign-opt" data-kind="format" data-id="' +
+        t.id +
+        '">' +
+        t.label +
+        ' <span class="nf-insights-redesign-count">(' +
+        c +
+        ')</span></button>'
+      );
+    }).join('');
+    body.innerHTML =
+      html || '<p class="nf-insights-redesign-muted">No formats for this topic.</p>';
   }
 
   function buildFilterPanel() {
@@ -543,6 +590,15 @@
     var topicButtonsHtml = INSIGHTS_TOPIC_DEFS.map(function (t) {
       var c = topicCount(t.id);
       if (c === 0) return '';
+      if (isIter7) {
+        return (
+          '<button type="button" class="nf-insights-redesign-opt" data-kind="topic" data-id="' +
+          t.id +
+          '">' +
+          t.label +
+          '</button>'
+        );
+      }
       return (
         '<button type="button" class="nf-insights-redesign-opt" data-kind="topic" data-id="' +
         t.id +
@@ -568,38 +624,29 @@
       );
     }).join('');
 
-    var indHtml = INDUSTRIES.map(function (t) {
-      var c = industryCount(t.id);
-      if (c === 0) return '';
-      return (
-        '<button type="button" class="nf-insights-redesign-opt" data-kind="industry" data-id="' +
-        t.id +
-        '">' +
-        t.label +
-        ' <span class="nf-insights-redesign-count">(' +
-        c +
-        ')</span></button>'
+    if (!isIter7) {
+      addSection(
+        'Topic',
+        'nf-redesign-topic',
+        topicButtonsHtml || '<p class="nf-insights-redesign-muted">No topic counts on this page.</p>',
+        'topic',
       );
-    }).join('');
-
-    addSection(
-      'Topic',
-      'nf-redesign-topic',
-      topicButtonsHtml || '<p class="nf-insights-redesign-muted">No topic counts on this page.</p>',
-      'topic',
-    );
+    }
     addSection(
       'Format',
       'nf-redesign-format',
       formatButtonsHtml || '<p class="nf-insights-redesign-muted">No formats on this page.</p>',
       'format',
     );
-    addSection(
-      'Industry',
-      'nf-redesign-industry',
-      indHtml || '<p class="nf-insights-redesign-muted">No industry tags on this page.</p>',
-      'industry',
-    );
+
+    if (isIter789DualStream) {
+      var fmtSection = wrap.querySelector('.nf-insights-redesign-section--format');
+      if (fmtSection) {
+        fmtSection.classList.remove('is-collapsed');
+        var fmtHead = fmtSection.querySelector('.nf-insights-redesign-section__head');
+        if (fmtHead) fmtHead.setAttribute('aria-expanded', 'true');
+      }
+    }
 
     panel.insertBefore(wrap, panel.firstChild);
 
@@ -618,7 +665,6 @@
       var id = btn.getAttribute('data-id');
       if (kind === 'topic') toggleTopic(id);
       else if (kind === 'format') setFormat(id);
-      else if (kind === 'industry') setIndustry(id);
     });
 
     document.getElementById('nf-insights-redesign-clearall').addEventListener('click', clearAllFilters);
@@ -651,7 +697,6 @@
       var on = false;
       if (kind === 'topic') on = state.topics.indexOf(id) !== -1;
       else if (kind === 'format') on = state.format === id;
-      else if (kind === 'industry') on = state.industry === id;
       btn.classList.toggle('is-active', on);
     });
 
@@ -690,13 +735,6 @@
         applyCardFilter();
       });
     }
-    if (state.industry) {
-      addChip(labelFor(state.industry, INDUSTRIES), function () {
-        state.industry = '';
-        writeUrlState(true);
-        applyCardFilter();
-      });
-    }
   }
 
   function hideLegacyTabs() {
@@ -730,12 +768,22 @@
     primaryList.insertBefore(row, primaryList.firstChild);
   }
 
-  hideLegacyTabs();
+  if (!isIter7) hideLegacyTabs();
   ensureAuxUi();
   buildFilterPanel();
   readUrlState();
-  promoteFeaturedCard();
+  if (!isIter7) promoteFeaturedCard();
+
+  /** Legacy topic tabs (iteration 7) update card visibility independently — resync format list + combined filter. */
+  window.addEventListener('nf-insights-list-topic-changed', function () {
+    applyCardFilter();
+  });
+
   applyCardFilter();
-  verifyNextPageExists();
-  wireLoadMoreAppend();
+  if (isIter7) {
+    applyIter7PaginationPrototype();
+  } else {
+    verifyNextPageExists();
+    wireLoadMoreAppend();
+  }
 })();

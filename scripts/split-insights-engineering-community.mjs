@@ -2,7 +2,8 @@
 /**
  * Move "Engineering community" articles (cards whose tag links to digital-community.html)
  * from insights.html into insights-engineering-community.html. Replace the large
- * #digital-community hero with a compact CTA. Add the 5th explore switcher link.
+ * #digital-community hero with a compact CTA. Keeps the Insights Hub explore strip in sync
+ * (Community nav + iterations 6–9 when missing from insights.html).
  *
  * Engineering page: same hero typography + tab row + primary feeds as the Insights index.
  *
@@ -260,16 +261,21 @@ function main() {
     const community = '<a href="insights-explore-community-nav.html">Community nav</a>';
     const iter6 = '<a href="insights-explore-iter6.html">Iteration 6</a>';
     const iter7 = '<a href="insights-explore-iter7.html">Iteration 7</a>';
-    const fullTail = timeline + community + iter6 + iter7 + navClose;
+    const iter8 = '<a href="insights-explore-iter8.html">Iteration 8</a>';
+    const iter9 = '<a href="insights-explore-iter9.html">Iteration 9</a>';
+    const fullTail = timeline + community + iter6 + iter7 + iter8 + iter9 + navClose;
     const needleBare = timeline + navClose;
     const needleWithIter6 = timeline + iter6 + navClose;
     const needleWithIter6Only = timeline + community + iter6 + navClose;
+    const needleWithIter7No89 = timeline + community + iter6 + iter7 + navClose;
     if (htmlOut.includes(needleBare)) {
       htmlOut = htmlOut.replace(needleBare, fullTail);
     } else if (htmlOut.includes(needleWithIter6Only)) {
       htmlOut = htmlOut.replace(needleWithIter6Only, fullTail);
     } else if (htmlOut.includes(needleWithIter6)) {
       htmlOut = htmlOut.replace(needleWithIter6, fullTail);
+    } else if (htmlOut.includes(needleWithIter7No89)) {
+      htmlOut = htmlOut.replace(needleWithIter7No89, fullTail);
     } else if (!htmlOut.includes('insights-explore-iter7.html')) {
       throw new Error("Could not find explore nav to insert Community nav link");
     }

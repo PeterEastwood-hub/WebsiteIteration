@@ -5,7 +5,16 @@
 (function () {
   var root = document.querySelector('[data-nf-insights-tabs]');
   if (!root) return;
-  if (document.body.classList.contains('nf-insights-redesign')) return;
+  /** Redesign owns filters except iteration 7 / 8 / 9 listings, where legacy topic tabs stay active. */
+  if (
+    document.body.classList.contains('nf-insights-redesign') &&
+    !document.body.classList.contains('nf-explore-page-iter7') &&
+    !document.body.classList.contains('nf-explore-page-iter8-insights') &&
+    !document.body.classList.contains('nf-explore-page-iter9-insights') &&
+    !document.body.classList.contains('nf-explore-page-iter8-engineering') &&
+    !document.body.classList.contains('nf-explore-page-iter9-engineering')
+  )
+    return;
 
   var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
   var cards = document.querySelectorAll('[data-nf-insight-card]');
@@ -14,6 +23,15 @@
   var selectEl = document.getElementById('nf-insights-topic-select');
   var selectWrap = document.getElementById('nf-insights-topic-select-wrap');
   var hasTagFilter = !!(selectEl && selectWrap);
+  /** Iteration 9 Engineering: hide per-tab “all in this category” tag dropdown (Build keeps none; others had empty UX). */
+  if (document.body.classList.contains('nf-explore-page-iter9-engineering')) {
+    hasTagFilter = false;
+    if (selectWrap) {
+      selectWrap.hidden = true;
+      selectWrap.setAttribute('hidden', 'hidden');
+      selectWrap.style.display = 'none';
+    }
+  }
 
   var customUi = null;
   var triggerBtn = null;
@@ -596,6 +614,9 @@
     updateStatus(topic, tagSlug);
     updateEditorialLayout();
     updateFilterChrome(visible, topic, tagSlug);
+    try {
+      window.dispatchEvent(new CustomEvent('nf-insights-list-topic-changed', { bubbles: true }));
+    } catch (e) {}
   }
 
   function selectTopic(topic, focusTab, resetDropdown) {
@@ -634,6 +655,44 @@
     applyCardFilter();
   }
 
+  function shouldPruneTopicTabsByContent() {
+    return (
+      document.body.classList.contains('nf-explore-page-iter8-insights') ||
+      document.body.classList.contains('nf-explore-page-iter9-insights') ||
+      document.body.classList.contains('nf-explore-page-iter8-engineering') ||
+      document.body.classList.contains('nf-explore-page-iter9-engineering')
+    );
+  }
+
+  function pruneEmptyTopicTabs() {
+    if (!shouldPruneTopicTabsByContent()) return;
+    tabs.forEach(function (tab) {
+      var topic = tab.getAttribute('data-nf-tab-topic');
+      if (!topic || topic === 'all') return;
+      var n = 0;
+      Array.prototype.forEach.call(cards, function (card) {
+        var raw = (card.getAttribute('data-nf-insight-topics') || '').trim();
+        var topics = raw ? raw.split(/\s+/) : [];
+        if (topics.indexOf(topic) !== -1) n += 1;
+      });
+      if (n === 0) {
+        tab.setAttribute('data-nf-tab-hidden', '1');
+        tab.setAttribute('aria-hidden', 'true');
+        tab.style.display = 'none';
+        tab.setAttribute('tabindex', '-1');
+      }
+    });
+
+    var selected = tabs.filter(function (t) {
+      return t.getAttribute('aria-selected') === 'true';
+    })[0];
+    if (selected && selected.getAttribute('data-nf-tab-hidden') === '1') {
+      selectTopic('all', false, true);
+    }
+  }
+
+  pruneEmptyTopicTabs();
+
   if (hasTagFilter) {
     selectEl.addEventListener('change', function () {
       updateListboxSelection();
@@ -642,24 +701,52 @@
     initCustomTopicSelect();
   }
 
-  tabs.forEach(function (tab, i) {
+  function visibleTopicTabs() {
+    return tabs.filter(function (t) {
+      return t.getAttribute('data-nf-tab-hidden') !== '1';
+    });
+  }
+
+  tabs.forEach(function (tab) {
     tab.addEventListener('click', function () {
+      if (tab.getAttribute('data-nf-tab-hidden') === '1') return;
       selectTopic(tab.getAttribute('data-nf-tab-topic'), false, true);
     });
     tab.addEventListener('keydown', function (e) {
       var key = e.key;
-      if (key !== 'ArrowRight' && key !== 'ArrowLeft' && key !== 'Home' && key !== 'End')
-        return;
+      if (key !== 'ArrowRight' && key !== 'ArrowLeft' && key !== 'Home' && key !== 'End') return;
+      if (tab.getAttribute('data-nf-tab-hidden') === '1') return;
       e.preventDefault();
-      var next = i;
+      var vis = visibleTopicTabs();
+      var vi = vis.indexOf(tab);
+      if (vi === -1) return;
+      var next;
       if (key === 'Home') next = 0;
-      else if (key === 'End') next = tabs.length - 1;
-      else if (key === 'ArrowRight') next = (i + 1) % tabs.length;
-      else if (key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
-      var topic = tabs[next].getAttribute('data-nf-tab-topic');
+      else if (key === 'End') next = vis.length - 1;
+      else if (key === 'ArrowRight') next = (vi + 1) % vis.length;
+      else next = (vi - 1 + vis.length) % vis.length;
+      var topic = vis[next].getAttribute('data-nf-tab-topic');
       selectTopic(topic, true, true);
     });
   });
+
+  /** Map ?topic= query values (prototype pill destinations) to tab `data-nf-tab-topic` ids. */
+  function tabTopicFromUrlParam(raw) {
+    if (!raw) return null;
+    var k = String(raw).trim().toLowerCase();
+    var map = {
+      'strategy-change': 'strategy',
+      strategy: 'strategy',
+      'product-ux': 'product',
+      product: 'product',
+      'build-stacks': 'build',
+      build: 'build',
+      'cloud-platforms': 'cloud',
+      cloud: 'cloud',
+      'ai-data': 'ai-data',
+    };
+    return map[k] || k;
+  }
 
   var initial = null;
   for (var j = 0; j < tabs.length; j++) {
@@ -669,8 +756,42 @@
     }
   }
   if (!initial) initial = tabs[0];
+
+  var urlTopicRaw = null;
+  try {
+    urlTopicRaw = new URL(window.location.href).searchParams.get('topic');
+  } catch (e) {}
+  var urlTabId = tabTopicFromUrlParam(urlTopicRaw);
+  var appliedTopicFromUrl = false;
+  if (urlTabId && urlTabId !== 'all') {
+    var ti;
+    for (ti = 0; ti < tabs.length; ti++) {
+      var tid = tabs[ti].getAttribute('data-nf-tab-topic');
+      if (tid !== urlTabId) continue;
+      if (tabs[ti].getAttribute('data-nf-tab-hidden') === '1') break;
+      initial = tabs[ti];
+      appliedTopicFromUrl = true;
+      break;
+    }
+  }
+
   if (initial) {
     selectTopic(initial.getAttribute('data-nf-tab-topic'), false, true);
+  }
+
+  if (appliedTopicFromUrl) {
+    requestAnimationFrame(function () {
+      var list = document.querySelector(
+        '.nf-insights-feed--primary .nf-insights-feed-list--stack',
+      );
+      if (list) {
+        try {
+          list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch (e2) {
+          list.scrollIntoView(true);
+        }
+      }
+    });
   }
   verifyNextPageExists();
 })();

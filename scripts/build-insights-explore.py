@@ -16,9 +16,12 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import Optional
 
 ROOT = Path(__file__).resolve().parents[1]
 MIRROR = ROOT / "site-mirror"
+# Canonical listing source; the baked-in nf-explore-topbar here must list the same
+# layout links as replacement_header() (including iterations 8 and 9).
 SOURCE = MIRROR / "insights.html"
 
 TAB_PREFIX = (
@@ -87,6 +90,8 @@ def replacement_header(active: str | None, *, brand_dropdown: bool = False) -> s
         ("insights-explore-community-nav.html", "community_nav", "Community nav"),
         ("insights-explore-iter6.html", "iter6", "Iteration 6"),
         ("insights-explore-iter7.html", "iter7", "Iteration 7"),
+        ("insights-explore-iter8.html", "iter8", "Iteration 8"),
+        ("insights-explore-iter9.html", "iter9", "Iteration 9"),
     ]
     nav = "".join(
         (
@@ -167,6 +172,48 @@ def strip_pre_mirror_explore_bar(html: str) -> str:
         count=1,
         flags=re.DOTALL,
     )
+
+
+_ITER7_RM_INDUSTRIES_NAV = re.compile(
+    r'<li><div class="group relative"><a[^>]*href="industries\.html"[^>]*>Industries</a>.*?</div></div></li>',
+    re.DOTALL,
+)
+_ITER7_RM_INDUSTRIES_MOBILE = re.compile(
+    r'<li><div><div class="flex items-center justify-between">'
+    r'<a[^>]*href="industries\.html">Industries</a>[\s\S]*?</li>',
+)
+_ITER7_RM_INTRO = re.compile(
+    r'<p class="mb-6 2xl:mr-16 whitespace-pre-line dark:text-white text-xl lg:text-2xl 2xl:text-3xl">'
+    r"Perspectives drawn from real delivery work across engineering, data, AI, and modern platforms\. "
+    r"Experience-led thinking grounded in production reality\.</p>"
+)
+_ITER7_JUMP_OLD = re.compile(
+    r'<a target="_self" href="#digital-community" class="nf-insights-jump-to-community"[^>]*>'
+    r'[\s\S]*?</a>',
+    re.DOTALL,
+)
+_ITER7_JUMP_NEW = (
+    '<a target="_self" href="insights-engineering-community.html" class="nf-insights-jump-to-community" '
+    'aria-label="Engineering Community — open technical articles">'
+    '<span class="nf-insights-jump-to-community__label">Engineering Community →</span></a>'
+)
+
+
+def apply_iter7_only_patches(html: str) -> str:
+    """HTML edits exclusive to insights-explore-iter7.html (global nav, hero CTA, intro)."""
+    html, n = _ITER7_RM_INDUSTRIES_NAV.subn("", html, count=1)
+    if n != 1:
+        raise RuntimeError("Iteration 7 build: Industries nav block not found or not unique")
+    html, nm = _ITER7_RM_INDUSTRIES_MOBILE.subn("", html, count=1)
+    if nm != 1:
+        raise RuntimeError("Iteration 7 build: mobile Industries nav block not found or not unique")
+    html, n2 = _ITER7_RM_INTRO.subn("", html, count=1)
+    if n2 != 1:
+        raise RuntimeError("Iteration 7 build: hero intro paragraph not found or not unique")
+    html, n3 = _ITER7_JUMP_OLD.subn(_ITER7_JUMP_NEW, html, count=1)
+    if n3 != 1:
+        raise RuntimeError("Iteration 7 build: Engineering community jump link not found or not unique")
+    return html
 
 
 _HEADER_CENTER_UL = re.compile(
@@ -286,6 +333,527 @@ def apply_page(
     return html
 
 
+_NAV_DESKTOP_INSIGHTS_DROPDOWN_LI = re.compile(
+    r'<li><div class="group relative"><a[^>]*href="insights\.html"[^>]*>Insights</a>[\s\S]*?</div></div></li>',
+    re.DOTALL,
+)
+_NAV_MOBILE_INSIGHTS_SIMPLE_LI = re.compile(
+    r'<li><a class="transition-colors duration-200 ease-in-out hov:text-nf-dark-green" href="insights\.html">Insights</a></li>',
+)
+
+_ITER8_DESKTOP_NAV = (
+    '<li class="nf-nav-iter8-desktop nf-nav-iter8-desktop-insights">'
+    '<a class="relative dark:text-background after:content-[\'\'] after:absolute after:block after:pointer-events-none '
+    'after:h-0.5 after:left-0 after:bottom-[-3px] hov:after:w-full after:bg-nf-green after:transition-all '
+    'after:duration-[0.3s] after:ease-[ease-in-out] outline-none after:w-full z-1 nf-nav-iter8-insights" '
+    'href="insights-explore-iter8.html">Insights</a></li>'
+    '<li class="nf-nav-iter8-desktop nf-nav-iter8-desktop-engineering">'
+    '<a class="relative dark:text-background after:content-[\'\'] after:absolute after:block after:pointer-events-none '
+    'after:h-0.5 after:left-0 after:bottom-[-3px] hov:after:w-full after:bg-nf-green after:transition-all '
+    'after:duration-[0.3s] after:ease-[ease-in-out] outline-none after:w-full z-1 nf-nav-iter8-engineering" '
+    'href="insights-explore-iter8-engineering.html">Engineering</a></li>'
+)
+
+_ITER8_MOBILE_NAV = (
+    '<li><a class="transition-colors duration-200 ease-in-out hov:text-nf-dark-green nf-nav-iter8-insights" '
+    'href="insights-explore-iter8.html">Insights</a></li>'
+    '<li><a class="transition-colors duration-200 ease-in-out hov:text-nf-dark-green nf-nav-iter8-engineering" '
+    'href="insights-explore-iter8-engineering.html">Engineering</a></li>'
+)
+
+_ITER9_DESKTOP_NAV = (
+    '<li class="nf-nav-iter9-desktop"><div class="group relative">'
+    '<a class="relative dark:text-background after:content-[\'\'] after:absolute after:block after:pointer-events-none '
+    'after:h-0.5 after:left-0 after:bottom-[-3px] hov:after:w-full after:bg-nf-green after:transition-all '
+    'after:duration-[0.3s] after:ease-[ease-in-out] outline-none after:w-full z-1 nf-nav-iter9-main" '
+    'href="insights-explore-iter9.html">Insights</a>'
+    '<div class="absolute top-full w-max p-10 -m-10 -translate-x-6 transition-all transition-discrete invisible '
+    'group-hov:visible opacity-0 group-hov:opacity-100 translate-y-6 group-hov:translate-y-4">'
+    '<div class="py-2 border shadow-sm rounded-lg bg-white text-nf-deep-navy border-nf-light-grey dark:bg-nf-deep-navy '
+    'dark:text-white dark:border-white">'
+    '<a class="relative dark:text-background outline-none px-5 py-4 block hov:bg-nf-light-grey dark:hov:bg-nf-muted-grey '
+    'transition-colors duration-200 ease-in-out" href="insights-explore-iter9-engineering.html">Engineering</a>'
+    "</div></div></div></li>"
+)
+
+_ITER9_MOBILE_NAV = (
+    '<li><a class="transition-colors duration-200 ease-in-out hov:text-nf-dark-green nf-nav-iter9-main" '
+    'href="insights-explore-iter9.html">Insights</a></li>'
+    '<li><a class="transition-colors duration-200 ease-in-out hov:text-nf-dark-green" '
+    'href="insights-explore-iter9-engineering.html">Engineering</a></li>'
+)
+
+
+def _replace_explore_topbar(html: str, header_active: str) -> str:
+    return re.sub(
+        r'<header class="nf-explore-topbar">.*?</header>',
+        replacement_header(header_active),
+        html,
+        count=1,
+        flags=re.DOTALL,
+    )
+
+
+def apply_iter8_peer_nav(html: str) -> str:
+    html, n = _NAV_DESKTOP_INSIGHTS_DROPDOWN_LI.subn(_ITER8_DESKTOP_NAV, html, count=1)
+    if n != 1:
+        raise RuntimeError("Iteration 8 build: desktop Insights nav block not found or not unique")
+    html, nm = _NAV_MOBILE_INSIGHTS_SIMPLE_LI.subn(_ITER8_MOBILE_NAV, html, count=1)
+    if nm != 1:
+        raise RuntimeError("Iteration 8 build: mobile Insights nav item not found or not unique")
+    return html
+
+
+def apply_iter9_insights_nav(html: str) -> str:
+    html, n = _NAV_DESKTOP_INSIGHTS_DROPDOWN_LI.subn(_ITER9_DESKTOP_NAV, html, count=1)
+    if n != 1:
+        raise RuntimeError("Iteration 9 build: desktop Insights nav block not found or not unique")
+    html, nm = _NAV_MOBILE_INSIGHTS_SIMPLE_LI.subn(_ITER9_MOBILE_NAV, html, count=1)
+    if nm != 1:
+        raise RuntimeError("Iteration 9 build: mobile Insights nav item not found or not unique")
+    return html
+
+
+def _inject_before_main_close(html: str, block: str) -> str:
+    anchor = "</main><!--$-->"
+    idx = html.rfind(anchor)
+    if idx == -1:
+        idx = html.rfind("</main>")
+    if idx == -1:
+        raise RuntimeError("Listing CTA: could not find </main> close")
+    return html[:idx] + block + html[idx:]
+
+
+def inject_listing_bottom_cta_insights(html: str, *, iteration: str) -> str:
+    eng = f"insights-explore-iter{iteration}-engineering.html"
+    block = (
+        '<section class="nf-cross-stream-cta nf-cross-stream-cta--to-engineering" aria-label="Technical content">'
+        '<div class="nf-cross-stream-cta__inner">'
+        "<h2 class=\"nf-cross-stream-cta__h\">Looking for technical content?</h2>"
+        "<p class=\"nf-cross-stream-cta__p\">Deep-dives, tutorials and open source releases from our engineering team.</p>"
+        f'<a class="nf-cross-stream-cta__link" href="{eng}">Explore Engineering →</a>'
+        "</div></section>"
+    )
+    return _inject_before_main_close(html, block)
+
+
+def patch_iter789_insights_hero_engineering_jump(html: str, *, iteration: str) -> str:
+    """Hero pill: label 'Engineering', link to this iteration's Engineering listing (not legacy community URL)."""
+    old = (
+        '<a target="_self" href="insights-engineering-community.html" class="nf-insights-jump-to-community" '
+        'aria-label="Engineering Community — open technical articles">'
+        '<span class="nf-insights-jump-to-community__label">Engineering Community →</span></a>'
+    )
+    eng = f"insights-explore-iter{iteration}-engineering.html"
+    new = (
+        f'<a target="_self" href="{eng}" class="nf-insights-jump-to-community" '
+        'aria-label="Engineering — open technical articles">'
+        '<span class="nf-insights-jump-to-community__label">Engineering →</span></a>'
+    )
+    if old not in html:
+        raise RuntimeError("Iteration 8/9 Insights build: hero Engineering jump link not found")
+    return html.replace(old, new, 1)
+
+
+_ITER89_INSIGHTS_HERO_SUBTEXT = (
+    '<p class="mb-5 md:mb-6 2xl:mr-16 whitespace-pre-line dark:text-white text-xl lg:text-2xl 2xl:text-3xl '
+    'nf-explore-iter89-insights-hero-sub">'
+    "Perspectives drawn from real delivery work across engineering, data, AI, and modern platforms. "
+    "Experience-led thinking grounded in production reality.</p>"
+)
+_ITER89_INSIGHTS_HERO_SUBTEXT_ANCHOR = (
+    '<div data-type="page-section-content"><div class="group relative overflow-hidden inline-flex'
+)
+
+
+def inject_iter789_insights_hero_subtext(html: str) -> str:
+    """Right-hand hero column: subtext above Engineering CTA (iterations 8 & 9 Insights only)."""
+    if _ITER89_INSIGHTS_HERO_SUBTEXT_ANCHOR not in html:
+        raise RuntimeError("Iteration 8/9 Insights build: hero column anchor not found for subtext")
+    if "nf-explore-iter89-insights-hero-sub" in html:
+        return html
+    return html.replace(
+        _ITER89_INSIGHTS_HERO_SUBTEXT_ANCHOR,
+        '<div data-type="page-section-content">' + _ITER89_INSIGHTS_HERO_SUBTEXT + '<div class="group relative overflow-hidden inline-flex',
+        1,
+    )
+
+
+_ITER89_ENGINEERING_HERO_SUBTEXT = (
+    '<p class="mb-5 md:mb-6 2xl:mr-16 whitespace-pre-line dark:text-white text-xl lg:text-2xl 2xl:text-3xl '
+    'nf-explore-iter89-engineering-hero-sub">'
+    "Tutorials, performance notes, protocol walkthroughs and open source releases from Nearform engineers "
+    "shipping in production. Practical detail you can lift into your own systems and repos.</p>"
+)
+
+
+def inject_iter789_engineering_hero_subtext(html: str) -> str:
+    """Right-hand hero column: subtext above Insights CTA (iterations 8 & 9 Engineering listings only)."""
+    if _ITER89_INSIGHTS_HERO_SUBTEXT_ANCHOR not in html:
+        raise RuntimeError("Iteration 8/9 Engineering build: hero column anchor not found for subtext")
+    if "nf-explore-iter89-engineering-hero-sub" in html:
+        return html
+    return html.replace(
+        _ITER89_INSIGHTS_HERO_SUBTEXT_ANCHOR,
+        '<div data-type="page-section-content">' + _ITER89_ENGINEERING_HERO_SUBTEXT + '<div class="group relative overflow-hidden inline-flex',
+        1,
+    )
+
+
+_H1_ENGINEERING_COMMUNITY_BLOCK = re.compile(
+    r'<h1 class="font-sans whitespace-pre-line[^"]*" id="engineering-community">[\s\S]*?</h1>',
+    re.DOTALL,
+)
+_H1_ENGINEERING_ITER789 = (
+    '<h1 class="font-sans whitespace-pre-line text-6xl/17 lg:text-[84px] lg:leading-[94px] lg:tracking-tight '
+    'xl:text-8xl/27 xl:tracking-tight 2xl:text-[140px]/37 2xl:tracking-[-4.2px]" id="engineering-community">'
+    '<span class="relative block">'
+    '<span class="sr-only select-none">Engineering</span>'
+    '<span class="absolute w-full z-10" aria-hidden="true">'
+    "<span>E</span><span>n</span><span>g</span><span>i</span><span>n</span><span>e</span><span>e</span>"
+    "<span>r</span><span>i</span><span>n</span><span>g</span>"
+    "</span>"
+    '<span class="opacity-0 select-none" aria-hidden="true">'
+    "<span>E</span><span>n</span><span>g</span><span>i</span><span>n</span><span>e</span><span>e</span>"
+    "<span>r</span><span>i</span><span>n</span><span>g</span>"
+    "</span>"
+    "</span>"
+    "</h1>"
+)
+
+
+def patch_iter789_engineering_listing_copy(html: str, *, iteration: str) -> str:
+    """Hero title 'Engineering'; Insights pill label + link to this iteration's Insights listing."""
+    html, nh = _H1_ENGINEERING_COMMUNITY_BLOCK.subn(_H1_ENGINEERING_ITER789, html, count=1)
+    if nh != 1:
+        raise RuntimeError("Iteration 8/9 engineering build: hero h1 not found")
+
+    ins = f"insights-explore-iter{iteration}.html"
+    old_jump = (
+        '<a target="_self" href="insights.html" class="nf-insights-jump-to-community" '
+        'aria-label="View all Insights articles">'
+        '<span class="nf-insights-jump-to-community__label">All Insights</span>'
+        '<span class="nf-insights-jump-to-community__chev" aria-hidden="true">→</span></a>'
+    )
+    new_jump = (
+        f'<a target="_self" href="{ins}" class="nf-insights-jump-to-community" '
+        'aria-label="Insights — open strategic articles">'
+        '<span class="nf-insights-jump-to-community__label">Insights</span>'
+        '<span class="nf-insights-jump-to-community__chev" aria-hidden="true">→</span></a>'
+    )
+    if old_jump not in html:
+        raise RuntimeError("Iteration 8/9 engineering build: All Insights jump link not found")
+    return html.replace(old_jump, new_jump, 1)
+
+
+def patch_insights_listing_iter789(
+    iter7_html: str,
+    *,
+    iteration: str,
+    nav_mode: str,
+    explore_active: str,
+    title: str,
+    body_class: str,
+) -> str:
+    """nav_mode: iter8_peer | iter9_dropdown"""
+    h = iter7_html
+    h = _replace_explore_topbar(h, explore_active)
+    h = re.sub(r"<title>.*?</title>", f"<title>{title}</title>", h, count=1)
+    h = h.replace("nf-explore-page-iter7", body_class)
+    old_js = '<script src="js/mirror-insights-iter7.js" defer="" id="mirror-insights-iter7-js"></script>'
+    new_js = '<script src="js/mirror-insights-iter8-9-listing.js" defer="" id="mirror-insights-iter8-9-listing-js"></script>'
+    if old_js not in h:
+        raise RuntimeError("Expected iter7 listing script tag in iter7 HTML source")
+    h = h.replace(old_js, new_js, 1)
+    h = patch_iter789_insights_hero_engineering_jump(h, iteration=iteration)
+    h = inject_iter789_insights_hero_subtext(h)
+    if nav_mode == "iter8_peer":
+        h = apply_iter8_peer_nav(h)
+    else:
+        h = apply_iter9_insights_nav(h)
+    h = inject_listing_bottom_cta_insights(h, iteration=iteration)
+    return h
+
+
+def build_engineering_listing_iter789(
+    eng_source: str,
+    *,
+    iteration: str,
+    nav_mode: str,
+    explore_active: str,
+    title: str,
+    body_class: str,
+) -> str:
+    h = strip_pre_mirror_explore_bar(eng_source)
+    h = re.sub(
+        r'(<header class="font-sans.*?</header>)',
+        replacement_header(explore_active) + r"\1",
+        h,
+        count=1,
+        flags=re.DOTALL,
+    )
+    h = re.sub(r"<title>.*?</title>", f"<title>{title}</title>", h, count=1)
+    h, n = _ITER7_RM_INDUSTRIES_NAV.subn("", h, count=1)
+    if n != 1:
+        raise RuntimeError(f"Iteration {iteration} engineering: desktop Industries nav not found")
+    h, nm = _ITER7_RM_INDUSTRIES_MOBILE.subn("", h, count=1)
+    if nm != 1:
+        raise RuntimeError(f"Iteration {iteration} engineering: mobile Industries nav not found")
+    h, ni = _ITER7_RM_INTRO.subn("", h, count=1)
+    if ni != 1:
+        raise RuntimeError(f"Iteration {iteration} engineering: hero intro paragraph not found")
+
+    def body_repl(m: re.Match[str]) -> str:
+        raw = (m.group(1) or "").strip()
+        parts = [p for p in raw.split() if p]
+        if body_class not in parts:
+            parts.append(body_class)
+        return '<body data-nf-layout="default" class="' + " ".join(parts) + '">'
+
+    h, nb = re.subn(
+        r"<body\s+data-nf-layout=\"default\"\s+class=\"([^\"]*)\"\s*>",
+        body_repl,
+        h,
+        count=1,
+    )
+    if nb != 1:
+        raise RuntimeError(f"Iteration {iteration} engineering: body class replace failed")
+    if "mirror-insights-iter8-9-listing.js" not in h:
+        h = h.replace(
+            '<script src="js/mirror-insights-redesign.js" defer="" id="mirror-insights-redesign-js"></script>',
+            '<script src="js/mirror-insights-redesign.js" defer="" id="mirror-insights-redesign-js"></script>'
+            '<script src="js/mirror-insights-iter8-9-listing.js" defer="" id="mirror-insights-iter8-9-listing-js"></script>',
+            1,
+        )
+    if nav_mode == "iter8_peer":
+        h = apply_iter8_peer_nav(h)
+    else:
+        h = apply_iter9_insights_nav(h)
+    h = patch_iter789_engineering_listing_copy(h, iteration=iteration)
+    h = inject_iter789_engineering_hero_subtext(h)
+    return h
+
+
+# Matches primary mirrored CTAs (e.g. article body): height from py-2.5 + text-base/5.5.
+_ARTICLE_GATE_BTN_CLASSES = (
+    "group relative overflow-hidden inline-flex justify-center items-center font-sans rounded-full px-4 py-2.5 "
+    "cursor-pointer link-button-transition dark:text-white disabled:pointer-events-none disabled:opacity-40 "
+    "disabled:text-nf-deep-grey disabled:bg-nf-grey text-nf-deep-navy border border-nf-green hover:scale-110 "
+    "hover:bg-nf-deep-navy hover:text-white hover:border-nf-deep-navy dark:border-nf-green dark:hover:bg-white "
+    "dark:hover:text-nf-deep-navy dark:hover:border-nf-deep-navy green:border-nf-deep-navy green:hover:bg-white "
+    "green:hover:border-white green:hover:text-nf-deep-navy text-base/5.5 transition-all ease-in duration-200"
+)
+
+
+_ARTICLE_EXPLORE_GATE_INSIGHTS = (
+    '<section class="nf-article-explore-gate" aria-label="Explore more from Nearform">'
+    "<!-- Production: ship this end-of-article module on every article; listing URLs are templated per nav iteration (8 vs 9). -->"
+    '<div class="nf-article-explore-gate__inner">'
+    "<h2 class=\"nf-article-explore-gate__h\">There's a lot more to explore</h2>"
+    '<p class="nf-article-explore-gate__lead">Nearform publishes regular thinking on AI, engineering, strategy and digital transformation — grounded in real delivery work.</p>'
+    '<div class="nf-article-explore-gate__paths">'
+    '<div class="nf-article-explore-gate__path">'
+    '<h3 class="nf-article-explore-gate__path-h">More Insights</h3>'
+    "<p class=\"nf-article-explore-gate__path-p\">Strategy, AI, and leadership perspectives</p>"
+    '<a target="_self" class="'
+    + _ARTICLE_GATE_BTN_CLASSES
+    + ' nf-article-explore-gate__cta" href="insights-explore-iter8.html">Browse Insights →</a>'
+    "</div>"
+    '<div class="nf-article-explore-gate__path">'
+    '<h3 class="nf-article-explore-gate__path-h">Engineering Community</h3>'
+    "<p class=\"nf-article-explore-gate__path-p\">Technical deep-dives and tutorials for practitioners</p>"
+    '<a target="_self" class="'
+    + _ARTICLE_GATE_BTN_CLASSES
+    + ' nf-article-explore-gate__cta" href="insights-explore-iter8-engineering.html">Browse Engineering →</a>'
+    "</div></div></div></section>"
+)
+
+_ARTICLE_EXPLORE_GATE_ENGINEERING = (
+    '<section class="nf-article-explore-gate" aria-label="Explore more from Nearform">'
+    "<!-- Production: ship this end-of-article module on every article; listing URLs are templated per nav iteration (8 vs 9). -->"
+    '<div class="nf-article-explore-gate__inner">'
+    "<h2 class=\"nf-article-explore-gate__h\">There's a lot more to explore</h2>"
+    '<p class="nf-article-explore-gate__lead">Nearform publishes regular thinking on AI, engineering, strategy and digital transformation — grounded in real delivery work.</p>'
+    '<div class="nf-article-explore-gate__paths">'
+    '<div class="nf-article-explore-gate__path">'
+    '<h3 class="nf-article-explore-gate__path-h">More Engineering</h3>'
+    "<p class=\"nf-article-explore-gate__path-p\">Tutorials, tool comparisons and open source releases</p>"
+    '<a target="_self" class="'
+    + _ARTICLE_GATE_BTN_CLASSES
+    + ' nf-article-explore-gate__cta" href="insights-explore-iter8-engineering.html">Browse Engineering →</a>'
+    "</div>"
+    '<div class="nf-article-explore-gate__path">'
+    '<h3 class="nf-article-explore-gate__path-h">Insights</h3>'
+    "<p class=\"nf-article-explore-gate__path-p\">Business strategy and AI thinking from Nearform's leadership</p>"
+    '<a target="_self" class="'
+    + _ARTICLE_GATE_BTN_CLASSES
+    + ' nf-article-explore-gate__cta" href="insights-explore-iter8.html">Browse Insights →</a>'
+    "</div></div></div></section>"
+)
+
+# “You may also like” block on mirrored insight articles (insert explore gate immediately above it).
+_ARTICLE_YOU_MAY_ALSO_SECTION = (
+    '<section class="w-full flex items-center px-5 md:px-7 lg:px-8 pt-16 pb-12 nf-insight-related-section">'
+)
+
+# Legacy related strip: same outer section, sometimes without nf-insight-related-section and/or without the <hr>.
+_ARTICLE_RELATED_SECTION_WITH_HR_RE = re.compile(
+    r'<section class="w-full flex items-center px-5 md:px-7 lg:px-8 pt-16 pb-12[^"]*"[^>]*>'
+    r'<div class="w-full max-w-\[1600px\] mx-auto">'
+    r'<hr class="lg:col-span-2 border-t border-nf-deep-navy',
+)
+_ARTICLE_RELATED_SECTION_NO_HR_RE = re.compile(
+    r'<section class="w-full flex items-center px-5 md:px-7 lg:px-8 pt-16 pb-12[^"]*"[^>]*>'
+    r'<div class="w-full max-w-\[1600px\] mx-auto">'
+    r'<div><div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5 lg:gap-6 xl:gap-7 2xl:gap-8"',
+)
+
+_ARTICLE_EXPLORE_GATE_RE = re.compile(
+    r'<section class="nf-article-explore-gate"[^>]*>[\s\S]*?</section>',
+    re.IGNORECASE,
+)
+
+# Floating signup (mirror-insights-iter8-9-signup.js) — must exist on every gated article, not only listing hubs.
+_ARTICLE_FLOAT_SIGNUP_SCRIPT = (
+    '<script src="js/mirror-insights-iter8-9-signup.js" defer=""></script>'
+)
+
+_ENGINEERING_LISTING_HUB_HREFS = frozenset(
+    {
+        "insights.html",
+        "digital-community.html",
+        "insights-engineering-community.html",
+        "engineering.html",
+        "content-hub.html",
+    }
+)
+
+# Article HTML not present on the Engineering listing but treated as an engineering stream page.
+_EXTRA_ENGINEERING_ARTICLE_GATE_FILES = frozenset(
+    ("sideways-not-upwards-scaling-frontend-performance-with-k6.html",)
+)
+
+# Linked from Engineering listings but should keep the Insights-oriented gate copy/URLs.
+_INSIGHTS_GATE_ARTICLE_OVERRIDES = frozenset(
+    ("moving-beyond-the-hype-engineering-for-the-ai-era.html",)
+)
+
+
+def discover_engineering_article_filenames(mirror: Path) -> set[str]:
+    """Slugs linked from Engineering community primary feeds (mirrored article pages only)."""
+    listing_path = mirror / "insights-engineering-community.html"
+    if not listing_path.is_file():
+        return set()
+    listing = listing_path.read_text(encoding="utf-8")
+    found: set[str] = set()
+    for m in re.finditer(
+        r"nf-insights-feed--primary[^>]*>([\s\S]{0,600000}?)(?=</section>|<section class=\"w-full flex)",
+        listing,
+    ):
+        chunk = m.group(1)
+        for hm in re.finditer(r'href="([a-z0-9][a-z0-9-]*\.html)"', chunk, re.I):
+            name = hm.group(1).lower()
+            if name in _ENGINEERING_LISTING_HUB_HREFS:
+                continue
+            if re.match(r"^insights_\d+\.html$", name, re.I):
+                continue
+            if not (mirror / name).is_file():
+                continue
+            found.add(name)
+    return found
+
+
+def discover_insight_article_filenames(mirror: Path) -> list[str]:
+    """Static mirrored pages that use the insight-article layout (individual articles)."""
+    out: list[str] = []
+    for path in sorted(mirror.glob("*.html")):
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        if 'data-nf-layout="insight-article"' not in text:
+            continue
+        out.append(path.name)
+    return out
+
+
+def patch_all_insight_article_explore_gates(mirror: Path) -> None:
+    """End-of-article explore gate on every mirrored insight article (above related / You may also like)."""
+    engineering = discover_engineering_article_filenames(mirror) | set(_EXTRA_ENGINEERING_ARTICLE_GATE_FILES)
+    for name in discover_insight_article_filenames(mirror):
+        art = mirror / name
+        if not art.is_file():
+            continue
+        t = art.read_text(encoding="utf-8")
+        if name in _INSIGHTS_GATE_ARTICLE_OVERRIDES:
+            variant = "insights"
+        elif name in engineering:
+            variant = "engineering"
+        else:
+            variant = "insights"
+        t2 = inject_article_explore_gate(t, variant=variant)
+        if t2 != t:
+            art.write_text(t2, encoding="utf-8")
+            print("patched article explore gate", name, f"({variant})")
+
+
+def _article_explore_gate_insertion_index(html: str) -> Optional[int]:
+    """Index to insert the explore gate: directly before the related-articles section, if present."""
+    main_close = html.rfind("</main>")
+    window_end = main_close if main_close != -1 else len(html)
+    window = html[:window_end]
+
+    idx = window.find(_ARTICLE_YOU_MAY_ALSO_SECTION)
+    if idx != -1:
+        return idx
+
+    last_rel: Optional[int] = None
+    for m in re.finditer(r"<section[^>]*\bnf-insight-related-section\b[^>]*>", window, re.IGNORECASE):
+        last_rel = m.start()
+    if last_rel is not None:
+        return last_rel
+
+    y = window.find('id="you-may-also-like"')
+    if y == -1:
+        y = window.find("id='you-may-also-like'")
+    if y != -1:
+        sec = window.rfind("<section", 0, y)
+        if sec != -1:
+            return sec
+
+    last_hr: Optional[int] = None
+    for m in _ARTICLE_RELATED_SECTION_WITH_HR_RE.finditer(window):
+        last_hr = m.start()
+    last_grid: Optional[int] = None
+    for m in _ARTICLE_RELATED_SECTION_NO_HR_RE.finditer(window):
+        last_grid = m.start()
+    candidates = [p for p in (last_hr, last_grid) if p is not None]
+    if candidates:
+        return max(candidates)
+    return None
+
+
+def inject_article_explore_gate(html: str, *, variant: str) -> str:
+    link = '<link rel="stylesheet" href="css/insights-explore.css" id="nf-insights-explore-article-gate-css">'
+    html, _ = _ARTICLE_EXPLORE_GATE_RE.subn("", html, count=1)
+
+    gate = _ARTICLE_EXPLORE_GATE_INSIGHTS if variant == "insights" else _ARTICLE_EXPLORE_GATE_ENGINEERING
+    ins = _article_explore_gate_insertion_index(html)
+    if ins is not None:
+        out = html[:ins] + gate + html[ins:]
+    else:
+        idx = html.rfind("</main>")
+        if idx == -1:
+            raise RuntimeError("Article explore gate: no </main> and no you-may-also-like section")
+        out = html[:idx] + gate + html[idx:]
+
+    if "insights-explore.css" not in out and link not in out:
+        out = out.replace("</head>", link + "</head>", 1)
+    if "mirror-insights-iter8-9-signup.js" not in out:
+        out = out.replace("</head>", _ARTICLE_FLOAT_SIGNUP_SCRIPT + "</head>", 1)
+    return out
+
+
 def build_layout_hub_page(source_text: str) -> str:
     """Hub index: same mirror head + global nav as Insights, with layout switcher and card links."""
     raw = strip_pre_mirror_explore_bar(source_text)
@@ -355,6 +923,16 @@ def build_layout_hub_page(source_text: str) -> str:
         <h2>Iteration 7</h2>
         <p>Full redesign prototype: consolidated topics, format and industry filters, featured hero, append-only load more, and clear separation of Insights vs Engineering Community streams on one page.</p>
         <a href="insights-explore-iter7.html">Open iteration 7</a>
+      </article>
+      <article class="nf-explore-hub-card">
+        <h2>Iteration 8</h2>
+        <p>Insights and Engineering as equal global nav destinations, with separate listing pages and cross-stream CTAs.</p>
+        <a href="insights-explore-iter8.html">Open iteration 8</a>
+      </article>
+      <article class="nf-explore-hub-card">
+        <h2>Iteration 9</h2>
+        <p>Insights as primary nav with Engineering nested in a dropdown; paired listing pages mirror iteration 8.</p>
+        <a href="insights-explore-iter9.html">Open iteration 9</a>
       </article>
     </div>
     </div>
@@ -433,12 +1011,64 @@ def main() -> None:
             mode=mode,
             brand_dropdown=False,
         )
+        if filename == "insights-explore-iter7.html":
+            out = apply_iter7_only_patches(out)
         (MIRROR / filename).write_text(out, encoding="utf-8")
         print("wrote", filename)
+
+    iter7_html = (MIRROR / "insights-explore-iter7.html").read_text(encoding="utf-8")
+
+    iter8_ins = patch_insights_listing_iter789(
+        iter7_html,
+        iteration="8",
+        nav_mode="iter8_peer",
+        explore_active="iter8",
+        title="Insights — Iteration 8",
+        body_class="nf-explore-page-iter8-insights",
+    )
+    (MIRROR / "insights-explore-iter8.html").write_text(iter8_ins, encoding="utf-8")
+    print("wrote insights-explore-iter8.html")
+
+    iter9_ins = patch_insights_listing_iter789(
+        iter7_html,
+        iteration="9",
+        nav_mode="iter9_dropdown",
+        explore_active="iter9",
+        title="Insights — Iteration 9",
+        body_class="nf-explore-page-iter9-insights",
+    )
+    (MIRROR / "insights-explore-iter9.html").write_text(iter9_ins, encoding="utf-8")
+    print("wrote insights-explore-iter9.html")
+
+    eng_src = (MIRROR / "insights-engineering-community.html").read_text(encoding="utf-8")
+
+    iter8_eng = build_engineering_listing_iter789(
+        eng_src,
+        iteration="8",
+        nav_mode="iter8_peer",
+        explore_active="iter8",
+        title="Engineering — Iteration 8",
+        body_class="nf-explore-page-iter8-engineering",
+    )
+    (MIRROR / "insights-explore-iter8-engineering.html").write_text(iter8_eng, encoding="utf-8")
+    print("wrote insights-explore-iter8-engineering.html")
+
+    iter9_eng = build_engineering_listing_iter789(
+        eng_src,
+        iteration="9",
+        nav_mode="iter9_dropdown",
+        explore_active="iter9",
+        title="Engineering — Iteration 9",
+        body_class="nf-explore-page-iter9-engineering",
+    )
+    (MIRROR / "insights-explore-iter9-engineering.html").write_text(iter9_eng, encoding="utf-8")
+    print("wrote insights-explore-iter9-engineering.html")
 
     hub = build_layout_hub_page(source_text)
     (MIRROR / "insights-explore.html").write_text(hub, encoding="utf-8")
     print("wrote insights-explore.html")
+
+    patch_all_insight_article_explore_gates(MIRROR)
 
 
 if __name__ == "__main__":
