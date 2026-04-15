@@ -6,6 +6,7 @@ Build distinct Insights exploration pages from insights.html:
   - insights-explore-list.html          — simple list scan
   - insights-explore-community-nav.html — Insights brand hover → Engineering Community link
   - insights-explore-iter6.html              — sixth iteration (default listing + hooks for further CSS/JS)
+  - insights-explore-iter7.html              — seventh iteration (redesign + stream labels + iter7-only JS)
 
 Regenerate after editing insights.html (and after node scripts/split-insights-engineering-community.mjs
 when splitting community articles).
@@ -37,8 +38,47 @@ CTA_MARKER = (
 CSS_LINK = '<link rel="stylesheet" href="css/insights-explore.css">'
 
 
+def replace_body_explore_class(html: str, explore_page_class: str, *, keep_redesign: bool) -> str:
+    """Append a single nf-explore-page-* class; strip any previous explore page class.
+
+    Only iteration 7 keeps ``nf-insights-redesign`` + redesign script so the six older
+    variants stay on topic tabs + legacy behaviour.
+    """
+
+    def repl(m: re.Match[str]) -> str:
+        raw = (m.group(1) or "").strip()
+        parts = [p for p in raw.split() if p]
+        parts = [p for p in parts if not p.startswith("nf-explore-page-")]
+        if not keep_redesign:
+            parts = [p for p in parts if p != "nf-insights-redesign"]
+        if explore_page_class not in parts:
+            parts.append(explore_page_class)
+        return '<body data-nf-layout="default" class="' + " ".join(parts) + '">'
+
+    new_html, n = re.subn(
+        r"<body\s+data-nf-layout=\"default\"\s+class=\"([^\"]*)\"\s*>",
+        repl,
+        html,
+        count=1,
+    )
+    if n != 1:
+        raise RuntimeError("Could not replace <body> class for explore build")
+    return new_html
+
+
+def strip_mirror_insights_redesign_script(html: str) -> str:
+    """Remove redesign script tag (defer variants)."""
+    for needle in (
+        '<script src="js/mirror-insights-redesign.js" defer="" id="mirror-insights-redesign-js"></script>',
+        '<script src="js/mirror-insights-redesign.js" defer id="mirror-insights-redesign-js"></script>',
+    ):
+        if needle in html:
+            return html.replace(needle, "", 1)
+    return html
+
+
 def replacement_header(active: str | None, *, brand_dropdown: bool = False) -> str:
-    """active: default | mosaic | leftnav | list | community_nav | iter6 | None (no pill highlighted)."""
+    """active: default | mosaic | leftnav | list | community_nav | iter6 | iter7 | None (no pill highlighted)."""
     links = [
         ("insights.html", "default", "Default"),
         ("insights-explore-mosaic.html", "mosaic", "Mosaic"),
@@ -46,6 +86,7 @@ def replacement_header(active: str | None, *, brand_dropdown: bool = False) -> s
         ("insights-explore-list.html", "list", "Timeline"),
         ("insights-explore-community-nav.html", "community_nav", "Community nav"),
         ("insights-explore-iter6.html", "iter6", "Iteration 6"),
+        ("insights-explore-iter7.html", "iter7", "Iteration 7"),
     ]
     nav = "".join(
         (
@@ -185,7 +226,7 @@ def apply_page(
     mode: str,
     brand_dropdown: bool = False,
 ) -> str:
-    """mode: mosaic | leftnav | list | community (no extra transforms)"""
+    """mode: mosaic | leftnav | list | community | iter6 | iter7 (extra transforms only for iter7)."""
     # Stack layout switcher above the mirror global nav (do not remove site header).
     explore_bar = replacement_header(header_active, brand_dropdown=brand_dropdown)
     html = re.sub(
@@ -200,23 +241,21 @@ def apply_page(
     if "insights-explore.css" not in html:
         html = html.replace("</head>", f"{CSS_LINK}</head>", 1)
 
-    # Keep nf-insights-with-layout-switcher so fixed global header offsets below the explore bar.
-    body_switcher = (
-        '<body data-nf-layout="default" class="nf-insights-index '
-        'nf-insights-with-layout-switcher">'
-    )
-    body_out = (
-        '<body data-nf-layout="default" class="nf-insights-index '
-        f'nf-insights-with-layout-switcher {body_class}">'
-    )
-    if body_switcher in html:
-        html = html.replace(body_switcher, body_out, 1)
-    else:
-        html = html.replace(
-            '<body data-nf-layout="default" class="nf-insights-index">',
-            body_out,
-            1,
+    keep_redesign = mode == "iter7"
+    html = replace_body_explore_class(html, body_class, keep_redesign=keep_redesign)
+    if not keep_redesign:
+        html = strip_mirror_insights_redesign_script(html)
+    elif mode == "iter7":
+        redesign_needles = (
+            '<script src="js/mirror-insights-redesign.js" defer="" id="mirror-insights-redesign-js"></script>',
+            '<script src="js/mirror-insights-redesign.js" defer id="mirror-insights-redesign-js"></script>',
         )
+        iter7_tag = '<script src="js/mirror-insights-iter7.js" defer="" id="mirror-insights-iter7-js"></script>'
+        if "mirror-insights-iter7.js" not in html:
+            for needle in redesign_needles:
+                if needle in html:
+                    html = html.replace(needle, needle + iter7_tag, 1)
+                    break
 
     # Title
     html = re.sub(r"<title>.*?</title>", f"<title>{title}</title>", html, count=1)
@@ -312,6 +351,11 @@ def build_layout_hub_page(source_text: str) -> str:
         <p>Starts from the default listing and body class <code>nf-explore-page-iter6</code> — add scoped rules in <code>insights-explore.css</code> when you are ready.</p>
         <a href="insights-explore-iter6.html">Open iteration 6</a>
       </article>
+      <article class="nf-explore-hub-card">
+        <h2>Iteration 7</h2>
+        <p>Full redesign prototype: consolidated topics, format and industry filters, featured hero, append-only load more, and clear separation of Insights vs Engineering Community streams on one page.</p>
+        <a href="insights-explore-iter7.html">Open iteration 7</a>
+      </article>
     </div>
     </div>
     """
@@ -370,6 +414,13 @@ def main() -> None:
             "Insights — Iteration 6",
             "iter6",
             "iter6",
+        ),
+        (
+            "insights-explore-iter7.html",
+            "nf-explore-page-iter7",
+            "Insights — Iteration 7",
+            "iter7",
+            "iter7",
         ),
     ]
 

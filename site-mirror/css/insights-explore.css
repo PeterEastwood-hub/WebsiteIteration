@@ -682,3 +682,66 @@ body.nf-explore-page-iter6 {
   /* Hook for iteration 6 — extend with layout tokens, grid overrides, typography, etc. */
   --nf-explore-iter6-slot: 1;
 }
+
+/* =============================================================================
+   ITERATION 7 — stream separation callouts (JS injects .nf-explore-iter7-stream-intro)
+   ============================================================================= */
+
+body.nf-explore-page-iter7 .nf-explore-iter7-stream-intro {
+  max-width: 1600px;
+  margin: 0 auto 1.25rem;
+  padding: 1.1rem 1.25rem 1.15rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--color-nf-green, #00c78c) 22%, #cbd5e1);
+  background: linear-gradient(118deg, #f8fafc 0%, #f0fdf4 55%, #eef6ff 100%);
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+}
+html.dark body.nf-explore-page-iter7 .nf-explore-iter7-stream-intro {
+  background: linear-gradient(118deg, #1e293b 0%, #172554 100%);
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+body.nf-explore-page-iter7 .nf-explore-iter7-stream-intro__title {
+  margin: 0 0 0.35rem;
+  font: 800 0.82rem/1.2 Inter, system-ui, sans-serif;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: #0f172a;
+}
+html.dark body.nf-explore-page-iter7 .nf-explore-iter7-stream-intro__title {
+  color: #f1f5f9;
+}
+
+body.nf-explore-page-iter7 .nf-explore-iter7-stream-intro__text {
+  margin: 0 0 0.65rem;
+  font: 500 0.95rem/1.5 Inter, system-ui, sans-serif;
+  color: #475569;
+  max-width: 72ch;
+}
+html.dark body.nf-explore-page-iter7 .nf-explore-iter7-stream-intro__text {
+  color: #94a3b8;
+}
+
+body.nf-explore-page-iter7 .nf-explore-iter7-stream-intro__links {
+  margin: 0;
+  font: 600 0.8125rem/1.45 Inter, system-ui, sans-serif;
+}
+
+body.nf-explore-page-iter7 .nf-explore-iter7-stream-intro__link {
+  color: #0369a1;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+body.nf-explore-page-iter7 .nf-explore-iter7-stream-intro__link:hover {
+  color: #0c4a6e;
+  border-bottom-color: currentColor;
+}
+html.dark body.nf-explore-page-iter7 .nf-explore-iter7-stream-intro__link {
+  color: #7dd3fc;
+}
+html.dark body.nf-explore-page-iter7 .nf-explore-iter7-stream-intro__link:hover {
+  color: #bae6fd;
+}
