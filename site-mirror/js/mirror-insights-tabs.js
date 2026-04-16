@@ -17,7 +17,10 @@
     return;
 
   var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
-  var cards = document.querySelectorAll('[data-nf-insight-card]');
+  /** Fresh query each filter pass — DOM can change after init (e.g. iter8-9 listing removes rows). */
+  function getTopicFilterCards() {
+    return document.querySelectorAll('[data-nf-insight-card]');
+  }
   var panel = root.querySelector('#nf-insights-pill-panel');
   var statusEl = document.getElementById('nf-insights-tab-status');
   var selectEl = document.getElementById('nf-insights-topic-select');
@@ -691,8 +694,17 @@
       tagSlug = selectEl && selectEl.value ? selectEl.value.trim() : '';
     }
 
+    if (isEngIter89Listing) {
+      document.querySelectorAll('.nf-insights-eng-feed-row--hidden').forEach(function (row) {
+        row.classList.remove('nf-insights-eng-feed-row--hidden');
+        row.removeAttribute('aria-hidden');
+      });
+    }
+
     var visible = 0;
-    cards.forEach(function (card) {
+    getTopicFilterCards().forEach(function (card) {
+      if (!card || !card.getAttribute) return;
+      if (!card.isConnected) return;
       var rawTopics = (card.getAttribute('data-nf-insight-topics') || '').trim();
       var topics = rawTopics ? rawTopics.split(/\s+/) : [];
       var rawTags = (card.getAttribute('data-nf-insight-tags') || '').trim();
