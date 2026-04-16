@@ -271,18 +271,33 @@
     }
   }
 
-  /** Engineering listings ship without a Load more row; Insights already has one or two in HTML. */
+  /**
+   * Insights iter8/9: remove the extra “Load More” row that sits after the in-page
+   * “Looking for technical content?” module and before the footer cross-stream CTA.
+   */
+  function removeIter89InsightsLoadMoreBelowTechnicalModule() {
+    if (!is8i && !is9i) return;
+    var cross = document.querySelector('.nf-cross-stream-cta--to-engineering');
+    var engMod = document.getElementById('nf-explore-iter7-engineering-module');
+    if (!cross || !engMod) return;
+    document.querySelectorAll('div.flex-1.mx-auto.mb-16').forEach(function (wrap) {
+      var a = wrap.querySelector('a[target="_self"]');
+      if (!a || (a.textContent || '').trim() !== 'Load More') return;
+      var afterEng = engMod.compareDocumentPosition(wrap) & Node.DOCUMENT_POSITION_FOLLOWING;
+      var beforeCross = wrap.compareDocumentPosition(cross) & Node.DOCUMENT_POSITION_FOLLOWING;
+      if (afterEng && beforeCross && wrap.parentNode) wrap.parentNode.removeChild(wrap);
+    });
+  }
+
+  /** Engineering listings ship without a Load more row; add one when missing. */
   function ensureIter89LoadMoreRow() {
-    if (!is8i && !is9i && !is8e && !is9e) return;
+    if (!is8e && !is9e) return;
     var hasLoad = false;
     document.querySelectorAll('a[target="_self"]').forEach(function (a) {
       if ((a.textContent || '').trim() === 'Load More') hasLoad = true;
     });
     if (hasLoad) return;
     var href = 'insights-engineering-community.html';
-    if (is8i || is9i) {
-      href = 'insights_9.html';
-    }
     var wrap = document.createElement('div');
     wrap.className = 'flex-1 mx-auto mb-16';
     wrap.innerHTML =
@@ -318,4 +333,5 @@
     replaceInsightsStreamModule();
   }
   ensureIter89LoadMoreRow();
+  removeIter89InsightsLoadMoreBelowTechnicalModule();
 })();
