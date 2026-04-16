@@ -90,30 +90,30 @@
   /** Iteration 8/9 hub listings — six topics + All (matches HTML + card data-nf-insight-topics). */
   if (isIter89HubListing) {
     INSIGHTS_TAGS_BY_TOPIC = {
-      'ai-data-solutions': [],
-      'enterprise-modernisation': [],
-      'platform-engineering': [],
-      'product-design': [],
-      'nodejs-backend': [],
-      'frontend-react': [],
+      'ai-native-engineering': [],
+      'enterprise-ai-transformation': [],
+      'platform-cloud-modernization': [],
+      'engineering-excellence': [],
+      'digital-product-innovation': [],
+      'business-impact-growth': [],
     };
     statusByTopic = {
       all: 'Showing all topics.',
-      'ai-data-solutions': 'Showing AI & Data Solutions articles.',
-      'enterprise-modernisation': 'Showing Enterprise Modernisation articles.',
-      'platform-engineering': 'Showing Platform Engineering articles.',
-      'product-design': 'Showing Product & Design articles.',
-      'nodejs-backend': 'Showing Node.js & Backend articles.',
-      'frontend-react': 'Showing Frontend & React articles.',
+      'ai-native-engineering': 'Showing AI Native Engineering articles.',
+      'enterprise-ai-transformation': 'Showing Enterprise AI Transformation articles.',
+      'platform-cloud-modernization': 'Showing Platform & Cloud Modernization articles.',
+      'engineering-excellence': 'Showing Engineering Excellence articles.',
+      'digital-product-innovation': 'Showing Digital Product Innovation articles.',
+      'business-impact-growth': 'Showing Business Impact & Growth articles.',
     };
     tabLabelByTopic = {
       all: 'all topics',
-      'ai-data-solutions': 'AI & Data Solutions',
-      'enterprise-modernisation': 'Enterprise Modernisation',
-      'platform-engineering': 'Platform Engineering',
-      'product-design': 'Product & Design',
-      'nodejs-backend': 'Node.js & Backend',
-      'frontend-react': 'Frontend & React',
+      'ai-native-engineering': 'AI Native Engineering',
+      'enterprise-ai-transformation': 'Enterprise AI Transformation',
+      'platform-cloud-modernization': 'Platform & Cloud Modernization',
+      'engineering-excellence': 'Engineering Excellence',
+      'digital-product-innovation': 'Digital Product Innovation',
+      'business-impact-growth': 'Business Impact & Growth',
     };
   }
 
@@ -816,12 +816,18 @@
     var k = String(raw).trim().toLowerCase();
     if (isIter89HubListing) {
       var engMap = {
-        'ai-data-solutions': 'ai-data-solutions',
-        'enterprise-modernisation': 'enterprise-modernisation',
-        'platform-engineering': 'platform-engineering',
-        'product-design': 'product-design',
-        'nodejs-backend': 'nodejs-backend',
-        'frontend-react': 'frontend-react',
+        'ai-native-engineering': 'ai-native-engineering',
+        'enterprise-ai-transformation': 'enterprise-ai-transformation',
+        'platform-cloud-modernization': 'platform-cloud-modernization',
+        'engineering-excellence': 'engineering-excellence',
+        'digital-product-innovation': 'digital-product-innovation',
+        'business-impact-growth': 'business-impact-growth',
+        'ai-data-solutions': 'ai-native-engineering',
+        'enterprise-modernisation': 'enterprise-ai-transformation',
+        'platform-engineering': 'platform-cloud-modernization',
+        'product-design': 'digital-product-innovation',
+        'nodejs-backend': 'engineering-excellence',
+        'frontend-react': 'engineering-excellence',
       };
       if (engMap[k]) return engMap[k];
     }

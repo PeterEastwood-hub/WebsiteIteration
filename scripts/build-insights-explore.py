@@ -625,24 +625,24 @@ def patch_iter89_insights_remove_engineering_community_cta(html: str) -> str:
 _ITER89_HUB_TOPIC_TAB_BUTTONS = (
     '<button type="button" role="tab" id="nf-insights-tab-all" aria-selected="true" '
     'aria-controls="nf-insights-pill-panel" data-nf-tab-topic="all" class="nf-insights-topic-tabs__tab">All topics</button>'
-    '<button type="button" role="tab" id="nf-insights-tab-ai-data-solutions" aria-selected="false" '
-    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="ai-data-solutions" '
-    'class="nf-insights-topic-tabs__tab">AI &amp; Data Solutions</button>'
-    '<button type="button" role="tab" id="nf-insights-tab-enterprise-modernisation" aria-selected="false" '
-    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="enterprise-modernisation" '
-    'class="nf-insights-topic-tabs__tab">Enterprise Modernisation</button>'
-    '<button type="button" role="tab" id="nf-insights-tab-platform-engineering" aria-selected="false" '
-    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="platform-engineering" '
-    'class="nf-insights-topic-tabs__tab">Platform Engineering</button>'
-    '<button type="button" role="tab" id="nf-insights-tab-product-design" aria-selected="false" '
-    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="product-design" '
-    'class="nf-insights-topic-tabs__tab">Product &amp; Design</button>'
-    '<button type="button" role="tab" id="nf-insights-tab-nodejs-backend" aria-selected="false" '
-    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="nodejs-backend" '
-    'class="nf-insights-topic-tabs__tab">Node.js &amp; Backend</button>'
-    '<button type="button" role="tab" id="nf-insights-tab-frontend-react" aria-selected="false" '
-    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="frontend-react" '
-    'class="nf-insights-topic-tabs__tab">Frontend &amp; React</button>'
+    '<button type="button" role="tab" id="nf-insights-tab-ai-native-engineering" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="ai-native-engineering" '
+    'class="nf-insights-topic-tabs__tab">AI Native Engineering</button>'
+    '<button type="button" role="tab" id="nf-insights-tab-enterprise-ai-transformation" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="enterprise-ai-transformation" '
+    'class="nf-insights-topic-tabs__tab">Enterprise AI Transformation</button>'
+    '<button type="button" role="tab" id="nf-insights-tab-platform-cloud-modernization" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="platform-cloud-modernization" '
+    'class="nf-insights-topic-tabs__tab">Platform &amp; Cloud Modernization</button>'
+    '<button type="button" role="tab" id="nf-insights-tab-engineering-excellence" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="engineering-excellence" '
+    'class="nf-insights-topic-tabs__tab">Engineering Excellence</button>'
+    '<button type="button" role="tab" id="nf-insights-tab-digital-product-innovation" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="digital-product-innovation" '
+    'class="nf-insights-topic-tabs__tab">Digital Product Innovation</button>'
+    '<button type="button" role="tab" id="nf-insights-tab-business-impact-growth" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="business-impact-growth" '
+    'class="nf-insights-topic-tabs__tab">Business Impact &amp; Growth</button>'
 )
 
 _INSIGHTS_ITER89_HUB_TOPIC_TABLIST = (
@@ -667,48 +667,48 @@ _ENG_TOPIC_TABLIST_OLD = re.compile(
 _ENG_ITER89_ARTICLE_TOPIC_ROWS: tuple[tuple[str, str, str], ...] = (
     (
         "why-plan-mode-is-not-enough-better-outcomes-with-spec-driven-development.html",
-        "product-design",
-        "product-design",
+        "digital-product-innovation",
+        "digital-product-innovation",
     ),
     (
         "designers-and-ai-native-engineering-building-real-products-with-bmad-and-ai-driven-ides.html",
-        "frontend-react",
-        "frontend-react",
+        "ai-native-engineering",
+        "ai-native-engineering",
     ),
     (
         "browser-based-vector-search-fast-private-and-no-backend-required.html",
-        "platform-engineering",
-        "platform-engineering",
+        "platform-cloud-modernization",
+        "platform-cloud-modernization",
     ),
     (
         "implementing-model-context-protocol-mcp-tips-tricks-and-pitfalls.html",
-        "nodejs-backend",
-        "nodejs-backend",
+        "ai-native-engineering",
+        "ai-native-engineering",
     ),
     (
         "cursor-vs-copilot-what-tool-has-the-best-planning-mode.html",
-        "product-design",
-        "product-design",
+        "ai-native-engineering",
+        "ai-native-engineering",
     ),
     (
         "ai-beyond-the-cloud-the-current-and-future-state-of-on-device-generative-ai.html",
-        "ai-data-solutions",
-        "ai-data-solutions",
+        "enterprise-ai-transformation",
+        "enterprise-ai-transformation",
     ),
     (
         "temporal-workflow-debt-the-hidden-blocker-in-enterprise-ai-integration.html",
-        "enterprise-modernisation",
-        "enterprise-modernisation",
+        "enterprise-ai-transformation",
+        "enterprise-ai-transformation",
     ),
 )
 
 
 _LEGACY_TOPICS_TOKEN_TO_HUB: dict[str, str] = {
-    "build": "nodejs-backend",
-    "ai-data": "ai-data-solutions",
-    "cloud": "platform-engineering",
-    "product": "product-design",
-    "strategy": "enterprise-modernisation",
+    "build": "engineering-excellence",
+    "ai-data": "ai-native-engineering",
+    "cloud": "platform-cloud-modernization",
+    "product": "digital-product-innovation",
+    "strategy": "business-impact-growth",
 }
 
 _ITER89_INSIGHTS_CARD_TOPICS_TAGS_RE = re.compile(
@@ -726,7 +726,7 @@ def _legacy_topics_tokens_to_hub_slugs(raw: str) -> str:
         if hub and hub not in seen:
             seen.add(hub)
             hubs.append(hub)
-    return " ".join(hubs) if hubs else "platform-engineering"
+    return " ".join(hubs) if hubs else "engineering-excellence"
 
 
 def patch_iter89_insights_hub_topic_tabs(html: str) -> str:
