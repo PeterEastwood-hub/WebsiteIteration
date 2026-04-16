@@ -180,3 +180,99 @@ body > header.font-sans [data-testid="header-right"] a.rounded-full:focus-visibl
   outline: 2px solid #00c78c;
   outline-offset: 3px;
 }
+
+/* -------------------------------------------------------------------------
+ * Insights hub iteration strip — also used when mirror-stripe-nav.js injects
+ * the bar on pages that omit static HTML (see data-nf-explore-topbar-injected).
+ * Duplicates essentials from insights-explore.css so marketing pages still style it.
+ * ------------------------------------------------------------------------- */
+.nf-explore-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid #d8e0ea;
+  backdrop-filter: blur(10px);
+}
+.dark .nf-explore-topbar,
+html.dark .nf-explore-topbar {
+  background: rgba(15, 23, 42, 0.92);
+  border-bottom-color: #334155;
+}
+.nf-explore-topbar__inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 14px 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.nf-explore-brand {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0f172a;
+  text-decoration: none;
+}
+html.dark .nf-explore-brand {
+  color: #f8fafc;
+}
+.nf-explore-switch {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.nf-explore-switch a {
+  font: 600 12px/1 Inter, system-ui, sans-serif;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #c7d0dd;
+  color: #1e293b;
+  text-decoration: none;
+}
+html.dark .nf-explore-switch a {
+  border-color: #475569;
+  color: #e2e8f0;
+}
+.nf-explore-switch a:hover {
+  background: #edf3ff;
+}
+html.dark .nf-explore-switch a:hover {
+  background: #334155;
+}
+.nf-explore-switch a.is-active {
+  background: #92f279;
+  border-color: #92f279;
+  color: #101510;
+}
+@media (max-width: 1024px) {
+  .nf-explore-switch {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    padding-bottom: 4px;
+  }
+  .nf-explore-switch a {
+    flex-shrink: 0;
+  }
+}
+
+body.nf-explore-topbar-global .nf-explore-topbar[data-nf-explore-topbar-injected] {
+  z-index: 10060;
+}
+body.nf-explore-topbar-global > header.font-sans.fixed:has([data-testid="header-left"]) {
+  top: 52px !important;
+}
+@media (max-width: 640px) {
+  body.nf-explore-topbar-global > header.font-sans.fixed:has([data-testid="header-left"]) {
+    top: 92px !important;
+  }
+}

@@ -2,8 +2,74 @@
  * Stripe-like desktop nav: hover grace period + keyboard parity (roving focus,
  * Tab boundaries, Escape). Progressive enhancement — without this script,
  * native Tailwind group-hover behaviour remains.
+ *
+ * Also injects the Insights hub iteration strip (Default → Iteration 9) on any
+ * page that has the mirror site header but no static `.nf-explore-topbar`, so
+ * users can switch layouts from articles, marketing pages, etc.
  */
 (function () {
+  function injectGlobalInsightsExploreTopbar() {
+    if (document.querySelector('.nf-explore-topbar')) return;
+    var siteHeader = document.querySelector('body > header.font-sans.fixed');
+    if (!siteHeader) return;
+
+    var path = (location.pathname || '').split('/').pop() || '';
+    var q = path.indexOf('?');
+    if (q >= 0) path = path.slice(0, q);
+    var active = null;
+    var byFile = {
+      'insights.html': 'default',
+      'insights-explore-mosaic.html': 'mosaic',
+      'insights-explore-leftnav.html': 'leftnav',
+      'insights-explore-list.html': 'list',
+      'insights-explore-community-nav.html': 'community_nav',
+      'insights-explore-iter6.html': 'iter6',
+      'insights-explore-iter7.html': 'iter7',
+      'insights-explore-iter8.html': 'iter8',
+      'insights-explore-iter9.html': 'iter9',
+      'insights-explore-iter8-engineering.html': 'iter8',
+      'insights-explore-iter9-engineering.html': 'iter9',
+    };
+    var lower = path.toLowerCase();
+    if (Object.prototype.hasOwnProperty.call(byFile, path)) active = byFile[path];
+    else if (Object.prototype.hasOwnProperty.call(byFile, lower)) active = byFile[lower];
+
+    var rows = [
+      ['insights.html', 'default', 'Default'],
+      ['insights-explore-mosaic.html', 'mosaic', 'Mosaic'],
+      ['insights-explore-leftnav.html', 'leftnav', 'Left rail'],
+      ['insights-explore-list.html', 'list', 'Timeline'],
+      ['insights-explore-community-nav.html', 'community_nav', 'Community nav'],
+      ['insights-explore-iter6.html', 'iter6', 'Iteration 6'],
+      ['insights-explore-iter7.html', 'iter7', 'Iteration 7'],
+      ['insights-explore-iter8.html', 'iter8', 'Iteration 8'],
+      ['insights-explore-iter9.html', 'iter9', 'Iteration 9'],
+    ];
+    var parts = [];
+    for (var i = 0; i < rows.length; i++) {
+      var href = rows[i][0];
+      var key = rows[i][1];
+      var label = rows[i][2];
+      if (active === key) {
+        parts.push('<a class="is-active" href="' + href + '">' + label + '</a>');
+      } else {
+        parts.push('<a href="' + href + '">' + label + '</a>');
+      }
+    }
+
+    var bar = document.createElement('header');
+    bar.className = 'nf-explore-topbar';
+    bar.setAttribute('data-nf-explore-topbar-injected', '1');
+    bar.innerHTML =
+      '<div class="nf-explore-topbar__inner">' +
+      '<a class="nf-explore-brand" href="insights-explore.html">Insights</a>' +
+      '<nav class="nf-explore-switch" aria-label="Insights hub layout iterations">' +
+      parts.join('') +
+      '</nav></div>';
+    siteHeader.parentNode.insertBefore(bar, siteHeader);
+    document.body.classList.add('nf-explore-topbar-global');
+  }
+
   function init() {
     var header = document.querySelector('body > header.font-sans.fixed');
     var center = header && header.querySelector('[data-testid="header-center"]');
@@ -227,9 +293,14 @@
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
+  function boot() {
+    injectGlobalInsightsExploreTopbar();
     init();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
   }
 })();
