@@ -25,6 +25,17 @@
   var isEngIter89Listing =
     document.body.classList.contains('nf-explore-page-iter8-engineering') ||
     document.body.classList.contains('nf-explore-page-iter9-engineering');
+
+  /** Direct child of .nf-insights-feed-list--stack that wraps this card (bento row). */
+  function feedRowFromInsightCard(card) {
+    var el = card;
+    while (el && el.parentElement) {
+      var par = el.parentElement;
+      if (par.classList && par.classList.contains('nf-insights-feed-list--stack')) return el;
+      el = par;
+    }
+    return null;
+  }
   var isIter89InsightsHub =
     document.body.classList.contains('nf-explore-page-iter8-insights') ||
     document.body.classList.contains('nf-explore-page-iter9-insights');
@@ -653,7 +664,8 @@
       var n = 0;
       children.forEach(function (child) {
         var card = cardFromFeedRow(child);
-        if (!card || card.classList.contains('nf-insights-article-card--hidden')) return;
+        if (!card) return;
+        if (!isEngIter89Listing && card.classList.contains('nf-insights-article-card--hidden')) return;
         card.classList.add('nf-insights-bento-tile');
         ensureInsightCardStackLayout(card);
         if (isPrimary) {
@@ -698,7 +710,21 @@
         show = tags.indexOf(tagSlug) !== -1;
       }
 
-      card.classList.toggle('nf-insights-article-card--hidden', !show);
+      var row = feedRowFromInsightCard(card);
+      if (isEngIter89Listing) {
+        card.classList.remove('nf-insights-article-card--hidden');
+        if (row) {
+          row.classList.toggle('nf-insights-eng-feed-row--hidden', !show);
+          if (!show) row.setAttribute('aria-hidden', 'true');
+          else row.removeAttribute('aria-hidden');
+        }
+      } else {
+        if (row) {
+          row.classList.remove('nf-insights-eng-feed-row--hidden');
+          row.removeAttribute('aria-hidden');
+        }
+        card.classList.toggle('nf-insights-article-card--hidden', !show);
+      }
       if (show) visible += 1;
     });
 

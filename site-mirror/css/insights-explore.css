@@ -727,6 +727,14 @@ body.nf-explore-page-iter9-engineering .nf-insights-topic-select-wrap {
   }
 }
 
+/* Topic tabs: keep the same bento cell footprint as “All topics” (rows stay in the grid; see mirror-insights-tabs.js). */
+:is(body.nf-explore-page-iter8-engineering, body.nf-explore-page-iter9-engineering)
+  .nf-insights-feed-list--stack
+  > .nf-insights-eng-feed-row--hidden {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 /* =============================================================================
    ITERATION 7 — stream separation callouts (JS injects .nf-explore-iter7-stream-intro).
    Selectors use :is(..., iter8/9 bodies) so listing chrome matches iteration 7 on those pages.

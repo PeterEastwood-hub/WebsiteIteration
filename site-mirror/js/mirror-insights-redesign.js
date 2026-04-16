@@ -71,6 +71,19 @@
     return child.querySelector ? child.querySelector('.nf-insights-article-card') : null;
   }
 
+  function cardRowHiddenForEngFilter(card) {
+    if (!isEngIter89EngOnly || !card) return false;
+    var el = card;
+    while (el && el.parentElement) {
+      var par = el.parentElement;
+      if (par.classList && par.classList.contains('nf-insights-feed-list--stack')) {
+        return el.classList && el.classList.contains('nf-insights-eng-feed-row--hidden');
+      }
+      el = par;
+    }
+    return false;
+  }
+
   function clearBentoSlotClass(el) {
     if (!el || !el.classList) return;
     var cl = el.classList;
@@ -162,7 +175,8 @@
       var n = 0;
       children.forEach(function (child) {
         var card = cardFromFeedRow(child);
-        if (!card || card.classList.contains('nf-insights-article-card--hidden')) return;
+        if (!card) return;
+        if (!isEngIter89EngOnly && card.classList.contains('nf-insights-article-card--hidden')) return;
         card.classList.add('nf-insights-bento-tile');
         ensureInsightCardStackLayout(card);
         if (isPrimary) {
@@ -214,7 +228,11 @@
   function countCardsMatchingFilter() {
     var n = 0;
     cards().forEach(function (card) {
-      if (!card.classList.contains('nf-insights-article-card--hidden')) n += 1;
+      if (isEngIter89EngOnly) {
+        if (!cardRowHiddenForEngFilter(card)) n += 1;
+      } else if (!card.classList.contains('nf-insights-article-card--hidden')) {
+        n += 1;
+      }
     });
     return n;
   }
