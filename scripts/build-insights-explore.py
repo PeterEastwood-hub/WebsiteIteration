@@ -410,6 +410,96 @@ _ITER9_MOBILE_NAV = (
     'href="insights-explore-iter9-engineering.html">Engineering</a></li>'
 )
 
+# Iteration 7 listing removes Industries; iteration 8/9 reintroduce it (desktop mega + mobile accordion).
+_INDUSTRIES_NAV_HREF_FROM = 'href="industries.html"'
+_ITER89_INDUSTRIES_HREF = 'href="industries-flat.html"'
+_INDUSTRIES_DESKTOP_LI_RE = re.compile(
+    r"<li><div class=\"group relative\"><a[^>]*href=\"industries\.html\"[^>]*>Industries</a>[\s\S]*?</div></div></li>",
+    re.DOTALL,
+)
+
+
+def _mobile_industries_li_from_insights(html: str) -> str:
+    """Outer <li> for the mobile Industries accordion (matches insights.html structure)."""
+    needle = (
+        '<a class="transition-colors duration-200 ease-in-out hov:text-nf-dark-green" '
+        'href="industries.html">Industries</a>'
+    )
+    pos = html.find(needle)
+    if pos < 0:
+        raise RuntimeError("Could not find mobile Industries link in insights.html")
+    li_start = html.rfind("<li>", 0, pos)
+    if li_start < 0:
+        raise RuntimeError("Could not find mobile Industries <li> start")
+    sub = html[li_start:]
+    depth = 0
+    i = 0
+    while i < len(sub):
+        if sub[i : i + 4] == "<li>":
+            depth += 1
+            i += 4
+            continue
+        if sub[i : i + 5] == "</li>":
+            depth -= 1
+            i += 5
+            if depth == 0:
+                return sub[:i]
+            continue
+        i += 1
+    raise RuntimeError("Could not close mobile Industries <li> block")
+
+
+def _iter89_industries_nav_snippets() -> tuple[str, str]:
+    raw = SOURCE.read_text(encoding="utf-8")
+    dm = _INDUSTRIES_DESKTOP_LI_RE.search(raw)
+    if not dm:
+        raise RuntimeError("Could not find desktop Industries <li> in insights.html")
+    desk = dm.group(0).replace(_INDUSTRIES_NAV_HREF_FROM, _ITER89_INDUSTRIES_HREF, 1)
+    mob = _mobile_industries_li_from_insights(raw).replace(_INDUSTRIES_NAV_HREF_FROM, _ITER89_INDUSTRIES_HREF, 1)
+    desk = desk.replace(
+        '<li><div class="group relative">',
+        '<li class="nf-nav-industries-iter89"><div class="group relative">',
+        1,
+    )
+    mob = mob.replace("<li><div>", '<li class="nf-nav-industries-iter89"><div>', 1)
+    return desk, mob
+
+
+def patch_header_industries_links_to_flat(html: str) -> str:
+    """Point global nav Industries entry to industries-flat.html (header only)."""
+    m = re.search(r'(<header class="font-sans.*?</header>)', html, re.DOTALL)
+    if not m:
+        return html
+    block = m.group(1)
+    new_b = block.replace(_INDUSTRIES_NAV_HREF_FROM, _ITER89_INDUSTRIES_HREF)
+    if new_b == block:
+        return html
+    return html[: m.start()] + new_b + html[m.end() :]
+
+
+def inject_iter89_industries_nav(html: str) -> str:
+    """Insert Industries (desktop + mobile) before iteration 8/9 Insights / Engineering nav items."""
+    if "nf-nav-industries-iter89" in html:
+        return html
+    desk, mob = _iter89_industries_nav_snippets()
+    idx = html.find('<li class="nf-nav-iter8-desktop nf-nav-iter8-desktop-insights">')
+    if idx == -1:
+        idx = html.find('<li class="nf-nav-iter9-desktop">')
+    if idx == -1:
+        raise RuntimeError("Iteration 8/9: could not find desktop Insights nav anchor for Industries")
+    html = html[:idx] + desk + html[idx:]
+    m_idx = html.find(
+        '<li><a class="transition-colors duration-200 ease-in-out hov:text-nf-dark-green nf-nav-iter8-insights"'
+    )
+    if m_idx != -1:
+        return html[:m_idx] + mob + html[m_idx:]
+    m_idx = html.find(
+        '<li><a class="transition-colors duration-200 ease-in-out hov:text-nf-dark-green nf-nav-iter9-main"'
+    )
+    if m_idx != -1:
+        return html[:m_idx] + mob + html[m_idx:]
+    raise RuntimeError("Iteration 8/9: could not find mobile Insights nav anchor for Industries")
+
 
 def _replace_explore_topbar(html: str, header_active: str) -> str:
     return re.sub(
@@ -602,6 +692,7 @@ def patch_insights_listing_iter789(
     h = patch_iter89_insights_hub_topic_tabs(h)
     h = patch_iter89_insights_hub_card_topics(h)
     h = patch_iter89_insights_remove_engineering_community_cta(h)
+    h = inject_iter89_industries_nav(h)
     return h
 
 
@@ -830,12 +921,6 @@ def build_engineering_listing_iter789(
         flags=re.DOTALL,
     )
     h = re.sub(r"<title>.*?</title>", f"<title>{title}</title>", h, count=1)
-    h, n = _ITER7_RM_INDUSTRIES_NAV.subn("", h, count=1)
-    if n != 1:
-        raise RuntimeError(f"Iteration {iteration} engineering: desktop Industries nav not found")
-    h, nm = _ITER7_RM_INDUSTRIES_MOBILE.subn("", h, count=1)
-    if nm != 1:
-        raise RuntimeError(f"Iteration {iteration} engineering: mobile Industries nav not found")
     h, ni = _ITER7_RM_INTRO.subn("", h, count=1)
     if ni != 1:
         raise RuntimeError(f"Iteration {iteration} engineering: hero intro paragraph not found")
@@ -864,6 +949,7 @@ def build_engineering_listing_iter789(
     h = inject_iter789_engineering_hero_subtext(h)
     h = patch_iter89_engineering_topic_tabs(h)
     h = patch_iter89_engineering_card_topics(h)
+    h = patch_header_industries_links_to_flat(h)
     return h
 
 
