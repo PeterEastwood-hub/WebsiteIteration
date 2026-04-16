@@ -159,7 +159,7 @@
   }
 
   var currentTopic = 'all';
-  /** Engineering iter 8/9: when set, only cards whose data-nf-insight-tags include this slug (pill click / ?topic=). */
+  /** Iter 8/9 hub listings: set from hashtag / ?topic= sync; visibility uses tags only when this differs from the active tab slug. */
   var engPillTagSlug = '';
 
   /** Empty filter message; hide “Load more” when filtered (pagination drops the filter). */
@@ -690,6 +690,8 @@
     var tagSlug = '';
     if (isIter89HubListing && engPillTagSlug) {
       tagSlug = engPillTagSlug;
+      /** Tab slug is carried on topics, not always duplicated in data-nf-insight-tags — do not hide all rows. */
+      if (tagSlug === topic) tagSlug = '';
     } else if (hasTagFilter && topic !== 'all' && selectWrap && !selectWrap.hidden) {
       tagSlug = selectEl && selectEl.value ? selectEl.value.trim() : '';
     }
