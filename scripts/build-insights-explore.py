@@ -667,8 +667,8 @@ _ENG_TOPIC_TABLIST_OLD = re.compile(
 _ENG_ITER89_ARTICLE_TOPIC_ROWS: tuple[tuple[str, str, str], ...] = (
     (
         "why-plan-mode-is-not-enough-better-outcomes-with-spec-driven-development.html",
-        "digital-product-innovation",
-        "digital-product-innovation",
+        "business-impact-growth",
+        "business-impact-growth",
     ),
     (
         "designers-and-ai-native-engineering-building-real-products-with-bmad-and-ai-driven-ides.html",
@@ -682,13 +682,13 @@ _ENG_ITER89_ARTICLE_TOPIC_ROWS: tuple[tuple[str, str, str], ...] = (
     ),
     (
         "implementing-model-context-protocol-mcp-tips-tricks-and-pitfalls.html",
-        "ai-native-engineering",
-        "ai-native-engineering",
+        "engineering-excellence",
+        "engineering-excellence",
     ),
     (
         "cursor-vs-copilot-what-tool-has-the-best-planning-mode.html",
-        "ai-native-engineering",
-        "ai-native-engineering",
+        "digital-product-innovation",
+        "digital-product-innovation",
     ),
     (
         "ai-beyond-the-cloud-the-current-and-future-state-of-on-device-generative-ai.html",
@@ -703,12 +703,14 @@ _ENG_ITER89_ARTICLE_TOPIC_ROWS: tuple[tuple[str, str, str], ...] = (
 )
 
 
-_LEGACY_TOPICS_TOKEN_TO_HUB: dict[str, str] = {
-    "build": "engineering-excellence",
-    "ai-data": "ai-native-engineering",
-    "cloud": "platform-cloud-modernization",
-    "product": "digital-product-innovation",
-    "strategy": "business-impact-growth",
+# One legacy token can map to several hub slugs so every tab can have listing coverage.
+_LEGACY_TOPICS_TOKEN_TO_HUB_EXPAND: dict[str, tuple[str, ...]] = {
+    # Iter7 source tokens omit "cloud"; pair platform with build + product so the tab still filters real cards.
+    "build": ("engineering-excellence", "platform-cloud-modernization"),
+    "ai-data": ("ai-native-engineering", "enterprise-ai-transformation"),
+    "cloud": ("platform-cloud-modernization",),
+    "product": ("digital-product-innovation", "platform-cloud-modernization"),
+    "strategy": ("business-impact-growth",),
 }
 
 _ITER89_INSIGHTS_CARD_TOPICS_TAGS_RE = re.compile(
@@ -722,10 +724,10 @@ def _legacy_topics_tokens_to_hub_slugs(raw: str) -> str:
     hubs: list[str] = []
     seen: set[str] = set()
     for tok in (raw or "").split():
-        hub = _LEGACY_TOPICS_TOKEN_TO_HUB.get(tok)
-        if hub and hub not in seen:
-            seen.add(hub)
-            hubs.append(hub)
+        for hub in _LEGACY_TOPICS_TOKEN_TO_HUB_EXPAND.get(tok, ()):
+            if hub not in seen:
+                seen.add(hub)
+                hubs.append(hub)
     return " ".join(hubs) if hubs else "engineering-excellence"
 
 

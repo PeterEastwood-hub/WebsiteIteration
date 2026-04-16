@@ -735,44 +735,7 @@
     }
   }
 
-  function shouldPruneTopicTabsByContent() {
-    return (
-      document.body.classList.contains('nf-explore-page-iter8-insights') ||
-      document.body.classList.contains('nf-explore-page-iter9-insights') ||
-      document.body.classList.contains('nf-explore-page-iter8-engineering') ||
-      document.body.classList.contains('nf-explore-page-iter9-engineering')
-    );
-  }
-
-  function pruneEmptyTopicTabs() {
-    if (!shouldPruneTopicTabsByContent()) return;
-    tabs.forEach(function (tab) {
-      var topic = tab.getAttribute('data-nf-tab-topic');
-      if (!topic || topic === 'all') return;
-      var n = 0;
-      Array.prototype.forEach.call(cards, function (card) {
-        var raw = (card.getAttribute('data-nf-insight-topics') || '').trim();
-        var topics = raw ? raw.split(/\s+/) : [];
-        if (topics.indexOf(topic) !== -1) n += 1;
-      });
-      if (n === 0) {
-        tab.setAttribute('data-nf-tab-hidden', '1');
-        tab.setAttribute('aria-hidden', 'true');
-        tab.style.display = 'none';
-        tab.setAttribute('tabindex', '-1');
-      }
-    });
-
-    var selected = tabs.filter(function (t) {
-      return t.getAttribute('aria-selected') === 'true';
-    })[0];
-    if (selected && selected.getAttribute('data-nf-tab-hidden') === '1') {
-      selectTopic('all', false, true);
-    }
-  }
-
-  pruneEmptyTopicTabs();
-
+  /** Iteration 8/9 hub tabs are a fixed six-topic model; keep all visible (empty tabs use the normal empty state). */
   if (hasTagFilter) {
     selectEl.addEventListener('change', function () {
       updateListboxSelection();
