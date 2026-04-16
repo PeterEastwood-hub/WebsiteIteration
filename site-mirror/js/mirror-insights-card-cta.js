@@ -161,13 +161,25 @@
   /** Query keys for ?topic= on iter 8/9 listing pill links (see build prompt). */
   function topicParamFromDisplayLabel(lab) {
     var b = document.body;
-    if (
+    var eng =
       b.classList.contains('nf-explore-page-iter8-engineering') ||
-      b.classList.contains('nf-explore-page-iter9-engineering') ||
+      b.classList.contains('nf-explore-page-iter9-engineering');
+    var ins =
       b.classList.contains('nf-explore-page-iter8-insights') ||
-      b.classList.contains('nf-explore-page-iter9-insights')
-    ) {
-      var hub = {
+      b.classList.contains('nf-explore-page-iter9-insights');
+    if (eng) {
+      var hubEng = {
+        'AI & Machine Learning': 'ai-machine-learning',
+        'Frontend & Mobile': 'frontend-mobile',
+        'Backend & Data': 'backend-data',
+        'Platform & DevOps': 'platform-devops',
+        'Design & UX': 'design-ux',
+        'Engineering Practices': 'engineering-practices',
+      };
+      if (hubEng[lab]) return hubEng[lab];
+    }
+    if (ins) {
+      var hubIns = {
         'AI Native Engineering': 'ai-native-engineering',
         'Enterprise AI Transformation': 'enterprise-ai-transformation',
         'Platform & Cloud Modernization': 'platform-cloud-modernization',
@@ -175,7 +187,7 @@
         'Digital Product Innovation': 'digital-product-innovation',
         'Business Impact & Growth': 'business-impact-growth',
       };
-      if (hub[lab]) return hub[lab];
+      if (hubIns[lab]) return hubIns[lab];
     }
     var m = {
       'AI & data': 'ai-data',
@@ -248,12 +260,16 @@
       security: 'Build & stacks',
       infrastructure: 'Build & stacks',
     };
-    if (
-      cl.contains('nf-explore-page-iter8-engineering') ||
-      cl.contains('nf-explore-page-iter9-engineering') ||
-      cl.contains('nf-explore-page-iter8-insights') ||
-      cl.contains('nf-explore-page-iter9-insights')
-    ) {
+    if (cl.contains('nf-explore-page-iter8-engineering') || cl.contains('nf-explore-page-iter9-engineering')) {
+      Object.assign(labelBySlug, {
+        'ai-machine-learning': 'AI & Machine Learning',
+        'frontend-mobile': 'Frontend & Mobile',
+        'backend-data': 'Backend & Data',
+        'platform-devops': 'Platform & DevOps',
+        'design-ux': 'Design & UX',
+        'engineering-practices': 'Engineering Practices',
+      });
+    } else if (cl.contains('nf-explore-page-iter8-insights') || cl.contains('nf-explore-page-iter9-insights')) {
       Object.assign(labelBySlug, {
         'ai-native-engineering': 'AI Native Engineering',
         'enterprise-ai-transformation': 'Enterprise AI Transformation',

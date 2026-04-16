@@ -651,9 +651,33 @@ _INSIGHTS_ITER89_HUB_TOPIC_TABLIST = (
     + "</div>"
 )
 
+# Iteration 8/9 Engineering listings only — distinct from Insights hub tabs.
+_ENG_ITER89_HUB_TOPIC_TAB_BUTTONS = (
+    '<button type="button" role="tab" id="nf-eng-tab-all" aria-selected="true" '
+    'aria-controls="nf-insights-pill-panel" data-nf-tab-topic="all" class="nf-insights-topic-tabs__tab">All topics</button>'
+    '<button type="button" role="tab" id="nf-eng-tab-ai-machine-learning" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="ai-machine-learning" '
+    'class="nf-insights-topic-tabs__tab">AI &amp; Machine Learning</button>'
+    '<button type="button" role="tab" id="nf-eng-tab-frontend-mobile" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="frontend-mobile" '
+    'class="nf-insights-topic-tabs__tab">Frontend &amp; Mobile</button>'
+    '<button type="button" role="tab" id="nf-eng-tab-backend-data" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="backend-data" '
+    'class="nf-insights-topic-tabs__tab">Backend &amp; Data</button>'
+    '<button type="button" role="tab" id="nf-eng-tab-platform-devops" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="platform-devops" '
+    'class="nf-insights-topic-tabs__tab">Platform &amp; DevOps</button>'
+    '<button type="button" role="tab" id="nf-eng-tab-design-ux" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="design-ux" '
+    'class="nf-insights-topic-tabs__tab">Design &amp; UX</button>'
+    '<button type="button" role="tab" id="nf-eng-tab-engineering-practices" aria-selected="false" '
+    'aria-controls="nf-insights-pill-panel" tabindex="-1" data-nf-tab-topic="engineering-practices" '
+    'class="nf-insights-topic-tabs__tab">Engineering Practices</button>'
+)
+
 _ENG_ITER89_TOPIC_TABLIST = (
     '<div role="tablist" aria-label="Browse engineering articles by topic" class="nf-insights-topic-tabs__list">'
-    + _ITER89_HUB_TOPIC_TAB_BUTTONS
+    + _ENG_ITER89_HUB_TOPIC_TAB_BUTTONS
     + "</div>"
 )
 
@@ -667,38 +691,38 @@ _ENG_TOPIC_TABLIST_OLD = re.compile(
 _ENG_ITER89_ARTICLE_TOPIC_ROWS: tuple[tuple[str, str, str], ...] = (
     (
         "why-plan-mode-is-not-enough-better-outcomes-with-spec-driven-development.html",
-        "business-impact-growth",
-        "business-impact-growth",
+        "engineering-practices",
+        "engineering-practices",
     ),
     (
         "designers-and-ai-native-engineering-building-real-products-with-bmad-and-ai-driven-ides.html",
-        "ai-native-engineering",
-        "ai-native-engineering",
+        "frontend-mobile",
+        "frontend-mobile",
     ),
     (
         "browser-based-vector-search-fast-private-and-no-backend-required.html",
-        "platform-cloud-modernization",
-        "platform-cloud-modernization",
+        "backend-data",
+        "backend-data",
     ),
     (
         "implementing-model-context-protocol-mcp-tips-tricks-and-pitfalls.html",
-        "engineering-excellence",
-        "engineering-excellence",
+        "ai-machine-learning",
+        "ai-machine-learning",
     ),
     (
         "cursor-vs-copilot-what-tool-has-the-best-planning-mode.html",
-        "digital-product-innovation",
-        "digital-product-innovation",
+        "design-ux",
+        "design-ux",
     ),
     (
         "ai-beyond-the-cloud-the-current-and-future-state-of-on-device-generative-ai.html",
-        "enterprise-ai-transformation",
-        "enterprise-ai-transformation",
+        "ai-machine-learning",
+        "ai-machine-learning",
     ),
     (
         "temporal-workflow-debt-the-hidden-blocker-in-enterprise-ai-integration.html",
-        "enterprise-ai-transformation",
-        "enterprise-ai-transformation",
+        "platform-devops",
+        "platform-devops",
     ),
 )
 

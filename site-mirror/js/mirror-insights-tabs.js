@@ -25,11 +25,11 @@
   var isEngIter89Listing =
     document.body.classList.contains('nf-explore-page-iter8-engineering') ||
     document.body.classList.contains('nf-explore-page-iter9-engineering');
-  /** Iteration 8/9 Insights + Engineering: shared hub topic tabs (same ids as HTML data-nf-tab-topic). */
-  var isIter89HubListing =
-    isEngIter89Listing ||
+  var isIter89InsightsHub =
     document.body.classList.contains('nf-explore-page-iter8-insights') ||
     document.body.classList.contains('nf-explore-page-iter9-insights');
+  /** Iteration 8/9 Insights or Engineering listings — six topic tabs + All (slugs differ by stream). */
+  var isIter89HubListing = isEngIter89Listing || isIter89InsightsHub;
   var hasTagFilter = !!(selectEl && selectWrap);
   /** Iteration 8/9 hub listings: no “All in this category” field — topic pills drive tab + tag filter. */
   if (isIter89HubListing) {
@@ -88,7 +88,34 @@
   };
 
   /** Iteration 8/9 hub listings — six topics + All (matches HTML + card data-nf-insight-topics). */
-  if (isIter89HubListing) {
+  if (isEngIter89Listing) {
+    INSIGHTS_TAGS_BY_TOPIC = {
+      'ai-machine-learning': [],
+      'frontend-mobile': [],
+      'backend-data': [],
+      'platform-devops': [],
+      'design-ux': [],
+      'engineering-practices': [],
+    };
+    statusByTopic = {
+      all: 'Showing all topics.',
+      'ai-machine-learning': 'Showing AI & Machine Learning articles.',
+      'frontend-mobile': 'Showing Frontend & Mobile articles.',
+      'backend-data': 'Showing Backend & Data articles.',
+      'platform-devops': 'Showing Platform & DevOps articles.',
+      'design-ux': 'Showing Design & UX articles.',
+      'engineering-practices': 'Showing Engineering Practices articles.',
+    };
+    tabLabelByTopic = {
+      all: 'all topics',
+      'ai-machine-learning': 'AI & Machine Learning',
+      'frontend-mobile': 'Frontend & Mobile',
+      'backend-data': 'Backend & Data',
+      'platform-devops': 'Platform & DevOps',
+      'design-ux': 'Design & UX',
+      'engineering-practices': 'Engineering Practices',
+    };
+  } else if (isIter89InsightsHub) {
     INSIGHTS_TAGS_BY_TOPIC = {
       'ai-native-engineering': [],
       'enterprise-ai-transformation': [],
@@ -777,8 +804,30 @@
   function tabTopicFromUrlParam(raw) {
     if (!raw) return null;
     var k = String(raw).trim().toLowerCase();
-    if (isIter89HubListing) {
-      var engMap = {
+    if (isEngIter89Listing) {
+      var engHubMap = {
+        'ai-machine-learning': 'ai-machine-learning',
+        'frontend-mobile': 'frontend-mobile',
+        'backend-data': 'backend-data',
+        'platform-devops': 'platform-devops',
+        'design-ux': 'design-ux',
+        'engineering-practices': 'engineering-practices',
+        'ai-native-engineering': 'ai-machine-learning',
+        'enterprise-ai-transformation': 'ai-machine-learning',
+        'platform-cloud-modernization': 'platform-devops',
+        'engineering-excellence': 'engineering-practices',
+        'digital-product-innovation': 'design-ux',
+        'business-impact-growth': 'engineering-practices',
+        'ai-data-solutions': 'ai-machine-learning',
+        'enterprise-modernisation': 'platform-devops',
+        'platform-engineering': 'platform-devops',
+        'product-design': 'design-ux',
+        'nodejs-backend': 'backend-data',
+        'frontend-react': 'frontend-mobile',
+      };
+      if (engHubMap[k]) return engHubMap[k];
+    } else if (isIter89InsightsHub) {
+      var insMap = {
         'ai-native-engineering': 'ai-native-engineering',
         'enterprise-ai-transformation': 'enterprise-ai-transformation',
         'platform-cloud-modernization': 'platform-cloud-modernization',
@@ -792,7 +841,7 @@
         'nodejs-backend': 'engineering-excellence',
         'frontend-react': 'engineering-excellence',
       };
-      if (engMap[k]) return engMap[k];
+      if (insMap[k]) return insMap[k];
     }
     var map = {
       'strategy-change': 'strategy',
