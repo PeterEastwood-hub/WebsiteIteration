@@ -1,0 +1,41 @@
+# Primary HTML references (run inside full site-mirror for assets)
+site-mirror/insights.html
+site-mirror/insights-engineering-community.html
+site-mirror/implementing-model-context-protocol-mcp-tips-tricks-and-pitfalls.html
+
+# Postprocess + listing enrichment
+postprocess-mirror.mjs
+scripts/insights-redesign-enrich.mjs
+
+# Custom CSS (design + rhythm)
+site-mirror/css/mirror-content-rhythm.css
+site-mirror/css/mirror-stripe-influence.css
+site-mirror/css/mirror-a11y-flair.css
+site-mirror/css/insights-explore.css
+
+# Custom JS (nav, listings, cards, explore)
+site-mirror/js/mirror-stripe-nav.js
+site-mirror/js/mirror-insights-tabs.js
+site-mirror/js/mirror-insights-card-cta.js
+site-mirror/js/mirror-insights-redesign.js
+site-mirror/js/mirror-insights-iter8-9-listing.js
+site-mirror/js/mirror-insights-iter8-9-signup.js
+site-mirror/js/mirror-flair.js
+site-mirror/js/mirror-insight-title-orphan.js
+site-mirror/js/mirror-motion.js
+
+# Optional: explore page generator (not required for core three surfaces)
+scripts/build-insights-explore.py
+
+# Project entry
+package.json
+
+# Screenshots
+export/pdf-handoff-screenshots/01-insights-full-page.png
+export/pdf-handoff-screenshots/02-communities-full-page.png
+export/pdf-handoff-screenshots/03-article-example-full-page.png
+
+# This handoff
+export/engineering-handoff/README.md
+export/engineering-handoff/MANIFEST.txt
+export/engineering-handoff/package-handoff.sh

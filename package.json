@@ -19,6 +19,8 @@
     "hydrate-insights-cards": "node scripts/hydrate-insights-listing-images.mjs",
     "normalize-mirror-images": "node scripts/normalize-mirror-image-extensions.mjs",
     "capture-orbital-handoff": "node scripts/capture-orbital-handoff.mjs",
+    "capture-pdf-handoff-screenshots": "node scripts/capture-pdf-handoff-screenshots.cjs",
+    "package-engineering-handoff": "bash export/engineering-handoff/package-handoff.sh",
     "open-figma-orbital-capture": "node scripts/open-orbital-figma-capture.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

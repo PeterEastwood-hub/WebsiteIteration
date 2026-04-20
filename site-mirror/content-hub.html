@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Content hub | Nearform mirror</title>
-  <meta name="description" content="Choose Insights for business audiences or Engineering for technical depth.">
+  <meta name="description" content="Choose Insights for business audiences or Communities for technical depth.">
   <link rel="stylesheet" href="css/mirror-content-rhythm.css">
   <style>
     body { font-family: Inter, system-ui, sans-serif; margin: 0; background: #f8fafc; color: #0f172a; }
@@ -54,7 +54,7 @@
 <body data-nf-layout="default">
   <div class="wrap">
     <h1>Content hub</h1>
-    <p class="lead">Pick the stream that matches your role. <strong>Insights</strong> is written for decision-makers and executives; <strong>Engineering</strong> is for practitioners shipping software.</p>
+    <p class="lead">Pick the stream that matches your role. <strong>Insights</strong> is written for decision-makers and executives; <strong>Communities</strong> is for practitioners shipping software.</p>
     <div class="grid">
       <article>
         <h2>Insights</h2>
@@ -62,12 +62,12 @@
         <a href="insights.html">Open Insights</a>
       </article>
       <article>
-        <h2>Engineering</h2>
+        <h2>Communities</h2>
         <p>Tutorials, deep dives, tooling, and open source releases. Granular technical tags remain on this feed in the mirror.</p>
-        <a href="engineering.html">Open Engineering</a>
+        <a href="engineering.html">Open Communities</a>
       </article>
     </div>
-    <p class="note">Static mirror: <code>engineering.html</code> forwards to the mirrored Engineering Community listing. Production should expose <code>/engineering/</code> with a 301 from <code>/digital-community/</code>.</p>
+    <p class="note">Static mirror: <code>engineering.html</code> forwards to the mirrored Communities listing. Production should expose <code>/engineering/</code> with a 301 from <code>/digital-community/</code>.</p>
   </div>
 
 
@@ -85,5 +85,25 @@
   el.addEventListener('input', function () {
     try { localStorage.setItem(k, el.value); } catch (e) {}
   });
+})();
+</script><script id="nf-communities-nav-sync">
+(function () {
+  function sync() {
+    try {
+      document.querySelectorAll('a[href="engineering.html"]').forEach(function (a) {
+        var t = (a.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!t) return;
+        if (/engineering/i.test(t) && !/communities/i.test(t)) a.textContent = 'Communities';
+      });
+      var ti = document.title || '';
+      if (/Communities/i.test(ti)) {
+        document.title = ti.replace(/Communities/gi, 'Communities');
+      } else if (/^\s*Engineering\s*\|/i.test(ti)) {
+        document.title = ti.replace(/^\s*Engineering\s*\|/i, 'Communities |');
+      }
+    } catch (e0) {}
+  }
+  sync();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync);
 })();
 </script></body></html>

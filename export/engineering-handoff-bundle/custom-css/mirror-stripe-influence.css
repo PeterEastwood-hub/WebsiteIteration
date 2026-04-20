@@ -1,0 +1,278 @@
+/**
+ * Stripe-inspired polish for the static mirror (reference: https://stripe.com/gb )
+ * — nav dropdown easing, soft elevation, calmer type rhythm, section “cards”.
+ * Nav behaviour pairs with js/mirror-stripe-nav.js (progressive enhancement).
+ */
+
+:root {
+  --stripe-inf-surface: #ffffff;
+  --stripe-inf-text: #0f172a;
+  --stripe-inf-text-muted: #425466;
+  --stripe-inf-border: rgba(15, 23, 42, 0.08);
+  --stripe-inf-shadow: 0 50px 100px -20px rgba(50, 50, 93, 0.12),
+    0 30px 60px -30px rgba(0, 0, 0, 0.22), 0 18px 36px -18px rgba(0, 0, 0, 0.08);
+  --stripe-inf-shadow-soft: 0 12px 40px -12px rgba(15, 23, 42, 0.12);
+  --stripe-inf-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --stripe-inf-radius-lg: 14px;
+  --stripe-inf-radius-md: 10px;
+}
+
+/* -------------------------------------------------------------------------
+ * Global header: calmer links + Stripe-style dropdown surface
+ * ------------------------------------------------------------------------- */
+body > header.font-sans.fixed:has([data-testid="header-left"]) {
+  backdrop-filter: saturate(1.1) blur(10px);
+  -webkit-backdrop-filter: saturate(1.1) blur(10px);
+}
+
+body > header.font-sans [data-testid="header-center"] > li > a,
+body > header.font-sans [data-testid="header-center"] > li > .group > a {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  transition: color 0.18s ease, opacity 0.18s ease;
+}
+
+@media (hover: hover) {
+  body > header.font-sans [data-testid="header-center"] > li > a:hover,
+  body > header.font-sans [data-testid="header-center"] > li > .group > a:hover {
+    opacity: 0.72;
+  }
+}
+
+/* Dropdown panel (inner card) */
+body > header.font-sans [data-testid="header-center"] .group > div.absolute > div.rounded-lg {
+  border-radius: var(--stripe-inf-radius-lg) !important;
+  border-color: var(--stripe-inf-border) !important;
+  box-shadow: var(--stripe-inf-shadow) !important;
+  overflow: hidden;
+  padding-top: 0.35rem !important;
+  padding-bottom: 0.35rem !important;
+}
+
+body > header.font-sans [data-testid="header-center"] .group > div.absolute > div.rounded-lg > a {
+  border-radius: var(--stripe-inf-radius-md);
+  margin-left: 0.35rem;
+  margin-right: 0.35rem;
+  padding-left: 0.85rem !important;
+  padding-right: 0.85rem !important;
+  padding-top: 0.65rem !important;
+  padding-bottom: 0.65rem !important;
+  font-size: 0.9375rem;
+  line-height: 1.35;
+  transition: background-color 0.15s ease, transform 0.15s var(--stripe-inf-ease-out);
+}
+
+body > header.font-sans [data-testid="header-center"] .group > div.absolute > div.rounded-lg > a:focus-visible {
+  outline: 2px solid #00c78c;
+  outline-offset: 2px;
+}
+
+body > header.font-sans [data-testid="header-center"] .group > a:focus-visible,
+body > header.font-sans [data-testid="header-center"] > li > a:focus-visible {
+  outline: 2px solid #00c78c;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+@media (hover: hover) {
+  body > header.font-sans [data-testid="header-center"] .group > div.absolute > div.rounded-lg > a:hover {
+    transform: translateX(2px);
+  }
+}
+
+/* JS-handled nav: smooth panel motion */
+body > header.font-sans [data-testid="header-center"].nf-stripe-nav-js li > .group > div.absolute {
+  transition: opacity 0.22s ease, visibility 0.22s ease, transform 0.38s var(--stripe-inf-ease-out);
+}
+
+body > header.font-sans [data-testid="header-center"].nf-stripe-nav-js li:not(.nf-stripe-nav-active):not(:focus-within) > .group > div.absolute {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translate3d(-1.5rem, 10px, 0) !important;
+}
+
+body > header.font-sans [data-testid="header-center"].nf-stripe-nav-js li.nf-stripe-nav-active > .group > div.absolute,
+body > header.font-sans [data-testid="header-center"].nf-stripe-nav-js li:focus-within > .group > div.absolute {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: translate3d(-1.5rem, 4px, 0) !important;
+}
+
+/* -------------------------------------------------------------------------
+ * Main: editorial “cards” (horizontal gutters → mirror-content-rhythm.css)
+ * ------------------------------------------------------------------------- */
+/* Editorial / case-study text columns */
+main [data-type="page-section-content"] .font-serif,
+main [data-type="page-section-content"] p.text-lg {
+  color: var(--stripe-inf-text-muted);
+}
+
+/* Insight posts: plain editorial column — no hover “card” (see mirror-content-rhythm.css) */
+body:not([data-nf-layout="insight-article"])
+  main
+  [data-type="page-section-content"][class*="lg:col-span-6"]:has(p, h2, h3) {
+  border-radius: var(--stripe-inf-radius-lg);
+  transition: box-shadow 0.35s var(--stripe-inf-ease-out), border-color 0.25s ease;
+}
+
+@media (min-width: 1024px) {
+  body:not([data-nf-layout="insight-article"])
+    main
+    [data-type="page-section-content"][class*="lg:col-span-6"]:has(p, h2, h3) {
+    padding: 1.5rem 1.75rem;
+    border: 1px solid transparent;
+  }
+
+  body:not([data-nf-layout="insight-article"])
+    main
+    [data-type="page-section-content"][class*="lg:col-span-6"]:has(p, h2, h3):hover {
+    border-color: var(--stripe-inf-border);
+    box-shadow: var(--stripe-inf-shadow-soft);
+  }
+}
+
+/* Promo / large cards on home: softer lift */
+main a.nf-flair-promo > div.grid {
+  border-radius: var(--stripe-inf-radius-lg);
+  overflow: hidden;
+  transition: transform 0.45s var(--stripe-inf-ease-out), box-shadow 0.45s var(--stripe-inf-ease-out);
+}
+
+@media (hover: hover) {
+  main a.nf-flair-promo:hover > div.grid {
+    box-shadow: var(--stripe-inf-shadow-soft);
+  }
+}
+
+/* Primary CTA in header — less bounce, more Stripe */
+body > header.font-sans [data-testid="header-right"] a.rounded-full {
+  transition: transform 0.22s var(--stripe-inf-ease-out), background-color 0.2s ease, color 0.2s ease,
+    border-color 0.2s ease, box-shadow 0.22s ease;
+}
+
+/**
+ * Contact pill: force readable hover/focus colors. The mirrored Tailwind utilities can
+ * apply navy fill without winning the color cascade, leaving navy-on-navy text.
+ */
+@media (hover: hover) {
+  body > header.font-sans [data-testid="header-right"] a.rounded-full:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px -6px rgba(15, 23, 42, 0.18);
+    background-color: var(--color-nf-deep-navy, #0f172a) !important;
+    color: #f8fafc !important;
+    border-color: var(--color-nf-deep-navy, #0f172a) !important;
+  }
+}
+
+/* Dark theme + green scroll header: white pill, navy label (matches original intent) */
+.dark body > header.font-sans [data-testid="header-right"] a.rounded-full:hover,
+html.green body > header.font-sans [data-testid="header-right"] a.rounded-full:hover,
+body.green > header.font-sans [data-testid="header-right"] a.rounded-full:hover {
+  background-color: #ffffff !important;
+  color: var(--color-nf-deep-navy, #0f172a) !important;
+  border-color: var(--color-nf-deep-navy, #0f172a) !important;
+  box-shadow: 0 8px 24px -6px rgba(15, 23, 42, 0.14);
+}
+
+body > header.font-sans [data-testid="header-right"] a.rounded-full:focus-visible {
+  outline: 2px solid #00c78c;
+  outline-offset: 3px;
+}
+
+/* -------------------------------------------------------------------------
+ * Insights hub iteration strip — also used when mirror-stripe-nav.js injects
+ * the bar on pages that omit static HTML (see data-nf-explore-topbar-injected).
+ * Duplicates essentials from insights-explore.css so marketing pages still style it.
+ * ------------------------------------------------------------------------- */
+.nf-explore-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid #d8e0ea;
+  backdrop-filter: blur(10px);
+}
+.dark .nf-explore-topbar,
+html.dark .nf-explore-topbar {
+  background: rgba(15, 23, 42, 0.92);
+  border-bottom-color: #334155;
+}
+.nf-explore-topbar__inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 14px 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.nf-explore-brand {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0f172a;
+  text-decoration: none;
+}
+html.dark .nf-explore-brand {
+  color: #f8fafc;
+}
+.nf-explore-switch {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.nf-explore-switch a {
+  font: 600 12px/1 Inter, system-ui, sans-serif;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #c7d0dd;
+  color: #1e293b;
+  text-decoration: none;
+}
+html.dark .nf-explore-switch a {
+  border-color: #475569;
+  color: #e2e8f0;
+}
+.nf-explore-switch a:hover {
+  background: #edf3ff;
+}
+html.dark .nf-explore-switch a:hover {
+  background: #334155;
+}
+.nf-explore-switch a.is-active {
+  background: #92f279;
+  border-color: #92f279;
+  color: #101510;
+}
+@media (max-width: 1024px) {
+  .nf-explore-switch {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    padding-bottom: 4px;
+  }
+  .nf-explore-switch a {
+    flex-shrink: 0;
+  }
+}
+
+body.nf-explore-topbar-global .nf-explore-topbar[data-nf-explore-topbar-injected] {
+  z-index: 10060;
+}
+body.nf-explore-topbar-global > header.font-sans.fixed:has([data-testid="header-left"]) {
+  top: 52px !important;
+}
+@media (max-width: 640px) {
+  body.nf-explore-topbar-global > header.font-sans.fixed:has([data-testid="header-left"]) {
+    top: 92px !important;
+  }
+}

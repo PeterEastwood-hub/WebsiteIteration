@@ -75,4 +75,24 @@ Victory uses <code>createContext</code> to perform its operations and it must be
     try { localStorage.setItem(k, el.value); } catch (e) {}
   });
 })();
+</script><script id="nf-communities-nav-sync">
+(function () {
+  function sync() {
+    try {
+      document.querySelectorAll('a[href="engineering.html"]').forEach(function (a) {
+        var t = (a.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!t) return;
+        if (/engineering/i.test(t) && !/communities/i.test(t)) a.textContent = 'Communities';
+      });
+      var ti = document.title || '';
+      if (/Communities/i.test(ti)) {
+        document.title = ti.replace(/Communities/gi, 'Communities');
+      } else if (/^\s*Engineering\s*\|/i.test(ti)) {
+        document.title = ti.replace(/^\s*Engineering\s*\|/i, 'Communities |');
+      }
+    } catch (e0) {}
+  }
+  sync();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync);
+})();
 </script></body></html>

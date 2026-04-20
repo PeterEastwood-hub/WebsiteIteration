@@ -1,10 +1,10 @@
 <!DOCTYPE html><html lang="en"><head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Engineering | Nearform</title>
+  <title>Communities | Nearform</title>
   <meta http-equiv="refresh" content="0; url=insights-engineering-community.html">
   <link rel="canonical" href="https://nearform.com/engineering/">
-  <meta name="description" content="Technical articles, tutorials, and open source from Nearform Engineering.">
+  <meta name="description" content="Technical articles, tutorials, and open source from Nearform Communities.">
 <style id="ux-audit-sticky-header">
   body > header.font-sans.fixed:has([data-testid="header-left"]) {
     position: sticky !important;
@@ -39,8 +39,8 @@
   }
 </style><link rel="stylesheet" href="css/mirror-a11y-flair.css" id="mirror-a11y-flair-css"><link rel="stylesheet" href="css/mirror-stripe-influence.css" id="mirror-stripe-influence-css"><link rel="stylesheet" href="css/mirror-content-rhythm.css" id="mirror-content-rhythm-css"><link rel="stylesheet" href="css/mirror-services-flair.css" id="mirror-services-flair-css"><script src="js/mirror-flair.js" defer="" id="mirror-flair-js"></script><script src="js/mirror-stripe-nav.js" defer="" id="mirror-stripe-nav-js"></script><script src="js/mirror-insights-card-cta.js" defer="" id="mirror-insights-card-cta-js"></script><script type="module" src="js/mirror-motion.js"></script></head>
 <body style="font-family:system-ui,sans-serif;padding:2rem;line-height:1.5" data-nf-layout="default">
-  <p>This mirror uses <strong>insights-engineering-community.html</strong> as the Engineering feed.</p>
-  <p><a href="insights-engineering-community.html">Continue to Engineering</a></p>
+  <p>This mirror uses <strong>insights-engineering-community.html</strong> as the Communities feed.</p>
+  <p><a href="insights-engineering-community.html">Continue to Communities</a></p>
 
 
 <div id="ux-audit-spacer" style="height:56px" aria-hidden="true"></div>
@@ -57,5 +57,25 @@
   el.addEventListener('input', function () {
     try { localStorage.setItem(k, el.value); } catch (e) {}
   });
+})();
+</script><script id="nf-communities-nav-sync">
+(function () {
+  function sync() {
+    try {
+      document.querySelectorAll('a[href="engineering.html"]').forEach(function (a) {
+        var t = (a.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!t) return;
+        if (/engineering/i.test(t) && !/communities/i.test(t)) a.textContent = 'Communities';
+      });
+      var ti = document.title || '';
+      if (/Communities/i.test(ti)) {
+        document.title = ti.replace(/Communities/gi, 'Communities');
+      } else if (/^\s*Engineering\s*\|/i.test(ti)) {
+        document.title = ti.replace(/^\s*Engineering\s*\|/i, 'Communities |');
+      }
+    } catch (e0) {}
+  }
+  sync();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync);
 })();
 </script></body></html>

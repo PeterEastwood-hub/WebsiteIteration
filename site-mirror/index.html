@@ -50,10 +50,10 @@
   }
 </style><link rel="stylesheet" href="css/mirror-a11y-flair.css" id="mirror-a11y-flair-css"><link rel="stylesheet" href="css/mirror-stripe-influence.css" id="mirror-stripe-influence-css"><link rel="stylesheet" href="css/mirror-content-rhythm.css" id="mirror-content-rhythm-css"><link rel="stylesheet" href="css/mirror-services-flair.css" id="mirror-services-flair-css"><script src="js/mirror-flair.js" defer="" id="mirror-flair-js"></script><script src="js/mirror-stripe-nav.js" defer="" id="mirror-stripe-nav-js"></script><script src="js/mirror-insights-card-cta.js" defer="" id="mirror-insights-card-cta-js"></script><script type="module" src="js/mirror-motion.js"></script></head>
 <body data-nf-layout="audit-index">
-  <h1>Scraped pages <span class="count">(410 files)</span></h1>
+  <h1>Scraped pages <span class="count">(416 files)</span></h1>
   <p>Mirror of <a href="https://nearform.com">nearform.com</a> for offline UX review. Homepage copy: <a href="mirrored-home.html">mirrored-home.html</a>. Tracking scripts were removed; notes field persists per path in <code>localStorage</code>.</p>
   <section>
-    <h2>(site root) <span class="count">(410)</span></h2>
+    <h2>(site root) <span class="count">(416)</span></h2>
     <ul>
       <li><a href="2026-the-year-ai-gets-real.html">2026-the-year-ai-gets-real.html</a></li>
       <li><a href="3-predictions-software-product-development.html">3-predictions-software-product-development.html</a></li>
@@ -219,6 +219,7 @@
       <li><a href="implementing-design-tokens-in-workflows.html">implementing-design-tokens-in-workflows.html</a></li>
       <li><a href="implementing-model-context-protocol-mcp-tips-tricks-and-pitfalls.html">implementing-model-context-protocol-mcp-tips-tricks-and-pitfalls.html</a></li>
       <li><a href="increasing-customer-engagement.html">increasing-customer-engagement.html</a></li>
+      <li><a href="industries-flat.html">industries-flat.html</a></li>
       <li><a href="industries.html">industries.html</a></li>
       <li><a href="innovate-or-stagnate-the-modernisation-imperative-for-telco-companies.html">innovate-or-stagnate-the-modernisation-imperative-for-telco-companies.html</a></li>
       <li><a href="insights_1.html">insights_1.html</a></li>
@@ -257,6 +258,10 @@
       <li><a href="insights-explore-community-nav.html">insights-explore-community-nav.html</a></li>
       <li><a href="insights-explore-iter6.html">insights-explore-iter6.html</a></li>
       <li><a href="insights-explore-iter7.html">insights-explore-iter7.html</a></li>
+      <li><a href="insights-explore-iter8-engineering.html">insights-explore-iter8-engineering.html</a></li>
+      <li><a href="insights-explore-iter8.html">insights-explore-iter8.html</a></li>
+      <li><a href="insights-explore-iter9-engineering.html">insights-explore-iter9-engineering.html</a></li>
+      <li><a href="insights-explore-iter9.html">insights-explore-iter9.html</a></li>
       <li><a href="insights-explore-leftnav.html">insights-explore-leftnav.html</a></li>
       <li><a href="insights-explore-list.html">insights-explore-list.html</a></li>
       <li><a href="insights-explore-mosaic.html">insights-explore-mosaic.html</a></li>
@@ -470,7 +475,32 @@
   </section>
 
 
-<div id="ux-audit-spacer" style="height:56px" aria-hidden="true"></div>
+<script id="nf-communities-nav-sync">
+(function () {
+  function sync() {
+    try {
+      document.querySelectorAll(
+        'a[href="engineering.html"], a[href="insights-engineering-community.html"], ' +
+          'a[href="insights-explore-iter8-engineering.html"], a[href="insights-explore-iter9-engineering.html"]',
+      ).forEach(function (a) {
+        var t = (a.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!t) return;
+        if (/engineering/i.test(t) && !/communities/i.test(t)) a.textContent = 'Communities';
+      });
+      var ti = document.title || '';
+      if (/Communities/i.test(ti)) {
+        document.title = ti.replace(/Communities/gi, 'Communities');
+      } else if (/^\s*Engineering\s*\|/i.test(ti)) {
+        document.title = ti.replace(/^\s*Engineering\s*\|/i, 'Communities |');
+      } else if (/^\s*Engineering\s*—\s*Iteration/i.test(ti)) {
+        document.title = ti.replace(/^\s*Engineering\s*—/i, 'Communities —');
+      }
+    } catch (e0) {}
+  }
+  sync();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync);
+})();
+</script><div id="ux-audit-spacer" style="height:56px" aria-hidden="true"></div>
 <div id="ux-audit-bar" role="region" aria-label="UX audit notes" style="position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:#12121a;color:#e8e8ef;padding:10px 16px;box-shadow:0 -4px 24px rgba(0,0,0,.35);font:14px/1.4 system-ui,-apple-system,sans-serif;display:flex;align-items:center;gap:12px;border-top:1px solid #2a2a38;">
   <label for="ux-audit-notes" style="white-space:nowrap;font-weight:600;flex-shrink:0;">UX notes</label>
   <input id="ux-audit-notes" type="text" placeholder="Notes for this page (saved locally in your browser)…" style="flex:1;min-width:0;padding:8px 12px;border-radius:8px;border:1px solid #3d3d52;background:#fff;color:#111;" autocomplete="off">
